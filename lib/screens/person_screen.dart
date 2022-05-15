@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_map/Order.dart';
 import 'package:google_map/google_map_api.dart';
 import 'package:google_map/screens/CustomDashboard_screen.dart';
-import 'package:google_map/screens/Dashboard_screen.dart';
+import 'package:google_map/screens/EmpDashboard.dart';
+import 'package:google_map/screens/Login_screen.dart';
 import 'package:google_map/screens/Register_screen.dart';
 
 class PersonalScreen extends StatefulWidget {
@@ -76,16 +77,17 @@ class _PersonalScreenState extends State<PersonalScreen> {
                 onPressed: () {
                   if (!isEmp && !isCustom) {
                   } else {
-                    if (isEmp) {
+                    if(isEmp){
                       Navigator.pushAndRemoveUntil(context,
                           MaterialPageRoute(builder: (context) {
-                        return const Register();
-                      }), (route) => false);
-                    } else {
+                            return Login(isEmp);
+                          }), (route) => false);
+                    }else{
+
                       Navigator.pushAndRemoveUntil(context,
                           MaterialPageRoute(builder: (context) {
-                        return const CustomDashboard();
-                      }), (route) => false);
+                            return Register(isEmp);
+                          }), (route) => false);
                     }
                   }
                 },

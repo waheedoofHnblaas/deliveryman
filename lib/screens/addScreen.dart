@@ -9,7 +9,7 @@ import 'package:google_map/conmponent/CustomTextField.dart';
 import 'package:google_map/custom.dart';
 import 'package:google_map/google_map_api.dart';
 import 'package:google_map/screens/CustomDashboard_screen.dart';
-import 'package:google_map/screens/Dashboard_screen.dart';
+import 'package:google_map/screens/EmpDashboard.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class AddScreen extends StatefulWidget {
@@ -183,7 +183,7 @@ class _AddScreenState extends State<AddScreen> {
                 child: OutlineButton(
                   color: Colors.green,
                   onPressed: () {
-                    Api.orders.add(
+                    Api.apiOrders.add(
                       Order(
                         deliveryUserNum: '',
                         received: false,
@@ -202,7 +202,7 @@ class _AddScreenState extends State<AddScreen> {
                                 )
                               : LatLng(double.parse(lat), double.parse(long)),
                         ),
-                        ownerUserNum: myUser.userNumber,
+                        ownerUserNum: 'userNumber',
                         items: '$choose1-$choose3-$choose2',
                         isWaitting: true,
                       ),

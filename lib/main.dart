@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:google_map/google_map_api.dart';
-import 'package:google_map/screens/CustomDashboard_screen.dart';
-import 'package:google_map/screens/Dashboard_screen.dart';
-import 'package:google_map/screens/Data_screen.dart';
-import 'package:google_map/screens/Register_screen.dart';
+import 'package:google_map/screens/MainDash.dart';
 import 'package:google_map/screens/person_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+late SharedPreferences preferences;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Api.getOrders(await Api.getMyLocation());
+  preferences = await SharedPreferences.getInstance();
+  // await Api.getOrders(await Api.getMyLocation());
   runApp(const MyApp());
 }
 
@@ -18,16 +18,18 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-
-
         primarySwatch: Colors.blue,
       ),
-      home: const Register(),
+      home: preferences.get('id') == null
+          ? PersonalScreen()
+          : MainDashboard(
+              preferences.get('name').toString(),
+              preferences.get('password').toString(),
+              preferences.get('phone').toString()),
     );
   }
 }

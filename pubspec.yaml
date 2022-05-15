@@ -39,7 +39,7 @@ dependencies:
   awesome_dialog: ^2.0.0
   geocoding: ^2.0.0
   http: ^0.13.4
-
+  shared_preferences: ^2.0.15
 
 
 dev_dependencies:

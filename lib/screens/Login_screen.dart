@@ -4,19 +4,59 @@ import 'package:flutter/material.dart';
 import 'package:google_map/conmponent/CustomButton.dart';
 import 'package:google_map/conmponent/CustomCirProgress.dart';
 import 'package:google_map/conmponent/CustomTextField.dart';
-import 'package:google_map/screens/Dashboard_screen.dart';
+import 'package:google_map/database/api.dart';
+import 'package:google_map/database/api_links.dart';
+import 'package:google_map/main.dart';
+import 'package:google_map/screens/EmpDashboard.dart';
+import 'package:google_map/screens/MainDash.dart';
 import 'package:google_map/screens/Register_screen.dart';
 
 class Login extends StatefulWidget {
-  const Login({Key? key}) : super(key: key);
+  Login(this.isEmp);
+
+  late bool isEmp;
 
   @override
   State<Login> createState() => _LoginState();
 }
 
-bool _btn = true;
-
 class _LoginState extends State<Login> {
+  String name = '', num = '', password = '';
+  final Api _api = Api();
+
+  login() async {
+    try {
+      var response = await _api.postRequest(
+        widget.isEmp ? loginLinkEmp : loginLinkCustom,
+        {
+          'name': name,
+          'password': password,
+        },
+      );
+
+      Navigator.pop(context);
+      if (response['status'] == 'success') {
+        preferences.setString('id', response['data']['id'].toString());
+        preferences.setString('name', response['data']['name'].toString());
+        preferences.setString(
+            'password', response['data']['password'].toString());
+        preferences.setString('phone', response['data']['phone'].toString());
+        Navigator.pushAndRemoveUntil(context,
+            MaterialPageRoute(builder: (context) {
+          return MainDashboard(
+            preferences.get('name').toString(),
+            preferences.get('password').toString(),
+            preferences.get('phone').toString(),
+          );
+        }), (route) => false);
+      } else {
+        print('register failed ${response['status']}');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,28 +72,32 @@ class _LoginState extends State<Login> {
               SizedBox(
                 height: 20,
               ),
-              CustomeTextFeild(() {}, 'your personal name', '', context),
-              CustomeTextFeild(() {}, 'your phone number', '', context),
-              _btn
-                  ? CustomeButton(() {
-                      setState(() {
-                        _btn = false;
-                      });
-                      Timer(Duration(seconds: 5), () {});
-                      Navigator.pushAndRemoveUntil(context,
-                          MaterialPageRoute(builder: (context) {
-                        return Dashboard();
-                      }), (route) => false);
-                    }, 'register', context)
-                  : CustomeCircularProgress(context),
-              TextButton(
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(context,
-                        MaterialPageRoute(builder: (context) {
-                      return Register();
-                    }), (route) => false);
-                  },
-                  child: Text('you have not acount ?'))
+              CustomeTextFeild((val) {
+                setState(() {
+                  name = val;
+                });
+              }, 'your personal name', '', context),
+              CustomeTextFeild((val) {
+                setState(() {
+                  password = val;
+                });
+              }, 'your password', '', context),
+              CustomeButton(() async {
+                if (name != '' && password != '') {
+                  CustomeCircularProgress(context);
+                  await login();
+                } else {}
+              }, 'login', context),
+              widget.isEmp
+                  ? Container()
+                  : TextButton(
+                      onPressed: () {
+                        Navigator.pushAndRemoveUntil(context,
+                            MaterialPageRoute(builder: (context) {
+                          return Register(false);
+                        }), (route) => false);
+                      },
+                      child: Text('you have not acount ?'))
             ],
           ),
         ),

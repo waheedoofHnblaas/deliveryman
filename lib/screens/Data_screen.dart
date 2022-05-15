@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_map/Order.dart';
 import 'package:google_map/google_map_api.dart';
-import 'package:google_map/screens/Dashboard_screen.dart';
+import 'package:google_map/screens/EmpDashboard.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -28,7 +28,7 @@ class _DataOrder_screenState extends State<DataOrder_screen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(Api.getMyUserByNumber(widget.order.ownerUserNum).userName),
+        title: Text(widget.order.ownerUserNum),
         centerTitle: true,
       ),
       body: Center(
@@ -136,7 +136,7 @@ class _DataOrder_screenState extends State<DataOrder_screen> {
                           ? OutlineButton.icon(
                               onPressed: () {
                                 Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context){
-                                  return  const Dashboard();
+                                  return  const EmpDashboard();
                                 }), (route) => false).whenComplete(() {
                                   widget.order.isWaitting = false;
                                 });

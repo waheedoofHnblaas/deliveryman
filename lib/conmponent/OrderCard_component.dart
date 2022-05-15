@@ -32,7 +32,7 @@ Widget CardOrder_component(
                 elevation: 5,
                 child: ListTile(
                   title: Text('$destanse meter'),
-                  subtitle: Text(Api.getMyUserByNumber(order.ownerUserNum).userName),
+                  subtitle: Text('username'),
                   leading: order.isWaitting
                       ? const Padding(
                           padding: EdgeInsets.all(8.0),
