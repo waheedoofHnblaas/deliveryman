@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_map/screens/CustomDashboard_screen.dart';
 import 'package:google_map/screens/MainDash.dart';
 import 'package:google_map/screens/person_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,10 +27,16 @@ class MyApp extends StatelessWidget {
       ),
       home: preferences.get('id') == null
           ? PersonalScreen()
-          : MainDashboard(
-              preferences.get('name').toString(),
-              preferences.get('password').toString(),
-              preferences.get('phone').toString()),
+          : preferences.getBool('isEmp')!
+              ? MainDashboard(
+                  preferences.get('name').toString(),
+                  preferences.get('password').toString(),
+                  preferences.get('phone').toString())
+              : CustomDashboard(
+                  preferences.get('name').toString(),
+                  preferences.get('password').toString(),
+                  preferences.get('phone').toString(),
+                )
     );
   }
 }

@@ -6,7 +6,6 @@ import 'package:google_map/conmponent/CustomButton.dart';
 import 'package:google_map/conmponent/CustomCirProgress.dart';
 import 'package:google_map/conmponent/CustomTextField.dart';
 import 'package:google_map/database/api.dart';
-import 'package:google_map/screens/EmpDashboard.dart';
 import 'package:google_map/screens/Login_screen.dart';
 import 'package:google_map/database/api_links.dart';
 import 'package:google_map/screens/MainDash.dart';
@@ -22,7 +21,7 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   String name = '', num = '', password = '';
-  final Api _api = Api();
+  final PhpApi _api = PhpApi();
 
   regist() async {
     try {
@@ -101,7 +100,7 @@ class _RegisterState extends State<Register> {
                     onPressed: () {
                       Navigator.pushAndRemoveUntil(context,
                           MaterialPageRoute(builder: (context) {
-                        return Login(widget.isEmp);
+                        return Login(false);
                       }), (route) => false);
                     },
                     child: const Text('you have acount ?'))

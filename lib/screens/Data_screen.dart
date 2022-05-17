@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_map/Order.dart';
-import 'package:google_map/google_map_api.dart';
-import 'package:google_map/screens/EmpDashboard.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -111,7 +109,7 @@ class _DataOrder_screenState extends State<DataOrder_screen> {
                                     children: List.generate(widget.order.items.length,
                                         (index) => Padding(
                                           padding: const EdgeInsets.all(8.0),
-                                          child: Text(widget.order.items[index]),
+                                          child: Text(widget.order.items[index].name),
                                         )))),
                           ),
                           Column(
@@ -135,11 +133,11 @@ class _DataOrder_screenState extends State<DataOrder_screen> {
                       check
                           ? OutlineButton.icon(
                               onPressed: () {
-                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context){
-                                  return  const EmpDashboard();
-                                }), (route) => false).whenComplete(() {
-                                  widget.order.isWaitting = false;
-                                });
+                                // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context){
+                                //   return  const ();
+                                // }), (route) => false).whenComplete(() {
+                                //   widget.order.isWaitting = false;
+                                // });
                               },
                               icon:  const Icon(Icons.done),
                               label:  const Text('done'))

@@ -5,11 +5,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_map/Order.dart';
+import 'package:google_map/conmponent/CustomCirProgress.dart';
 import 'package:google_map/conmponent/CustomTextField.dart';
 import 'package:google_map/custom.dart';
+import 'package:google_map/database/api.dart';
+import 'package:google_map/database/api_links.dart';
 import 'package:google_map/google_map_api.dart';
+import 'package:google_map/main.dart';
 import 'package:google_map/screens/CustomDashboard_screen.dart';
-import 'package:google_map/screens/EmpDashboard.dart';
+import 'package:google_map/screens/Login_screen.dart';
+import 'package:google_map/screens/person_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class AddScreen extends StatefulWidget {
@@ -21,9 +26,76 @@ class AddScreen extends StatefulWidget {
   State<AddScreen> createState() => _AddScreenState();
 }
 
-String lat = '', long = '', id = '';
-
 class _AddScreenState extends State<AddScreen> {
+  String lat = '', long = '', id = '';
+  final PhpApi _api = PhpApi();
+
+  Api API = Api();
+
+  addOrder() async {
+    Position myLocation = await API.getMyLocation();
+    try {
+      API.apiOrders.forEach(
+        (element) {
+          if (element.ownerUserNum == preferences.getString('id')) {
+            print(element.ownerUserNum);
+            if (!element.received) {
+              print(element.received);
+              print('============================');
+
+              throw '';
+            }
+          }
+        },
+      );
+
+
+    } catch (e) {
+      Navigator.pushAndRemoveUntil(context,
+          MaterialPageRoute(builder: (context) {
+        return CustomDashboard(
+            preferences.getString('name')!,
+            preferences.getString('password')!,
+            preferences.getString('phone')!);
+      }), (route) => false);
+    }
+
+    try {
+      var response = await _api.postRequest(
+        addorederLink,
+        {
+          'owner_id': preferences.get('id').toString(),
+          'delivery_id': '0',
+          'isWaiting': '1',
+          'isRecieved': '0',
+          'lat': lat,
+          'long': long,
+          'createTime':
+              '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}'
+                  '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
+          'item_id': '3',
+          'item_id2': '3',
+          'item_id3': '3',
+        },
+      );
+      if (response['status'] == 'success') {
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+          builder: (context) {
+            return CustomDashboard(
+              preferences.get('name').toString(),
+              preferences.get('password').toString(),
+              preferences.get('phone').toString(),
+            );
+          },
+        ), (route) => false);
+      } else {
+        print('add failed ${response['status']}');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   var items = [
     '',
     'Item 1',
@@ -47,7 +119,6 @@ class _AddScreenState extends State<AddScreen> {
 
   @override
   void initState() {
-    id = Random().nextInt(999999).toString();
     setState(() {
       lat = widget.latLng.latitude.toString();
       long = widget.latLng.longitude.toString();
@@ -139,7 +210,6 @@ class _AddScreenState extends State<AddScreen> {
               ListTile(
                 subtitle: Center(
                   child: DropdownButton(
-
                     isExpanded: true,
                     value: choose2,
                     items: items.map((String items) {
@@ -182,33 +252,10 @@ class _AddScreenState extends State<AddScreen> {
                 width: MediaQuery.of(context).size.width / 2,
                 child: OutlineButton(
                   color: Colors.green,
-                  onPressed: () {
-                    Api.apiOrders.add(
-                      Order(
-                        deliveryUserNum: '',
-                        received: false,
-                        orderTime: DateTime.now(),
-                        marker: Marker(
-                          icon: BitmapDescriptor.defaultMarkerWithHue(
-                            BitmapDescriptor.hueRed,
-                          ),
-                          markerId: MarkerId(id),
-                          infoWindow:
-                              InfoWindow(title: '$choose1 $choose2 $choose3'),
-                          position: lat == ''
-                              ? LatLng(
-                                  widget.latLng.latitude,
-                                  widget.latLng.longitude,
-                                )
-                              : LatLng(double.parse(lat), double.parse(long)),
-                        ),
-                        ownerUserNum: 'userNumber',
-                        items: '$choose1-$choose3-$choose2',
-                        isWaitting: true,
-                      ),
-                    );
+                  onPressed: () async {
+                    CustomeCircularProgress(context);
 
-                    Navigator.pop(context);
+                    await addOrder();
                   },
                   child: const Text('sure'),
                 ),

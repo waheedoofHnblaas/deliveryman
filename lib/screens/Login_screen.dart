@@ -7,7 +7,7 @@ import 'package:google_map/conmponent/CustomTextField.dart';
 import 'package:google_map/database/api.dart';
 import 'package:google_map/database/api_links.dart';
 import 'package:google_map/main.dart';
-import 'package:google_map/screens/EmpDashboard.dart';
+import 'package:google_map/screens/CustomDashboard_screen.dart';
 import 'package:google_map/screens/MainDash.dart';
 import 'package:google_map/screens/Register_screen.dart';
 
@@ -22,7 +22,7 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   String name = '', num = '', password = '';
-  final Api _api = Api();
+  final PhpApi _api = PhpApi();
 
   login() async {
     try {
@@ -34,8 +34,10 @@ class _LoginState extends State<Login> {
         },
       );
 
-      Navigator.pop(context);
       if (response['status'] == 'success') {
+
+        print('++++++++++++++++++++++++++++++++++++++ ${response['data']['id']}');
+        preferences.setBool('isEmp', widget.isEmp);
         preferences.setString('id', response['data']['id'].toString());
         preferences.setString('name', response['data']['name'].toString());
         preferences.setString(
@@ -43,13 +45,18 @@ class _LoginState extends State<Login> {
         preferences.setString('phone', response['data']['phone'].toString());
         Navigator.pushAndRemoveUntil(context,
             MaterialPageRoute(builder: (context) {
-          return MainDashboard(
+          return   widget.isEmp ? MainDashboard(
+            preferences.get('name').toString(),
+            preferences.get('password').toString(),
+            preferences.get('phone').toString(),
+          ):CustomDashboard(
             preferences.get('name').toString(),
             preferences.get('password').toString(),
             preferences.get('phone').toString(),
           );
         }), (route) => false);
       } else {
+
         print('register failed ${response['status']}');
       }
     } catch (e) {
@@ -86,6 +93,7 @@ class _LoginState extends State<Login> {
                 if (name != '' && password != '') {
                   CustomeCircularProgress(context);
                   await login();
+
                 } else {}
               }, 'login', context),
               widget.isEmp
@@ -94,7 +102,7 @@ class _LoginState extends State<Login> {
                       onPressed: () {
                         Navigator.pushAndRemoveUntil(context,
                             MaterialPageRoute(builder: (context) {
-                          return Register(false);
+                          return Register(widget.isEmp);
                         }), (route) => false);
                       },
                       child: Text('you have not acount ?'))

@@ -1,30 +1,30 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_map/Order.dart';
 import 'package:google_map/conmponent/CustomCirProgress.dart';
-import 'package:google_map/conmponent/OrderCard_component.dart';
-import 'package:google_map/custom.dart';
 import 'package:google_map/google_map_api.dart';
-import 'package:google_map/screens/EmpDashboard.dart';
+import 'package:google_map/main.dart';
 import 'package:google_map/screens/Login_screen.dart';
+import 'package:google_map/screens/Register_screen.dart';
 import 'package:google_map/screens/addScreen.dart';
+import 'package:google_map/screens/person_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../google_map_api.dart';
+
 class CustomDashboard extends StatefulWidget {
-  const CustomDashboard({Key? key}) : super(key: key);
+  CustomDashboard(String this.name, String this.password, String this.phone);
+
+  late String name, phone, password;
 
   @override
   State<CustomDashboard> createState() => _DashboardState();
 }
-
-
-bool choose = false;
-bool sure = false;
-List<Marker> chooseMarker = [Marker(markerId: MarkerId('896678697869788'))];
 
 bool ttt = false;
 Position myLocation = Position(
@@ -38,6 +38,8 @@ Position myLocation = Position(
     speedAccuracy: 1);
 
 class _DashboardState extends State<CustomDashboard> {
+  Api API = Api();
+
   Future<void> getPos() async {
     try {
       LocationPermission per = await Geolocator.checkPermission();
@@ -45,7 +47,7 @@ class _DashboardState extends State<CustomDashboard> {
         per = await Geolocator.requestPermission();
         if (per != LocationPermission.always) {}
       }
-      myLocation = await Api.getMyLocation();
+      myLocation = await API.getMyLocation();
       setState(() {
         ttt = true;
       });
@@ -56,6 +58,7 @@ class _DashboardState extends State<CustomDashboard> {
         return Login(false);
       }), (route) => false);
     }
+    await API.getMainOrder(myLocation,context);
   }
 
   getPlaces(latitude, longitude) async {
@@ -76,6 +79,8 @@ class _DashboardState extends State<CustomDashboard> {
 
   GoogleMapController? _googleMapController;
 
+  List<Order> orders = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,26 +90,67 @@ class _DashboardState extends State<CustomDashboard> {
         elevation: 0,
         title: const Text('my orders map'),
         actions: [
-
+          IconButton(
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(context,
+                    MaterialPageRoute(builder: (context) {
+                  return CustomDashboard(
+                      widget.name, widget.password, widget.phone);
+                }), (route) => false);
+              },
+              icon: Icon(CupertinoIcons.refresh)),
+          IconButton(
+              onPressed: () {
+                preferences.clear();
+                Navigator.pushAndRemoveUntil(context,
+                    MaterialPageRoute(builder: (context) {
+                  return PersonalScreen();
+                }), (route) => false);
+              },
+              icon: Icon(CupertinoIcons
+                  .rectangle_arrow_up_right_arrow_down_left_slash)),
         ],
       ),
-
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterFloat,
       floatingActionButton: FloatingActionButton(
-          onPressed: () {
-
+          onPressed: () async {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return AddScreen(
+                  LatLng(myLocation.latitude, myLocation.longitude));
+            }));
           },
-          child: const Icon(Icons.add,color: Colors.black,)),
+          child: const Icon(
+            Icons.add,
+            color: Colors.black,
+          )),
       backgroundColor: Colors.white,
       body: Center(
         child: ttt
-            ? SafeArea(
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width - 11,
+            ? FutureBuilder<List<Order>>(
+                future: API.getMainOrder(myLocation,context),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData &&
+                      !snapshot.hasError &&
+                      snapshot.connectionState == ConnectionState.done) {
+                    List<Marker> marks = [];
+                    for (Order order in snapshot.data!) {
+                      marks.add(order.marker);
+                    }
 
-              ),
-            )
+                    return GoogleMap(
+                      markers: Set.of(marks),
+                      initialCameraPosition: CameraPosition(
+                        target:
+                            LatLng(myLocation.latitude, myLocation.longitude),
+                        zoom: 10,
+                      ),
+                    );
+                  } else {
+                    return CustomeCircularProgress(context);
+                  }
+                },
+              )
             : CustomeCircularProgress(context),
       ),
     );

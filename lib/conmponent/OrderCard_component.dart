@@ -109,7 +109,7 @@ Widget CardOrder_component(
                           child: ListView(
                             scrollDirection: Axis.vertical,
                             children:
-                                List.generate(order.items.split('-').length, (index) {
+                                List.generate(order.items.length, (index) {
                               return Card(
                                 color: Colors.green[100],
                                   child: Padding(

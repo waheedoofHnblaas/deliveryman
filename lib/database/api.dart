@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-class Api {
+class PhpApi {
   getRequest(url) async {
     try {
       var response = await http.get(Uri.parse(url));
@@ -24,7 +24,6 @@ class Api {
         Uri.parse(url),
         body: data,
       );
-      print('statusCode : ${response.statusCode}');
       return jsonDecode(response.body);
     } catch (e) {
       print('catch get Requset error $e}');

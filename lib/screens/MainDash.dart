@@ -1,33 +1,20 @@
 import 'dart:async';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_map/Order.dart';
 import 'package:google_map/conmponent/CustomCirProgress.dart';
 import 'package:google_map/conmponent/OrderCard_component.dart';
 import 'package:google_map/google_map_api.dart';
+import 'package:google_map/main.dart';
 import 'package:google_map/screens/CustomDashboard_screen.dart';
 import 'package:google_map/screens/Login_screen.dart';
+import 'package:google_map/screens/Register_screen.dart';
 import 'package:google_map/screens/addScreen.dart';
+import 'package:google_map/screens/person_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class MainDashboard extends StatefulWidget {
-  MainDashboard(
-    String this.name,
-    String this.password,
-    String this.num,
-  );
-
-  late String name, num, password;
-
-  @override
-  State<MainDashboard> createState() => _EmpDashboardState();
-}
-
-bool choose = false;
-List<Marker> chooseMarker = [Marker(markerId: MarkerId(''))];
-
-bool ttt = false;
 Position myLocation = Position(
     longitude: 37.166668,
     latitude: 36.216667,
@@ -38,7 +25,27 @@ Position myLocation = Position(
     speed: 1,
     speedAccuracy: 1);
 
+class MainDashboard extends StatefulWidget {
+  MainDashboard(
+    String this.name,
+    String this.password,
+    String this.phone,
+  );
+
+  late String name, phone, password;
+
+  @override
+  State<MainDashboard> createState() => _EmpDashboardState();
+}
+
+bool choose = false;
+List<Marker> chooseMarker = [Marker(markerId: MarkerId(''))];
+
+bool ttt = false;
+
 class _EmpDashboardState extends State<MainDashboard> {
+  Api API = Api();
+
   Future<void> getPos() async {
     try {
       LocationPermission per = await Geolocator.checkPermission();
@@ -46,7 +53,7 @@ class _EmpDashboardState extends State<MainDashboard> {
         per = await Geolocator.requestPermission();
         if (per != LocationPermission.always) {}
       }
-      myLocation = await Api.getMyLocation();
+      myLocation = await API.getMyLocation();
       setState(() {
         ttt = true;
       });
@@ -92,12 +99,33 @@ class _EmpDashboardState extends State<MainDashboard> {
         backgroundColor: Colors.blue[400],
         foregroundColor: Colors.black,
         elevation: 0,
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(context,
+                    MaterialPageRoute(builder: (context) {
+                      return CustomDashboard(
+                          widget.name, widget.password, widget.phone);
+                    }), (route) => false);
+              },
+              icon: Icon(CupertinoIcons.refresh)),
+          IconButton(
+              onPressed: () {
+                preferences.clear();
+                Navigator.pushAndRemoveUntil(context,
+                    MaterialPageRoute(builder: (context) {
+                  return PersonalScreen();
+                }), (route) => false);
+              },
+              icon: Icon(CupertinoIcons
+                  .rectangle_arrow_up_right_arrow_down_left_slash)),
+        ],
         title: Text('Orders'),
       ),
       body: Center(
         child: ttt
             ? FutureBuilder<List<Order>>(
-                future: Api.getMainOrder(myLocation),
+                future: API.getMainOrder(myLocation,context),
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       !snapshot.hasError &&
@@ -105,7 +133,6 @@ class _EmpDashboardState extends State<MainDashboard> {
                     List<Marker> marks = [];
                     for (Order order in snapshot.data!) {
                       print(order.items);
-
                       marks.add(order.marker);
                     }
                     return GoogleMap(

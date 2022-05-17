@@ -1,14 +1,15 @@
+import 'package:google_map/Item.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Order {
   late String deliveryUserNum;
   late bool isWaitting;
   late bool received;
-  late DateTime orderTime;
+  late String orderTime;
   late Marker marker;
   late String ownerUserNum;
 
-  late String items;
+  late List<Item> items;
 
   Order({
     deliveryUserNum,
