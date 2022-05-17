@@ -82,7 +82,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
 
                       Navigator.pushAndRemoveUntil(context,
                           MaterialPageRoute(builder: (context) {
-                            return Register(isEmp);
+                            return Login(isEmp);
                           }), (route) => false);
                     }
                   }

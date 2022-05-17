@@ -104,7 +104,7 @@ class _EmpDashboardState extends State<MainDashboard> {
               onPressed: () {
                 Navigator.pushAndRemoveUntil(context,
                     MaterialPageRoute(builder: (context) {
-                      return CustomDashboard(
+                      return MainDashboard(
                           widget.name, widget.password, widget.phone);
                     }), (route) => false);
               },
@@ -125,7 +125,7 @@ class _EmpDashboardState extends State<MainDashboard> {
       body: Center(
         child: ttt
             ? FutureBuilder<List<Order>>(
-                future: API.getMainOrder(myLocation,context),
+                future: API.getMainOrders(myLocation,context),
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       !snapshot.hasError &&
@@ -136,6 +136,8 @@ class _EmpDashboardState extends State<MainDashboard> {
                       marks.add(order.marker);
                     }
                     return GoogleMap(
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: true,
                       markers: Set.of(marks),
                       initialCameraPosition: CameraPosition(
                         target:

@@ -6,6 +6,8 @@ import 'package:google_map/conmponent/CustomButton.dart';
 import 'package:google_map/conmponent/CustomCirProgress.dart';
 import 'package:google_map/conmponent/CustomTextField.dart';
 import 'package:google_map/database/api.dart';
+import 'package:google_map/main.dart';
+import 'package:google_map/screens/CustomDashboard_screen.dart';
 import 'package:google_map/screens/Login_screen.dart';
 import 'package:google_map/database/api_links.dart';
 import 'package:google_map/screens/MainDash.dart';
@@ -20,7 +22,7 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  String name = '', num = '', password = '';
+  String name = '', phone = '', password = '';
   final PhpApi _api = PhpApi();
 
   regist() async {
@@ -30,16 +32,17 @@ class _RegisterState extends State<Register> {
         {
           'name': name,
           'password': password,
-          'phone': num,
+          'phone': phone,
         },
       );
 
-      Navigator.pop(context);
-      if (response['status'] == 'success') {
+      if (response['status'] == 'user is here') {
+        AwesomeDialog(context: context,title: 'user is exist').show();
+      } else if (response['status'] == 'success') {
         Navigator.pushAndRemoveUntil(context,
             MaterialPageRoute(builder: (context) {
-          return Login(widget.isEmp);
-        }), (route) => false);
+              return CustomDashboard(name, password, phone);
+            }), (route) => false);
       } else {
         print('register failed ${response['status']}');
       }
@@ -71,7 +74,7 @@ class _RegisterState extends State<Register> {
                 }, 'your personal name', '', context),
                 CustomeTextFeild((v) {
                   setState(() {
-                    num = v;
+                    phone = v;
                   });
                 }, 'your phone number', '', context,
                     isNumber: TextInputType.number),
@@ -82,7 +85,7 @@ class _RegisterState extends State<Register> {
                 }, 'your phone password', '', context),
                 CustomeButton(
                   () async {
-                    if (name == '' || password == '' || num == '') {
+                    if (name == '' || password == '' || phone == '') {
                       AwesomeDialog(
                               context: context,
                               dialogType: DialogType.ERROR,

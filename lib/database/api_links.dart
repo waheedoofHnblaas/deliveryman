@@ -13,4 +13,5 @@ const String getordersLink = '${server}getorders.php';
 const String addorederLink = '${server}addorder.php';
 const String deleteorederLink = '${server}deleteorder.php';
 const String getorderUpdateLink = '${server}getorderupdate.php';
+const String doneorderUpdateLink = '${server}doneorderupdate.php';
 const String getorederItemsLink = '${server}getorderitems.php';

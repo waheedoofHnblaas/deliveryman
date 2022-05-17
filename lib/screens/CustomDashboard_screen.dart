@@ -58,7 +58,7 @@ class _DashboardState extends State<CustomDashboard> {
         return Login(false);
       }), (route) => false);
     }
-    await API.getMainOrder(myLocation,context);
+    await API.getMyOrders(myLocation,context);
   }
 
   getPlaces(latitude, longitude) async {
@@ -88,7 +88,7 @@ class _DashboardState extends State<CustomDashboard> {
         backgroundColor: Colors.blue[400],
         foregroundColor: Colors.black,
         elevation: 0,
-        title: const Text('my orders map'),
+        title:  Text('${preferences.getString('name')} orders map'),
         actions: [
           IconButton(
               onPressed: () {
@@ -128,13 +128,14 @@ class _DashboardState extends State<CustomDashboard> {
       body: Center(
         child: ttt
             ? FutureBuilder<List<Order>>(
-                future: API.getMainOrder(myLocation,context),
+                future: API.getMyOrders(myLocation,context),
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       !snapshot.hasError &&
                       snapshot.connectionState == ConnectionState.done) {
                     List<Marker> marks = [];
                     for (Order order in snapshot.data!) {
+                      if(order.ownerUserNum==preferences.get('id').toString())
                       marks.add(order.marker);
                     }
 

@@ -14,6 +14,7 @@ import 'package:google_map/employee.dart';
 import 'package:google_map/main.dart';
 import 'package:google_map/screens/CustomDashboard_screen.dart';
 import 'package:google_map/screens/Data_screen.dart';
+import 'package:google_map/screens/MainDash.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -76,7 +77,98 @@ class Api {
 
   List<Order> apiOrders = [];
 
-  Future<List<Order>> getMainOrder(Position mylocation, conetxt) async {
+  Future<List<Order>> getMainOrders(Position mylocation, conetxt) async {
+    try {
+      var response = await http.get(Uri.parse(getordersLink));
+      print(jsonDecode(response.body));
+      final data = jsonDecode(response.body);
+      for (Map order in data) {
+        // String items = '';
+        // await getorderItems(order['order_id']).then((value) {
+        //   value.forEach((element) {
+        //     items = items +'-'+element.;
+        //   });
+        // });
+
+        String itemsName = '';
+        List<Item> items = await getorderItems(order['order_id']);
+        items.forEach((element) {
+          itemsName = itemsName + '-' + element.name;
+        });
+
+        apiOrders.add(
+          Order(
+            deliveryUserNum: order['delivery_id'],
+            orderTime: order['createTime'].toString(),
+            isWaitting: order['isWaiting'] == '0' ? false : true,
+            items: items,
+            received: order['isRecieved'] == '0' ? false : true,
+            ownerUserNum: order['owner_id'],
+            marker: Marker(
+              rotation: order['isWaiting'] == '1'
+                  ? 0
+                  : order['isRecieved'] == '1'
+                      ? 180
+                      : 90,
+              infoWindow: InfoWindow(
+                  onTap: () {
+                    if (order['isWaiting'] == '1' &&
+                        order['isRecieved'] == '0') {
+                      AwesomeDialog(
+                          context: conetxt,
+                          btnOkText: 'i well arrive it',
+                          btnOkOnPress: () async {
+                            await getOrderUpdata(order['order_id'].toString(),
+                                    preferences.getString('id')!)
+                                .then((value) {
+                              value == 'success'
+                                  ? Navigator.pushAndRemoveUntil(conetxt,
+                                      MaterialPageRoute(builder: (conetxt) {
+                                      return MainDashboard(
+                                          preferences.getString('name')!,
+                                          preferences.getString('password')!,
+                                          preferences.getString('phone')!);
+                                    }), (route) => false)
+                                  : null;
+                            });
+                          }).show();
+                    } else {
+                      AwesomeDialog(
+                          context: conetxt,
+                          body: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text('this order has done'),
+                          )).show();
+                    }
+                  },
+                  snippet: itemsName + '  ' + order['order_id'].toString(),
+                  title: order['createTime']),
+              icon: BitmapDescriptor.defaultMarkerWithHue(
+                order['isWaiting'] == '1'
+                    ? BitmapDescriptor.hueGreen
+                    : order['isRecieved'] == '1'
+                        ? BitmapDescriptor.hueAzure
+                        : BitmapDescriptor.hueRed,
+              ),
+              markerId: MarkerId(order['order_id']),
+              position: LatLng(
+                double.parse(order['lat']),
+                double.parse(
+                  order['long'],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+      return apiOrders;
+    } catch (e) {
+      print('catch getMainOrder error $e}');
+      return [];
+    }
+  }
+
+  Future<List<Order>> getMyOrders(Position mylocation, conetxt) async {
     try {
       var response = await http.get(Uri.parse(getordersLink));
       print(jsonDecode(response.body));
@@ -135,36 +227,33 @@ class Api {
                     } else if (order['isWaiting'] == '0' &&
                         order['isRecieved'] == '0') {
                       AwesomeDialog(
-                              context: conetxt,
-                              btnOkText: 'i get it',
-                              btnOkOnPress: () async{
-                                await getorderUpdata(order['order_id'].toString())
-                                    .then((value) {
-                                  value == 'success'
-                                      ? Navigator.pushAndRemoveUntil(conetxt,
+                          context: conetxt,
+                          btnOkText: 'i get it',
+                          btnOkOnPress: () async {
+                            await doneOrderUpdata(order['order_id'].toString())
+                                .then((value) {
+                              value == 'success'
+                                  ? Navigator.pushAndRemoveUntil(conetxt,
                                       MaterialPageRoute(builder: (conetxt) {
-                                        return CustomDashboard(
-                                            preferences.getString('name')!,
-                                            preferences.getString('password')!,
-                                            preferences.getString('phone')!);
-                                      }), (route) => false)
-                                      : null;
-                                });
-                              },
-                              body: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text('your order on road ... you get it ?'),
-                              ))
-                          .show();
-                    }else{
+                                      return CustomDashboard(
+                                          preferences.getString('name')!,
+                                          preferences.getString('password')!,
+                                          preferences.getString('phone')!);
+                                    }), (route) => false)
+                                  : null;
+                            });
+                          },
+                          body: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text('your order on road ... you get it ?'),
+                          )).show();
+                    } else {
                       AwesomeDialog(
                           context: conetxt,
-
                           body: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text('your order has done'),
-                          ))
-                          .show();
+                          )).show();
                     }
                   },
                   snippet: itemsName + '  ' + order['order_id'].toString(),
@@ -212,11 +301,34 @@ class Api {
       return 'failed';
     }
   }
-  Future<String> getorderUpdata(String id) async {
+
+  Future<String> getOrderUpdata(String orderId, String deliveryId) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
         getorderUpdateLink,
+        {
+          'order_id': orderId,
+          'delivery_id': deliveryId,
+        },
+      );
+      if (response['status'] == 'success') {
+        return 'success';
+      } else {
+        print('add failed ${response['status']}');
+        return 'failed';
+      }
+    } catch (e) {
+      print(e);
+      return 'failed';
+    }
+  }
+
+  Future<String> doneOrderUpdata(String id) async {
+    try {
+      PhpApi _api = PhpApi();
+      var response = await _api.postRequest(
+        doneorderUpdateLink,
         {'id': id},
       );
       if (response['status'] == 'success') {
