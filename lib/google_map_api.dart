@@ -90,37 +90,51 @@ class Api {
         //   });
         // });
 
+        int destance = Geolocator.distanceBetween(
+                mylocation.latitude,
+                mylocation.longitude,
+                double.parse(order['lat']),
+                double.parse(order['long']))
+            .ceil();
         String itemsName = '';
         List<Item> items = await getorderItems(order['order_id']);
         items.forEach((element) {
-          itemsName = itemsName + '-' + element.name;
+          itemsName = element.name + '-' + itemsName;
         });
 
-        apiOrders.add(
-          Order(
-            deliveryUserNum: order['delivery_id'],
-            orderTime: order['createTime'].toString(),
-            isWaitting: order['isWaiting'] == '0' ? false : true,
-            items: items,
-            received: order['isRecieved'] == '0' ? false : true,
-            ownerUserNum: order['owner_id'],
-            marker: Marker(
-              rotation: order['isWaiting'] == '1'
-                  ? 0
-                  : order['isRecieved'] == '1'
-                      ? 180
-                      : 90,
-              infoWindow: InfoWindow(
-                  onTap: () {
+        if (order['delivery_id'] == preferences.getString('id')! ||
+            order['isWaiting'] == '1' ||
+            preferences.getString('id') == '0') {
+          apiOrders.add(
+            Order(
+              deliveryUserNum: order['delivery_id'],
+              orderTime: order['createTime'].toString(),
+              isWaitting: order['isWaiting'] == '0' ? false : true,
+              items: items,
+              received: order['isRecieved'] == '0' ? false : true,
+              ownerUserNum: order['owner_id'],
+              marker: Marker(
+                rotation: order['isWaiting'] == '1'
+                    ? 0
+                    : order['isRecieved'] == '1'
+                        ? 180
+                        : 90,
+                infoWindow: InfoWindow(
+                  onTap: () async {
+                    var delivery = await getUserNameById(
+                        order['delivery_id'], getEmployeeByIdLink);
                     if (order['isWaiting'] == '1' &&
                         order['isRecieved'] == '0') {
                       AwesomeDialog(
                           context: conetxt,
                           btnOkText: 'i well arrive it',
                           btnOkOnPress: () async {
-                            await getOrderUpdata(order['order_id'].toString(),
-                                    preferences.getString('id')!)
-                                .then((value) {
+                            await updateGettingOrder(
+                              order['order_id'].toString(),
+                              preferences.getString('id')!,
+                              '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}'
+                              '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
+                            ).then((value) {
                               value == 'success'
                                   ? Navigator.pushAndRemoveUntil(conetxt,
                                       MaterialPageRoute(builder: (conetxt) {
@@ -132,39 +146,70 @@ class Api {
                                   : null;
                             });
                           }).show();
+                    } else if (order['isWaiting'] == '0' &&
+                        order['isRecieved'] == '0') {
+                      AwesomeDialog(
+                          context: conetxt,
+                          body: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                                'this order with dilevery : ${delivery.userName}'),
+                          )).show();
                     } else {
                       AwesomeDialog(
                           context: conetxt,
                           body: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text('this order has done'),
+                            child: Text(
+                                'this order has done by : ${delivery.userName}'),
                           )).show();
                     }
                   },
-                  snippet: itemsName + '  ' + order['order_id'].toString(),
-                  title: order['createTime']),
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                order['isWaiting'] == '1'
-                    ? BitmapDescriptor.hueGreen
-                    : order['isRecieved'] == '1'
-                        ? BitmapDescriptor.hueAzure
-                        : BitmapDescriptor.hueRed,
-              ),
-              markerId: MarkerId(order['order_id']),
-              position: LatLng(
-                double.parse(order['lat']),
-                double.parse(
-                  order['long'],
+                  snippet: itemsName + '  ' + destance.toString() + 'm',
+                  title: order['createTime'],
+                ),
+                icon: BitmapDescriptor.defaultMarkerWithHue(
+                  order['isWaiting'] == '1'
+                      ? BitmapDescriptor.hueGreen
+                      : order['isRecieved'] == '1'
+                          ? BitmapDescriptor.hueAzure
+                          : BitmapDescriptor.hueRed,
+                ),
+                markerId: MarkerId(order['order_id']),
+                position: LatLng(
+                  double.parse(order['lat']),
+                  double.parse(
+                    order['long'],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
+          );
+        }
       }
       return apiOrders;
     } catch (e) {
       print('catch getMainOrder error $e}');
       return [];
+    }
+  }
+
+  Future<Employee> getUserNameById(String Id, String link) async {
+    try {
+      final PhpApi _api = PhpApi();
+      var res = await _api.postRequest(link, {'id': Id});
+
+      // List<dynamic> data = jsonDecode(res);
+
+      return Employee(
+        password: res['password'],
+        userName: res['name'],
+        phone: res['phone'],
+        id: res['id'],
+      );
+    } catch (e) {
+      print('catch getItems error $e}');
+      return jsonDecode(e.toString());
     }
   }
 
@@ -202,7 +247,10 @@ class Api {
                       ? 180
                       : 90,
               infoWindow: InfoWindow(
-                  onTap: () {
+                  onTap: () async {
+                    var delivery = await getUserNameById(
+                        order['delivery_id'], getEmployeeByIdLink);
+
                     if (order['isWaiting'] == '1' &&
                         order['isRecieved'] == '0') {
                       AwesomeDialog(
@@ -230,7 +278,9 @@ class Api {
                           context: conetxt,
                           btnOkText: 'i get it',
                           btnOkOnPress: () async {
-                            await doneOrderUpdata(order['order_id'].toString())
+                            await updateDoneOrder(order['order_id'].toString(),
+                              '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}'
+                                  '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',)
                                 .then((value) {
                               value == 'success'
                                   ? Navigator.pushAndRemoveUntil(conetxt,
@@ -245,14 +295,19 @@ class Api {
                           },
                           body: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text('your order on road ... you get it ?'),
+                            child: Text(
+                              'your order on road with : ${delivery.userName}... you get it ?',
+                              textAlign: TextAlign.center,
+                            ),
                           )).show();
                     } else {
                       AwesomeDialog(
                           context: conetxt,
                           body: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text('your order has done'),
+                            child: Text(
+                                'your order has done by : ${delivery.userName}'
+                                ''),
                           )).show();
                     }
                   },
@@ -302,7 +357,8 @@ class Api {
     }
   }
 
-  Future<String> getOrderUpdata(String orderId, String deliveryId) async {
+  Future<String> updateGettingOrder(
+      String orderId, String deliveryId, String getDelTime) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
@@ -310,6 +366,7 @@ class Api {
         {
           'order_id': orderId,
           'delivery_id': deliveryId,
+          'getDelTime': getDelTime,
         },
       );
       if (response['status'] == 'success') {
@@ -324,12 +381,12 @@ class Api {
     }
   }
 
-  Future<String> doneOrderUpdata(String id) async {
+  Future<String> updateDoneOrder(String id,String doneCustTime) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
         doneorderUpdateLink,
-        {'id': id},
+        {'id': id,'doneCustTime':doneCustTime},
       );
       if (response['status'] == 'success') {
         return 'success';
@@ -348,6 +405,10 @@ class Api {
     try {
       final PhpApi _api = PhpApi();
       var res = await _api.postRequest(getorederItemsLink, {'id': orderID});
+
+      if (orderID == 'all') {
+        res = await _api.postRequest(getitemsLink, {'id': orderID});
+      }
 
       // List<dynamic> data = jsonDecode(res);
 

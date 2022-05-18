@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_map/conmponent/CustomButton.dart';
 import 'package:google_map/conmponent/CustomCirProgress.dart';
@@ -35,8 +37,8 @@ class _LoginState extends State<Login> {
       );
 
       if (response['status'] == 'success') {
-
-        print('++++++++++++++++++++++++++++++++++++++ ${response['data']['id']}');
+        print(
+            '++++++++++++++++++++++++++++++++++++++ ${response['data']['id']}');
         preferences.setBool('isEmp', widget.isEmp);
         preferences.setString('id', response['data']['id'].toString());
         preferences.setString('name', response['data']['name'].toString());
@@ -45,19 +47,28 @@ class _LoginState extends State<Login> {
         preferences.setString('phone', response['data']['phone'].toString());
         Navigator.pushAndRemoveUntil(context,
             MaterialPageRoute(builder: (context) {
-          return   widget.isEmp ? MainDashboard(
-            preferences.get('name').toString(),
-            preferences.get('password').toString(),
-            preferences.get('phone').toString(),
-          ):CustomDashboard(
-            preferences.get('name').toString(),
-            preferences.get('password').toString(),
-            preferences.get('phone').toString(),
-          );
+          return widget.isEmp
+              ? MainDashboard(
+                  preferences.get('name').toString(),
+                  preferences.get('password').toString(),
+                  preferences.get('phone').toString(),
+                )
+              : CustomDashboard(
+                  preferences.get('name').toString(),
+                  preferences.get('password').toString(),
+                  preferences.get('phone').toString(),
+                );
         }), (route) => false);
-      } else {
-
+      } else if (response['status'] == 'password') {
         print('register failed ${response['status']}');
+        AwesomeDialog(context: context, title: 'password is not correct')
+            .show();
+      } else {
+        print('register failed ${response['status']}');
+        AwesomeDialog(
+                context: context,
+                title: 'you do not have account with this name')
+            .show();
       }
     } catch (e) {
       print(e);
@@ -67,14 +78,20 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('login'),
+        centerTitle: true,
+      ),
       body: Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                'login',
-                style: TextStyle(fontSize: 41, color: Colors.blue),
+              Icon(
+                CupertinoIcons.location,
+                color: Colors.blue,
+                size: 200,
+
               ),
               SizedBox(
                 height: 20,
@@ -84,17 +101,24 @@ class _LoginState extends State<Login> {
                   name = val;
                 });
               }, 'your personal name', '', context),
-              CustomeTextFeild((val) {
-                setState(() {
-                  password = val;
-                });
-              }, 'your password', '', context),
+              CustomeTextFeild(
+                (val) {
+                  setState(() {
+                    password = val;
+                  });
+                },
+                'your password',
+                '',
+                context,
+                isPassword: true,
+              ),
               CustomeButton(() async {
                 if (name != '' && password != '') {
                   CustomeCircularProgress(context);
                   await login();
-
-                } else {}
+                } else {
+                  AwesomeDialog(context: context, title: 'empty field').show();
+                }
               }, 'login', context),
               widget.isEmp
                   ? Container()

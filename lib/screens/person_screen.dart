@@ -17,9 +17,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
     // TODO: implement initState
 
     print('==========_PersonalScreenState=++==userName========');
-
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -73,17 +71,16 @@ class _PersonalScreenState extends State<PersonalScreen> {
                 onPressed: () {
                   if (!isEmp && !isCustom) {
                   } else {
-                    if(isEmp){
-                      Navigator.pushAndRemoveUntil(context,
+                    if (isEmp) {
+                      Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
-                            return Login(isEmp);
-                          }), (route) => false);
-                    }else{
-
-                      Navigator.pushAndRemoveUntil(context,
+                        return Login(isEmp);
+                      }));
+                    } else {
+                      Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
-                            return Login(isEmp);
-                          }), (route) => false);
+                        return Login(isEmp);
+                      }));
                     }
                   }
                 },

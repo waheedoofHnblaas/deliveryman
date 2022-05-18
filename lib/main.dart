@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_map/screens/CustomDashboard_screen.dart';
 import 'package:google_map/screens/MainDash.dart';
 import 'package:google_map/screens/person_screen.dart';
@@ -7,6 +8,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 late SharedPreferences preferences;
 
 Future<void> main() async {
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+    ),
+  );
   WidgetsFlutterBinding.ensureInitialized();
   preferences = await SharedPreferences.getInstance();
   // await Api.getOrders(await Api.getMyLocation());
@@ -20,23 +26,26 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: preferences.get('id') == null
-          ? PersonalScreen()
-          : preferences.getBool('isEmp')!
-              ? MainDashboard(
-                  preferences.get('name').toString(),
-                  preferences.get('password').toString(),
-                  preferences.get('phone').toString())
-              : CustomDashboard(
-                  preferences.get('name').toString(),
-                  preferences.get('password').toString(),
-                  preferences.get('phone').toString(),
-                )
-    );
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          buttonColor: Colors.teal,
+          primaryColorDark: Colors.black,
+          primaryColor: Colors.red,
+          appBarTheme: AppBarTheme(backgroundColor: Colors.teal),
+          primarySwatch: Colors.blue,
+        ),
+        home: preferences.get('id') == null
+            ? PersonalScreen()
+            : preferences.getBool('isEmp')!
+                ? MainDashboard(
+                    preferences.get('name').toString(),
+                    preferences.get('password').toString(),
+                    preferences.get('phone').toString())
+                : CustomDashboard(
+                    preferences.get('name').toString(),
+                    preferences.get('password').toString(),
+                    preferences.get('phone').toString(),
+                  ));
   }
 }

@@ -117,10 +117,10 @@ class _EmpDashboardState extends State<MainDashboard> {
                   return PersonalScreen();
                 }), (route) => false);
               },
-              icon: Icon(CupertinoIcons
+              icon: const Icon(CupertinoIcons
                   .rectangle_arrow_up_right_arrow_down_left_slash)),
         ],
-        title: Text('Orders'),
+        title: Text('Orders EMP: ${preferences.getString('name')}'),
       ),
       body: Center(
         child: ttt

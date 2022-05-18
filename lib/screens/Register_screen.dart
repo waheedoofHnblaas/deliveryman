@@ -33,16 +33,18 @@ class _RegisterState extends State<Register> {
           'name': name,
           'password': password,
           'phone': phone,
+          'createTime':
+              '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
         },
       );
 
       if (response['status'] == 'user is here') {
-        AwesomeDialog(context: context,title: 'user is exist').show();
+        AwesomeDialog(context: context, title: 'user is exist').show();
       } else if (response['status'] == 'success') {
         Navigator.pushAndRemoveUntil(context,
             MaterialPageRoute(builder: (context) {
-              return CustomDashboard(name, password, phone);
-            }), (route) => false);
+          return CustomDashboard(name, password, phone);
+        }), (route) => false);
       } else {
         print('register failed ${response['status']}');
       }
@@ -54,16 +56,16 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('register'),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  'register',
-                  style: TextStyle(fontSize: 41, color: Colors.blue),
-                ),
                 const SizedBox(
                   height: 20,
                 ),
@@ -82,14 +84,14 @@ class _RegisterState extends State<Register> {
                   setState(() {
                     password = v;
                   });
-                }, 'your phone password', '', context),
+                }, 'your phone password', '', context, isPassword: true),
                 CustomeButton(
                   () async {
                     if (name == '' || password == '' || phone == '') {
                       AwesomeDialog(
                               context: context,
                               dialogType: DialogType.ERROR,
-                              title: 'it is null')
+                              title: 'empty field')
                           .show();
                     } else {
                       CustomeCircularProgress(context);

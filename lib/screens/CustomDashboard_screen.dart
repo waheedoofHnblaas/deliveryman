@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_map/Item.dart';
 import 'package:google_map/Order.dart';
 import 'package:google_map/conmponent/CustomCirProgress.dart';
 import 'package:google_map/google_map_api.dart';
@@ -58,17 +59,10 @@ class _DashboardState extends State<CustomDashboard> {
         return Login(false);
       }), (route) => false);
     }
-    await API.getMyOrders(myLocation,context);
+    await API.getMyOrders(myLocation, context);
   }
 
-  getPlaces(latitude, longitude) async {
-    List<Placemark> places =
-        await placemarkFromCoordinates(latitude, longitude);
-    print(places[0].country);
-    print(places[0].administrativeArea);
-    print(places[0].locality);
-    print(places[0].subAdministrativeArea);
-  }
+
 
   @override
   void initState() {
@@ -80,6 +74,8 @@ class _DashboardState extends State<CustomDashboard> {
   GoogleMapController? _googleMapController;
 
   List<Order> orders = [];
+  bool haveOrder = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +84,7 @@ class _DashboardState extends State<CustomDashboard> {
         backgroundColor: Colors.blue[400],
         foregroundColor: Colors.black,
         elevation: 0,
-        title:  Text('${preferences.getString('name')} orders map'),
+        title: Text('${preferences.getString('name')} orders map'),
         actions: [
           IconButton(
               onPressed: () {
@@ -115,10 +111,31 @@ class _DashboardState extends State<CustomDashboard> {
           FloatingActionButtonLocation.miniCenterFloat,
       floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return AddScreen(
-                  LatLng(myLocation.latitude, myLocation.longitude));
-            }));
+            API.apiOrders.forEach(
+              (element) {
+                if (element.ownerUserNum == preferences.getString('id')) {
+                  print(element.ownerUserNum);
+                  if (element.isWaitting) {
+                    print(element.received);
+                    print('============================');
+                    setState(() {
+                      haveOrder = true;
+                    });
+                  }
+                }
+              },
+            );
+            if (!haveOrder) {
+              List<Item> list = await API.getorderItems('all');
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return AddScreen(
+                    LatLng(myLocation.latitude, myLocation.longitude), list);
+              }));
+            } else {
+              AwesomeDialog(
+                      context: context, body: Text('you have order active'))
+                  .show();
+            }
           },
           child: const Icon(
             Icons.add,
@@ -128,24 +145,30 @@ class _DashboardState extends State<CustomDashboard> {
       body: Center(
         child: ttt
             ? FutureBuilder<List<Order>>(
-                future: API.getMyOrders(myLocation,context),
+                future: API.getMyOrders(myLocation, context),
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       !snapshot.hasError &&
                       snapshot.connectionState == ConnectionState.done) {
                     List<Marker> marks = [];
                     for (Order order in snapshot.data!) {
-                      if(order.ownerUserNum==preferences.get('id').toString())
-                      marks.add(order.marker);
+                      if (order.ownerUserNum ==
+                          preferences.get('id').toString())
+                        marks.add(order.marker);
                     }
 
-                    return GoogleMap(
-                      markers: Set.of(marks),
-                      initialCameraPosition: CameraPosition(
-                        target:
-                            LatLng(myLocation.latitude, myLocation.longitude),
-                        zoom: 10,
-                      ),
+                    return Stack(
+                      children: [
+                        GoogleMap(
+                          markers: Set.of(marks),
+                          initialCameraPosition: CameraPosition(
+                            target: LatLng(
+                                myLocation.latitude, myLocation.longitude),
+                            zoom: 11.5,
+                          ),
+                        ),
+
+                      ],
                     );
                   } else {
                     return CustomeCircularProgress(context);
