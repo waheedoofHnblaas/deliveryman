@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_map/screens/CustomDashboard_screen.dart';
-import 'package:google_map/screens/MainDash.dart';
+import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
+import 'package:google_map/screens/dashSc/MainDash.dart';
 import 'package:google_map/screens/person_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,8 +30,10 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: ThemeData(
           buttonColor: Colors.teal,
-          primaryColorDark: Colors.black,
-          primaryColor: Colors.red,
+          textTheme: TextTheme(),
+          primaryTextTheme: TextTheme(),
+          primaryColorDark: Colors.teal,
+          primaryColor: Colors.teal,
           appBarTheme: AppBarTheme(backgroundColor: Colors.teal),
           primarySwatch: Colors.blue,
         ),

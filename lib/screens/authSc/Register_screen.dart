@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:google_map/conmponent/CustomButton.dart';
 import 'package:google_map/conmponent/CustomCirProgress.dart';
 import 'package:google_map/conmponent/CustomTextField.dart';
+import 'package:google_map/conmponent/customAwesome.dart';
 import 'package:google_map/database/api.dart';
 import 'package:google_map/main.dart';
-import 'package:google_map/screens/CustomDashboard_screen.dart';
-import 'package:google_map/screens/Login_screen.dart';
+import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
+import 'package:google_map/screens/authSc/Login_screen.dart';
 import 'package:google_map/database/api_links.dart';
-import 'package:google_map/screens/MainDash.dart';
+import 'package:google_map/screens/dashSc/MainDash.dart';
 
 class Register extends StatefulWidget {
   Register(this.isEmp);
@@ -26,6 +27,7 @@ class _RegisterState extends State<Register> {
   final PhpApi _api = PhpApi();
 
   regist() async {
+    CustomeCircularProgress(context);
     try {
       var response = await _api.postRequest(
         widget.isEmp ? registerLinkEmp : registerLinkCustom,
@@ -38,6 +40,7 @@ class _RegisterState extends State<Register> {
         },
       );
 
+      Navigator.pop(context);
       if (response['status'] == 'user is here') {
         AwesomeDialog(context: context, title: 'user is exist').show();
       } else if (response['status'] == 'success') {
@@ -46,9 +49,11 @@ class _RegisterState extends State<Register> {
           return CustomDashboard(name, password, phone);
         }), (route) => false);
       } else {
-        print('register failed ${response['status']}');
+        CustomAwesomeDialog(context: context, content: 'network connection less');
+
       }
     } catch (e) {
+      CustomAwesomeDialog(context: context, content: 'network error');
       print(e);
     }
   }
@@ -94,7 +99,6 @@ class _RegisterState extends State<Register> {
                               title: 'empty field')
                           .show();
                     } else {
-                      CustomeCircularProgress(context);
                       await regist();
                     }
                   },

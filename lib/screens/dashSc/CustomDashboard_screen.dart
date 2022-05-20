@@ -5,18 +5,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_map/Item.dart';
-import 'package:google_map/Order.dart';
+import 'package:google_map/conmponent/customAwesome.dart';
+import 'package:google_map/oop/Item.dart';
+import 'package:google_map/oop/Order.dart';
 import 'package:google_map/conmponent/CustomCirProgress.dart';
-import 'package:google_map/google_map_api.dart';
+import 'package:google_map/database/google_map_api.dart';
 import 'package:google_map/main.dart';
-import 'package:google_map/screens/Login_screen.dart';
-import 'package:google_map/screens/Register_screen.dart';
+import 'package:google_map/screens/authSc/Login_screen.dart';
+import 'package:google_map/screens/authSc/Register_screen.dart';
 import 'package:google_map/screens/addScreen.dart';
 import 'package:google_map/screens/person_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import '../google_map_api.dart';
+import '../../database/google_map_api.dart';
 
 class CustomDashboard extends StatefulWidget {
   CustomDashboard(String this.name, String this.password, String this.phone);
@@ -62,8 +63,6 @@ class _DashboardState extends State<CustomDashboard> {
     await API.getMyOrders(myLocation, context);
   }
 
-
-
   @override
   void initState() {
     // TODO: implement initState
@@ -75,7 +74,8 @@ class _DashboardState extends State<CustomDashboard> {
 
   List<Order> orders = [];
   bool haveOrder = false;
-
+  late Order _order;
+  late List<Item> list = [];
 
   @override
   Widget build(BuildContext context) {
@@ -111,30 +111,74 @@ class _DashboardState extends State<CustomDashboard> {
           FloatingActionButtonLocation.miniCenterFloat,
       floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            API.apiOrders.forEach(
-              (element) {
-                if (element.ownerUserNum == preferences.getString('id')) {
-                  print(element.ownerUserNum);
-                  if (element.isWaitting) {
-                    print(element.received);
-                    print('============================');
-                    setState(() {
-                      haveOrder = true;
-                    });
+            CustomeCircularProgress(context);
+            try {
+              API.apiOrders.forEach(
+                (element) {
+                  if (element.ownerUserNum == preferences.getString('id')) {
+                    print(element.ownerUserNum);
+                    if (element.isWaitting) {
+                      print(element.received);
+                      print('============================');
+                      setState(() {
+                        haveOrder = true;
+                        _order = element;
+                      });
+                    }
                   }
-                }
-              },
-            );
-            if (!haveOrder) {
-              List<Item> list = await API.getorderItems('all');
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return AddScreen(
-                    LatLng(myLocation.latitude, myLocation.longitude), list);
-              }));
-            } else {
-              AwesomeDialog(
-                      context: context, body: Text('you have order active'))
-                  .show();
+                },
+              );
+              if (!haveOrder) {
+                list = await API.getorderItems('all');
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return AddScreen(
+                      LatLng(myLocation.latitude, myLocation.longitude), list);
+                }));
+              } else {
+                Navigator.pop(context);
+
+                AwesomeDialog(
+                    context: context,
+                    btnOkText: 'open',
+                    btnOkOnPress: () {},
+                    btnCancelText: 'delete',
+                    body: Text('you have order active'),
+                    btnCancelOnPress: () async {
+                      CustomeCircularProgress(context);
+
+                      await API
+                          .deleteOrder(_order.id.toString())
+                          .then((value) async {
+                        list = await API.getorderItems('all');
+
+                        if (value == 'success') {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (conetxt) {
+                            return AddScreen(
+                                LatLng(
+                                    myLocation.latitude, myLocation.longitude),
+                                list);
+                          }));
+                        } else {
+                          Navigator.pop(context);
+                          CustomAwesomeDialog(
+                              context: context,
+                              content: 'error with connection',
+                              onOkTap: () {
+                                Navigator.pushAndRemoveUntil(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return CustomDashboard(widget.name,
+                                      widget.password, widget.phone);
+                                }), (route) => false);
+                              });
+                        }
+                      });
+                    }).show();
+              }
+            } catch (e) {
+              Navigator.pop(context);
+              CustomAwesomeDialog(context: context, content: '$e');
             }
           },
           child: const Icon(
@@ -167,15 +211,14 @@ class _DashboardState extends State<CustomDashboard> {
                             zoom: 11.5,
                           ),
                         ),
-
                       ],
                     );
                   } else {
-                    return CustomeCircularProgress(context);
+                    return CircularProgressIndicator();
                   }
                 },
               )
-            : CustomeCircularProgress(context),
+            : CircularProgressIndicator(),
       ),
     );
   }

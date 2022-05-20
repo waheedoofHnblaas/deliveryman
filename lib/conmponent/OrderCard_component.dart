@@ -1,7 +1,7 @@
 // TODO Implement this library.import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_map/Order.dart';
-import 'package:google_map/google_map_api.dart';
+import 'package:google_map/oop/Order.dart';
+import 'package:google_map/database/google_map_api.dart';
 
 Widget CardOrder_component(
   type,

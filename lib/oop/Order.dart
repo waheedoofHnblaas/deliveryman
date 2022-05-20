@@ -1,4 +1,4 @@
-import 'package:google_map/Item.dart';
+import 'package:google_map/oop/Item.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Order {
@@ -8,6 +8,10 @@ class Order {
   late String orderTime;
   late Marker marker;
   late String ownerUserNum;
+  late String getDelTime;
+  late String doneCustTime;
+  late String totalPrice;
+  late String id;
 
   late List<Item> items;
 
@@ -19,6 +23,9 @@ class Order {
     ownerUserNum,
     items,
     isWaitting,
+    getDelTime,
+    doneCustTime,
+    totalPrice,id
   }) {
     this.deliveryUserNum=deliveryUserNum;
     this.marker = marker;
@@ -26,7 +33,11 @@ class Order {
     this.received = received;
     this.orderTime = orderTime;
     this.ownerUserNum = ownerUserNum;
+    this.getDelTime = getDelTime;
+    this.doneCustTime = doneCustTime;
+    this.totalPrice = totalPrice;
     this.items = items;
+    this.id = id;
   }
 
 //

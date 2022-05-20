@@ -1,16 +1,18 @@
 import 'dart:async';
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:awesome_drawer_bar/awesome_drawer_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_map/Order.dart';
+import 'package:google_map/oop/Order.dart';
 import 'package:google_map/conmponent/CustomCirProgress.dart';
 import 'package:google_map/conmponent/OrderCard_component.dart';
-import 'package:google_map/google_map_api.dart';
+import 'package:google_map/conmponent/customDrawer.dart';
+import 'package:google_map/database/google_map_api.dart';
 import 'package:google_map/main.dart';
-import 'package:google_map/screens/CustomDashboard_screen.dart';
-import 'package:google_map/screens/Login_screen.dart';
-import 'package:google_map/screens/Register_screen.dart';
+import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
+import 'package:google_map/screens/authSc/Login_screen.dart';
+import 'package:google_map/screens/authSc/Register_screen.dart';
 import 'package:google_map/screens/addScreen.dart';
 import 'package:google_map/screens/person_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -90,13 +92,9 @@ class _EmpDashboardState extends State<MainDashboard> {
     return Scaffold(
       backgroundColor: Colors.white,
       drawerEdgeDragWidth: MediaQuery.of(context).size.width / 3,
-      // drawer: Drawer(
-      //   child: SafeArea(
-      //     child: ,
-      //   ),
-      // ),
+      drawer: CustAwesoneDrawer(context,myLocation),
       appBar: AppBar(
-        backgroundColor: Colors.blue[400],
+        backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.black,
         elevation: 0,
         actions: [
@@ -104,9 +102,9 @@ class _EmpDashboardState extends State<MainDashboard> {
               onPressed: () {
                 Navigator.pushAndRemoveUntil(context,
                     MaterialPageRoute(builder: (context) {
-                      return MainDashboard(
-                          widget.name, widget.password, widget.phone);
-                    }), (route) => false);
+                  return MainDashboard(
+                      widget.name, widget.password, widget.phone);
+                }), (route) => false);
               },
               icon: Icon(CupertinoIcons.refresh)),
           IconButton(
@@ -125,7 +123,7 @@ class _EmpDashboardState extends State<MainDashboard> {
       body: Center(
         child: ttt
             ? FutureBuilder<List<Order>>(
-                future: API.getMainOrders(myLocation,context),
+                future: API.getMainOrders(myLocation, context),
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       !snapshot.hasError &&
@@ -146,11 +144,11 @@ class _EmpDashboardState extends State<MainDashboard> {
                       ),
                     );
                   } else {
-                    return CustomeCircularProgress(context);
+                    return CircularProgressIndicator();
                   }
                 },
               )
-            : CustomeCircularProgress(context),
+            : CircularProgressIndicator(),
       ),
     );
   }

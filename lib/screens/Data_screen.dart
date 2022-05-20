@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_map/Order.dart';
+import 'package:google_map/oop/Order.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -109,7 +109,7 @@ class _DataOrder_screenState extends State<DataOrder_screen> {
                                     children: List.generate(widget.order.items.length,
                                         (index) => Padding(
                                           padding: const EdgeInsets.all(8.0),
-                                          child: Text(widget.order.items[index].name),
+                                          child: Text(widget.order.items[index].name!),
                                         )))),
                           ),
                           Column(

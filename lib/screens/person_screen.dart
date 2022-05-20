@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_map/screens/Login_screen.dart';
-import 'package:google_map/screens/Register_screen.dart';
+import 'package:google_map/screens/authSc/Login_screen.dart';
+import 'package:google_map/screens/authSc/Register_screen.dart';
 
 class PersonalScreen extends StatefulWidget {
   const PersonalScreen({Key? key}) : super(key: key);

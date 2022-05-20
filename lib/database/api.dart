@@ -24,9 +24,14 @@ class PhpApi {
         Uri.parse(url),
         body: data,
       );
-      return jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return jsonDecode('status'':''network');
+      }
     } catch (e) {
-      print('catch get Requset error $e}');
+      print('catch get Requset error ${e}');
+      return e;
     }
   }
 }

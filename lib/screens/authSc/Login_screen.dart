@@ -9,9 +9,9 @@ import 'package:google_map/conmponent/CustomTextField.dart';
 import 'package:google_map/database/api.dart';
 import 'package:google_map/database/api_links.dart';
 import 'package:google_map/main.dart';
-import 'package:google_map/screens/CustomDashboard_screen.dart';
-import 'package:google_map/screens/MainDash.dart';
-import 'package:google_map/screens/Register_screen.dart';
+import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
+import 'package:google_map/screens/dashSc/MainDash.dart';
+import 'package:google_map/screens/authSc/Register_screen.dart';
 
 class Login extends StatefulWidget {
   Login(this.isEmp);
@@ -27,6 +27,7 @@ class _LoginState extends State<Login> {
   final PhpApi _api = PhpApi();
 
   login() async {
+    CustomeCircularProgress(context);
     try {
       var response = await _api.postRequest(
         widget.isEmp ? loginLinkEmp : loginLinkCustom,
@@ -36,6 +37,7 @@ class _LoginState extends State<Login> {
         },
       );
 
+      Navigator.pop(context);
       if (response['status'] == 'success') {
         print(
             '++++++++++++++++++++++++++++++++++++++ ${response['data']['id']}');
@@ -63,14 +65,24 @@ class _LoginState extends State<Login> {
         print('register failed ${response['status']}');
         AwesomeDialog(context: context, title: 'password is not correct')
             .show();
-      } else {
-        print('register failed ${response['status']}');
+      } else if(response['status']=='faild'){
+        print('register failed ${response['faild']}');
         AwesomeDialog(
                 context: context,
                 title: 'you do not have account with this name')
             .show();
+      }else{
+        print('register failed ${response['status']}');
+        AwesomeDialog(
+            context: context,
+            title: 'network error')
+            .show();
       }
     } catch (e) {
+      AwesomeDialog(
+          context: context,
+          title: 'network error')
+          .show();
       print(e);
     }
   }
@@ -114,7 +126,6 @@ class _LoginState extends State<Login> {
               ),
               CustomeButton(() async {
                 if (name != '' && password != '') {
-                  CustomeCircularProgress(context);
                   await login();
                 } else {
                   AwesomeDialog(context: context, title: 'empty field').show();

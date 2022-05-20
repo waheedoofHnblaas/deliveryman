@@ -4,17 +4,18 @@ import 'dart:math';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_map/Item.dart';
-import 'package:google_map/Order.dart';
+import 'package:google_map/conmponent/customAwesome.dart';
+import 'package:google_map/oop/Item.dart';
+import 'package:google_map/oop/Order.dart';
 import 'package:google_map/conmponent/CustomCirProgress.dart';
-import 'package:google_map/custom.dart';
+import 'package:google_map/oop/custom.dart';
 import 'package:google_map/database/api.dart';
 import 'package:google_map/database/api_links.dart';
-import 'package:google_map/employee.dart';
+import 'package:google_map/oop/employee.dart';
 import 'package:google_map/main.dart';
-import 'package:google_map/screens/CustomDashboard_screen.dart';
+import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
 import 'package:google_map/screens/Data_screen.dart';
-import 'package:google_map/screens/MainDash.dart';
+import 'package:google_map/screens/dashSc/MainDash.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -77,7 +78,7 @@ class Api {
 
   List<Order> apiOrders = [];
 
-  Future<List<Order>> getMainOrders(Position mylocation, conetxt) async {
+  Future<List<Order>> getMainOrders(Position mylocation, context) async {
     try {
       var response = await http.get(Uri.parse(getordersLink));
       print(jsonDecode(response.body));
@@ -99,15 +100,21 @@ class Api {
         String itemsName = '';
         List<Item> items = await getorderItems(order['order_id']);
         items.forEach((element) {
-          itemsName = element.name + '-' + itemsName;
+          itemsName = '${element.name!}:${element.count}' + '-' + itemsName;
         });
 
         if (order['delivery_id'] == preferences.getString('id')! ||
             order['isWaiting'] == '1' ||
             preferences.getString('id') == '0') {
+          print('+++++++++++++++++++++++++++++++++++++++++++++++');
+          print(order['getDelTime']);
           apiOrders.add(
             Order(
               deliveryUserNum: order['delivery_id'],
+              id: order['order_id'],
+              doneCustTime: order['doneCustTime'],
+              getDelTime: order['getDelTime'],
+              totalPrice: order['totalPrice'],
               orderTime: order['createTime'].toString(),
               isWaitting: order['isWaiting'] == '0' ? false : true,
               items: items,
@@ -126,7 +133,7 @@ class Api {
                     if (order['isWaiting'] == '1' &&
                         order['isRecieved'] == '0') {
                       AwesomeDialog(
-                          context: conetxt,
+                          context: context,
                           btnOkText: 'i well arrive it',
                           btnOkOnPress: () async {
                             await updateGettingOrder(
@@ -136,7 +143,7 @@ class Api {
                               '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
                             ).then((value) {
                               value == 'success'
-                                  ? Navigator.pushAndRemoveUntil(conetxt,
+                                  ? Navigator.pushAndRemoveUntil(context,
                                       MaterialPageRoute(builder: (conetxt) {
                                       return MainDashboard(
                                           preferences.getString('name')!,
@@ -149,23 +156,23 @@ class Api {
                     } else if (order['isWaiting'] == '0' &&
                         order['isRecieved'] == '0') {
                       AwesomeDialog(
-                          context: conetxt,
+                          context: context,
                           body: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                                'this order with dilevery : ${delivery.userName}'),
+                                'this order with dilevery : ${delivery.name!}'),
                           )).show();
                     } else {
                       AwesomeDialog(
-                          context: conetxt,
+                          context: context,
                           body: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                                'this order has done by : ${delivery.userName}'),
+                                'this order has done by : ${delivery.name!}'),
                           )).show();
                     }
                   },
-                  snippet: itemsName + '  ' + destance.toString() + 'm',
+                  snippet: itemsName + '  ' + destance.toString() + 'm' + '  ' + '  id :' + order['order_id'].toString(),
                   title: order['createTime'],
                 ),
                 icon: BitmapDescriptor.defaultMarkerWithHue(
@@ -201,19 +208,14 @@ class Api {
 
       // List<dynamic> data = jsonDecode(res);
 
-      return Employee(
-        password: res['password'],
-        userName: res['name'],
-        phone: res['phone'],
-        id: res['id'],
-      );
+      return Employee.fromJson(res);
     } catch (e) {
       print('catch getItems error $e}');
       return jsonDecode(e.toString());
     }
   }
 
-  Future<List<Order>> getMyOrders(Position mylocation, conetxt) async {
+  Future<List<Order>> getMyOrders(Position mylocation, context) async {
     try {
       var response = await http.get(Uri.parse(getordersLink));
       print(jsonDecode(response.body));
@@ -229,11 +231,15 @@ class Api {
         String itemsName = '';
         List<Item> items = await getorderItems(order['order_id']);
         items.forEach((element) {
-          itemsName = itemsName + '-' + element.name;
+          itemsName =  '${element.name!}:${element.count}'+ '-' +itemsName;
         });
 
         apiOrders.add(
           Order(
+            getDelTime: order['getDelTime'],
+            id: order['order_id'],
+            doneCustTime: order['doneCustTime'],
+            totalPrice: order['totalPrice'],
             deliveryUserNum: order['delivery_id'],
             orderTime: order['createTime'].toString(),
             isWaitting: order['isWaiting'] == '0' ? false : true,
@@ -254,15 +260,15 @@ class Api {
                     if (order['isWaiting'] == '1' &&
                         order['isRecieved'] == '0') {
                       AwesomeDialog(
-                          context: conetxt,
+                          context: context,
                           btnCancelText: 'delete',
                           btnCancelOnPress: () async {
-                            CustomeCircularProgress(conetxt);
+                            CustomeCircularProgress(context);
 
                             await deleteOrder(order['order_id'].toString())
                                 .then((value) {
                               value == 'success'
-                                  ? Navigator.pushAndRemoveUntil(conetxt,
+                                  ? Navigator.pushAndRemoveUntil(context,
                                       MaterialPageRoute(builder: (conetxt) {
                                       return CustomDashboard(
                                           preferences.getString('name')!,
@@ -275,15 +281,16 @@ class Api {
                     } else if (order['isWaiting'] == '0' &&
                         order['isRecieved'] == '0') {
                       AwesomeDialog(
-                          context: conetxt,
+                          context: context,
                           btnOkText: 'i get it',
                           btnOkOnPress: () async {
-                            await updateDoneOrder(order['order_id'].toString(),
+                            await updateDoneOrder(
+                              order['order_id'].toString(),
                               '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}'
-                                  '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',)
-                                .then((value) {
+                              '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
+                            ).then((value) {
                               value == 'success'
-                                  ? Navigator.pushAndRemoveUntil(conetxt,
+                                  ? Navigator.pushAndRemoveUntil(context,
                                       MaterialPageRoute(builder: (conetxt) {
                                       return CustomDashboard(
                                           preferences.getString('name')!,
@@ -296,23 +303,23 @@ class Api {
                           body: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'your order on road with : ${delivery.userName}... you get it ?',
+                              'your order on road with : ${delivery.name!}... you get it ?',
                               textAlign: TextAlign.center,
                             ),
                           )).show();
                     } else {
                       AwesomeDialog(
-                          context: conetxt,
+                          context: context,
                           body: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                                'your order has done by : ${delivery.userName}'
+                                'your order has done by : ${delivery.name!}'
                                 ''),
                           )).show();
                     }
                   },
-                  snippet: itemsName + '  ' + order['order_id'].toString(),
-                  title: order['createTime']),
+                  snippet: itemsName + '  id :' + order['order_id'].toString(),
+                  title: '${order['createTime']}'),
               icon: BitmapDescriptor.defaultMarkerWithHue(
                 order['isWaiting'] == '1'
                     ? BitmapDescriptor.hueGreen
@@ -334,6 +341,12 @@ class Api {
       return apiOrders;
     } catch (e) {
       print('catch getMainOrder error $e}');
+      CustomAwesomeDialog(
+          context: context,
+          content: 'no internet',
+          onOkTap: () {
+            updateCustomScreen(context);
+          });
       return [];
     }
   }
@@ -348,7 +361,7 @@ class Api {
       if (response['status'] == 'success') {
         return 'success';
       } else {
-        print('add failed ${response['status']}');
+        print('add failed ${response['status']} $id');
         return 'failed';
       }
     } catch (e) {
@@ -381,12 +394,12 @@ class Api {
     }
   }
 
-  Future<String> updateDoneOrder(String id,String doneCustTime) async {
+  Future<String> updateDoneOrder(String id, String doneCustTime) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
         doneorderUpdateLink,
-        {'id': id,'doneCustTime':doneCustTime},
+        {'id': id, 'doneCustTime': doneCustTime},
       );
       if (response['status'] == 'success') {
         return 'success';
@@ -412,19 +425,9 @@ class Api {
 
       // List<dynamic> data = jsonDecode(res);
 
-      for (Map item in res) {
+      for (Map<String, dynamic> item in res) {
         apitems.add(
-          Item(
-            id: int.parse(item['item_id']),
-            name: item['name'],
-            info: item['info'],
-            price: double.parse(
-              item['price'],
-            ),
-            weight: double.parse(
-              item['weight'],
-            ),
-          ),
+          Item.fromJson(item),
         );
       }
 
@@ -433,5 +436,12 @@ class Api {
       print('catch getItems error $e}');
       return jsonDecode(e.toString());
     }
+  }
+
+  updateCustomScreen(context) {
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) {
+      return CustomDashboard(preferences.getString('name')!,
+          preferences.getString('password')!, preferences.getString('phone')!);
+    }), (route) => false);
   }
 }
