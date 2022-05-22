@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:google_map/conmponent/customAwesome.dart';
 import 'package:google_map/oop/Item.dart';
 import 'package:google_map/oop/Order.dart';
@@ -65,8 +66,6 @@ class _DashboardState extends State<CustomDashboard> {
 
   @override
   void initState() {
-    // TODO: implement initState
-
     getPos();
   }
 
@@ -81,8 +80,7 @@ class _DashboardState extends State<CustomDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue[400],
-        foregroundColor: Colors.black,
+        backgroundColor: Get.theme.primaryColor,
         elevation: 0,
         title: Text('${preferences.getString('name')} orders map'),
         actions: [
@@ -98,10 +96,7 @@ class _DashboardState extends State<CustomDashboard> {
           IconButton(
               onPressed: () {
                 preferences.clear();
-                Navigator.pushAndRemoveUntil(context,
-                    MaterialPageRoute(builder: (context) {
-                  return PersonalScreen();
-                }), (route) => false);
+                Get.offAll(PersonalScreen());
               },
               icon: Icon(CupertinoIcons
                   .rectangle_arrow_up_right_arrow_down_left_slash)),
@@ -110,15 +105,17 @@ class _DashboardState extends State<CustomDashboard> {
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterFloat,
       floatingActionButton: FloatingActionButton(
+          backgroundColor: Get.theme.primaryColor,
+          foregroundColor: Get.theme.backgroundColor,
           onPressed: () async {
             CustomeCircularProgress(context);
             try {
               API.apiOrders.forEach(
                 (element) {
-                  if (element.ownerUserNum == preferences.getString('id')) {
-                    print(element.ownerUserNum);
-                    if (element.isWaitting) {
-                      print(element.received);
+                  if (element.ownerId == preferences.getString('id')) {
+                    print(element.ownerId);
+                    if (element.isWaiting!) {
+                      print(element.isRecieved);
                       print('============================');
                       setState(() {
                         haveOrder = true;
@@ -148,7 +145,7 @@ class _DashboardState extends State<CustomDashboard> {
                       CustomeCircularProgress(context);
 
                       await API
-                          .deleteOrder(_order.id.toString())
+                          .deleteOrder(_order.orderId.toString())
                           .then((value) async {
                         list = await API.getorderItems('all');
 
@@ -196,9 +193,8 @@ class _DashboardState extends State<CustomDashboard> {
                       snapshot.connectionState == ConnectionState.done) {
                     List<Marker> marks = [];
                     for (Order order in snapshot.data!) {
-                      if (order.ownerUserNum ==
-                          preferences.get('id').toString())
-                        marks.add(order.marker);
+                      if (order.ownerId == preferences.get('id').toString())
+                        marks.add(order.marker!);
                     }
 
                     return Stack(

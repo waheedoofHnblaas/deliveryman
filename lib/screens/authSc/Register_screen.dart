@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_map/conmponent/CustomButton.dart';
 import 'package:google_map/conmponent/CustomCirProgress.dart';
 import 'package:google_map/conmponent/CustomTextField.dart';
+import 'package:google_map/conmponent/color.dart';
 import 'package:google_map/conmponent/customAwesome.dart';
 import 'package:google_map/database/api.dart';
 import 'package:google_map/main.dart';
@@ -40,17 +43,14 @@ class _RegisterState extends State<Register> {
         },
       );
 
-      Navigator.pop(context);
+      Get.back();
       if (response['status'] == 'user is here') {
-        AwesomeDialog(context: context, title: 'user is exist').show();
+        CustomAwesomeDialog(context: context, content: 'user is exist');
       } else if (response['status'] == 'success') {
-        Navigator.pushAndRemoveUntil(context,
-            MaterialPageRoute(builder: (context) {
-          return CustomDashboard(name, password, phone);
-        }), (route) => false);
+        Get.offAll(CustomDashboard(name, password, phone));
       } else {
-        CustomAwesomeDialog(context: context, content: 'network connection less');
-
+        CustomAwesomeDialog(
+            context: context, content: 'network connection less');
       }
     } catch (e) {
       CustomAwesomeDialog(context: context, content: 'network error');
@@ -61,43 +61,67 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Get.theme.primaryColor,
       appBar: AppBar(
+        backgroundColor: Get.theme.primaryColor,
         title: Text('register'),
-        centerTitle: true,
+        leading: IconButton(
+          iconSize: 25,
+          onPressed: () {
+            Get.back();
+          },
+          icon: const Icon(
+            CupertinoIcons.back,
+          ),
+        ),
       ),
-      body: SafeArea(
-        child: Center(
+      body: Center(
+        child: Container(
           child: SingleChildScrollView(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(
-                  height: 20,
+                Container(
+                  decoration: BoxDecoration(
+                    color: Get.theme.backgroundColor,
+                    borderRadius: BorderRadius.all(Radius.circular(33)),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height: 100,
+                        child: Image.asset('lib/images/delivery.png'),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      CustomeTextFeild((v) {
+                        setState(() {
+                          name = v;
+                        });
+                      }, 'your personal name', '', context),
+                      CustomeTextFeild((v) {
+                        setState(() {
+                          phone = v;
+                        });
+                      }, 'your phone number', '', context,
+                          isNumber: TextInputType.number),
+                      CustomeTextFeild((v) {
+                        setState(() {
+                          password = v;
+                        });
+                      }, 'your phone password', '', context, isPassword: true),
+                    ],
+                  ),
                 ),
-                CustomeTextFeild((v) {
-                  setState(() {
-                    name = v;
-                  });
-                }, 'your personal name', '', context),
-                CustomeTextFeild((v) {
-                  setState(() {
-                    phone = v;
-                  });
-                }, 'your phone number', '', context,
-                    isNumber: TextInputType.number),
-                CustomeTextFeild((v) {
-                  setState(() {
-                    password = v;
-                  });
-                }, 'your phone password', '', context, isPassword: true),
                 CustomeButton(
                   () async {
                     if (name == '' || password == '' || phone == '') {
-                      AwesomeDialog(
-                              context: context,
-                              dialogType: DialogType.ERROR,
-                              title: 'empty field')
-                          .show();
+                      CustomAwesomeDialog(context: context, content: 'empty field');
+                    } else if (password.length < 7) {
+                      CustomAwesomeDialog(context: context, content: 'password shorter than 6 letters');
+                    } else if (name.length < 7) {
+                      CustomAwesomeDialog(context: context, content: 'name shorter than 6 letters');
                     } else {
                       await regist();
                     }
@@ -106,13 +130,14 @@ class _RegisterState extends State<Register> {
                   context,
                 ),
                 TextButton(
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(context,
-                          MaterialPageRoute(builder: (context) {
-                        return Login(false);
-                      }), (route) => false);
-                    },
-                    child: const Text('you have acount ?'))
+                  onPressed: () {
+                    Get.off(Login(false));
+                  },
+                  child: Text(
+                    'you have acount ?',
+                    style: TextStyle(color: Get.theme.backgroundColor),
+                  ),
+                )
               ],
             ),
           ),

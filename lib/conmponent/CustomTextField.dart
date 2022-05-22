@@ -5,33 +5,38 @@ Widget CustomeTextFeild(
   func,
   lab,
   String content,
-  context ,{
+  context, {
   isPassword = false,
   TextInputType isNumber = TextInputType.name,
 }) {
   return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 5),
+    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5),
     child: Padding(
       padding: const EdgeInsets.only(top: 5),
       child: Container(
-        color: Colors.white10,
-        height: 70,
-        width: MediaQuery.of(context).size.width-10,
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.only(
+            bottomRight: Radius.circular(30),
+            bottomLeft: Radius.circular(30),
+          ),
+        ),
+        height: 60,
+        width: MediaQuery.of(context).size.width - 10,
         child: TextFormField(
-
-
             textInputAction: TextInputAction.next,
-            initialValue:content,
+            initialValue: content,
             keyboardType: isNumber,
             style: TextStyle(fontSize: 16),
             autofocus: true,
             textAlign: TextAlign.center,
             cursorHeight: 25,
             obscureText: isPassword,
-            decoration:InputDecoration(
-
+            decoration: InputDecoration(
               label: Text(lab),
-              border: OutlineInputBorder(gapPadding: 5,borderRadius:  BorderRadius.circular(20.0)),
+              border: OutlineInputBorder(
+                gapPadding: 5,
+                borderRadius: BorderRadius.circular(20.0),
+              ),
             ),
             onChanged: (val) {
               func(val);

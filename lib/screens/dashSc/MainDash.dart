@@ -1,19 +1,13 @@
 import 'dart:async';
-import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:awesome_drawer_bar/awesome_drawer_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:google_map/oop/Order.dart';
-import 'package:google_map/conmponent/CustomCirProgress.dart';
-import 'package:google_map/conmponent/OrderCard_component.dart';
 import 'package:google_map/conmponent/customDrawer.dart';
 import 'package:google_map/database/google_map_api.dart';
 import 'package:google_map/main.dart';
-import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
 import 'package:google_map/screens/authSc/Login_screen.dart';
-import 'package:google_map/screens/authSc/Register_screen.dart';
-import 'package:google_map/screens/addScreen.dart';
 import 'package:google_map/screens/person_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -41,7 +35,7 @@ class MainDashboard extends StatefulWidget {
 }
 
 bool choose = false;
-List<Marker> chooseMarker = [Marker(markerId: MarkerId(''))];
+List<Marker> chooseMarker = [const Marker(markerId: MarkerId(''))];
 
 bool ttt = false;
 
@@ -80,31 +74,25 @@ class _EmpDashboardState extends State<MainDashboard> {
 
   @override
   void initState() {
-    // TODO: implement initState
-
     getPos();
+    API.apiOrders.forEach((element) {
+      print(element.createTime);
+    });
   }
-
-  GoogleMapController? _googleMapController;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       drawerEdgeDragWidth: MediaQuery.of(context).size.width / 3,
-      drawer: CustAwesoneDrawer(context,myLocation),
+      drawer: CustomAwesomeDrawer(context, myLocation),
       appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.black,
         elevation: 0,
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.pushAndRemoveUntil(context,
-                    MaterialPageRoute(builder: (context) {
-                  return MainDashboard(
-                      widget.name, widget.password, widget.phone);
-                }), (route) => false);
+                Get.offAll(
+                    MainDashboard(widget.name, widget.password, widget.phone));
               },
               icon: Icon(CupertinoIcons.refresh)),
           IconButton(
@@ -130,17 +118,17 @@ class _EmpDashboardState extends State<MainDashboard> {
                       snapshot.connectionState == ConnectionState.done) {
                     List<Marker> marks = [];
                     for (Order order in snapshot.data!) {
-                      print(order.items);
-                      marks.add(order.marker);
+                      marks.add(order.marker!);
                     }
                     return GoogleMap(
+                      mapType: MapType.terrain,
                       myLocationEnabled: true,
                       myLocationButtonEnabled: true,
                       markers: Set.of(marks),
                       initialCameraPosition: CameraPosition(
                         target:
                             LatLng(myLocation.latitude, myLocation.longitude),
-                        zoom: 10,
+                        zoom: 12,
                       ),
                     );
                   } else {
@@ -152,4 +140,16 @@ class _EmpDashboardState extends State<MainDashboard> {
       ),
     );
   }
+}
+
+Completer<GoogleMapController> _controller = Completer();
+
+Future<void> _goToTheLake(lat, long) async {
+  final GoogleMapController controller = await _controller.future;
+  controller.animateCamera(CameraUpdate.newCameraPosition(
+    CameraPosition(
+      target: LatLng(lat, long),
+      zoom: 13,
+    ),
+  ));
 }

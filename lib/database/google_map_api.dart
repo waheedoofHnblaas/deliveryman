@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:google_map/conmponent/customAwesome.dart';
 import 'package:google_map/oop/Item.dart';
 import 'package:google_map/oop/Order.dart';
@@ -56,8 +57,8 @@ class Api {
     double cl = Geolocator.distanceBetween(
         mylocation.latitude,
         mylocation.longitude,
-        order.marker.position.latitude,
-        order.marker.position.longitude);
+        order.marker!.position.latitude,
+        order.marker!.position.longitude);
     return cl;
   }
 
@@ -83,7 +84,7 @@ class Api {
       var response = await http.get(Uri.parse(getordersLink));
       print(jsonDecode(response.body));
       final data = jsonDecode(response.body);
-      for (Map order in data) {
+      for (Map<String, dynamic> order in data) {
         // String items = '';
         // await getorderItems(order['order_id']).then((value) {
         //   value.forEach((element) {
@@ -108,89 +109,21 @@ class Api {
             preferences.getString('id') == '0') {
           print('+++++++++++++++++++++++++++++++++++++++++++++++');
           print(order['getDelTime']);
+          BitmapDescriptor waitIcon = await BitmapDescriptor.fromAssetImage(
+            ImageConfiguration(),
+            "lib/images/waitIcon.png",
+          );
+          BitmapDescriptor doneIcon = await BitmapDescriptor.fromAssetImage(
+            ImageConfiguration(),
+            "lib/images/doneIcon.png",
+          );
+          BitmapDescriptor activeIcon = await BitmapDescriptor.fromAssetImage(
+            ImageConfiguration(),
+            "lib/images/activeIcon.png",
+          );
           apiOrders.add(
-            Order(
-              deliveryUserNum: order['delivery_id'],
-              id: order['order_id'],
-              doneCustTime: order['doneCustTime'],
-              getDelTime: order['getDelTime'],
-              totalPrice: order['totalPrice'],
-              orderTime: order['createTime'].toString(),
-              isWaitting: order['isWaiting'] == '0' ? false : true,
-              items: items,
-              received: order['isRecieved'] == '0' ? false : true,
-              ownerUserNum: order['owner_id'],
-              marker: Marker(
-                rotation: order['isWaiting'] == '1'
-                    ? 0
-                    : order['isRecieved'] == '1'
-                        ? 180
-                        : 90,
-                infoWindow: InfoWindow(
-                  onTap: () async {
-                    var delivery = await getUserNameById(
-                        order['delivery_id'], getEmployeeByIdLink);
-                    if (order['isWaiting'] == '1' &&
-                        order['isRecieved'] == '0') {
-                      AwesomeDialog(
-                          context: context,
-                          btnOkText: 'i well arrive it',
-                          btnOkOnPress: () async {
-                            await updateGettingOrder(
-                              order['order_id'].toString(),
-                              preferences.getString('id')!,
-                              '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}'
-                              '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
-                            ).then((value) {
-                              value == 'success'
-                                  ? Navigator.pushAndRemoveUntil(context,
-                                      MaterialPageRoute(builder: (conetxt) {
-                                      return MainDashboard(
-                                          preferences.getString('name')!,
-                                          preferences.getString('password')!,
-                                          preferences.getString('phone')!);
-                                    }), (route) => false)
-                                  : null;
-                            });
-                          }).show();
-                    } else if (order['isWaiting'] == '0' &&
-                        order['isRecieved'] == '0') {
-                      AwesomeDialog(
-                          context: context,
-                          body: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                                'this order with dilevery : ${delivery.name!}'),
-                          )).show();
-                    } else {
-                      AwesomeDialog(
-                          context: context,
-                          body: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                                'this order has done by : ${delivery.name!}'),
-                          )).show();
-                    }
-                  },
-                  snippet: itemsName + '  ' + destance.toString() + 'm' + '  ' + '  id :' + order['order_id'].toString(),
-                  title: order['createTime'],
-                ),
-                icon: BitmapDescriptor.defaultMarkerWithHue(
-                  order['isWaiting'] == '1'
-                      ? BitmapDescriptor.hueGreen
-                      : order['isRecieved'] == '1'
-                          ? BitmapDescriptor.hueAzure
-                          : BitmapDescriptor.hueRed,
-                ),
-                markerId: MarkerId(order['order_id']),
-                position: LatLng(
-                  double.parse(order['lat']),
-                  double.parse(
-                    order['long'],
-                  ),
-                ),
-              ),
-            ),
+            Order.fromJson(order, context, itemsName, true, waitIcon,
+                activeIcon, doneIcon),
           );
         }
       }
@@ -201,14 +134,32 @@ class Api {
     }
   }
 
-  Future<Employee> getUserNameById(String Id, String link) async {
+  Future<Employee> getEmpNameById(
+    String Id,
+  ) async {
     try {
       final PhpApi _api = PhpApi();
-      var res = await _api.postRequest(link, {'id': Id});
+      var res = await _api.postRequest(getEmployeeByIdLink, {'id': Id});
 
       // List<dynamic> data = jsonDecode(res);
 
       return Employee.fromJson(res);
+    } catch (e) {
+      print('catch getItems error $e}');
+      return jsonDecode(e.toString());
+    }
+  }
+
+  Future<Customer> getCustomNameById(
+    String Id,
+  ) async {
+    try {
+      final PhpApi _api = PhpApi();
+      var res = await _api.postRequest(getCustloyeeByIdLink, {'id': Id});
+
+      // List<dynamic> data = jsonDecode(res);
+
+      return Customer.fromJson(res);
     } catch (e) {
       print('catch getItems error $e}');
       return jsonDecode(e.toString());
@@ -220,7 +171,7 @@ class Api {
       var response = await http.get(Uri.parse(getordersLink));
       print(jsonDecode(response.body));
       final data = jsonDecode(response.body);
-      for (Map order in data) {
+      for (Map<String, dynamic> order in data) {
         // String items = '';
         // await getorderItems(order['order_id']).then((value) {
         //   value.forEach((element) {
@@ -231,111 +182,25 @@ class Api {
         String itemsName = '';
         List<Item> items = await getorderItems(order['order_id']);
         items.forEach((element) {
-          itemsName =  '${element.name!}:${element.count}'+ '-' +itemsName;
+          itemsName = '${element.name!}:${element.count}' + '-' + itemsName;
         });
-
-        apiOrders.add(
-          Order(
-            getDelTime: order['getDelTime'],
-            id: order['order_id'],
-            doneCustTime: order['doneCustTime'],
-            totalPrice: order['totalPrice'],
-            deliveryUserNum: order['delivery_id'],
-            orderTime: order['createTime'].toString(),
-            isWaitting: order['isWaiting'] == '0' ? false : true,
-            items: items,
-            received: order['isRecieved'] == '0' ? false : true,
-            ownerUserNum: order['owner_id'],
-            marker: Marker(
-              rotation: order['isWaiting'] == '1'
-                  ? 0
-                  : order['isRecieved'] == '1'
-                      ? 180
-                      : 90,
-              infoWindow: InfoWindow(
-                  onTap: () async {
-                    var delivery = await getUserNameById(
-                        order['delivery_id'], getEmployeeByIdLink);
-
-                    if (order['isWaiting'] == '1' &&
-                        order['isRecieved'] == '0') {
-                      AwesomeDialog(
-                          context: context,
-                          btnCancelText: 'delete',
-                          btnCancelOnPress: () async {
-                            CustomeCircularProgress(context);
-
-                            await deleteOrder(order['order_id'].toString())
-                                .then((value) {
-                              value == 'success'
-                                  ? Navigator.pushAndRemoveUntil(context,
-                                      MaterialPageRoute(builder: (conetxt) {
-                                      return CustomDashboard(
-                                          preferences.getString('name')!,
-                                          preferences.getString('password')!,
-                                          preferences.getString('phone')!);
-                                    }), (route) => false)
-                                  : null;
-                            });
-                          }).show();
-                    } else if (order['isWaiting'] == '0' &&
-                        order['isRecieved'] == '0') {
-                      AwesomeDialog(
-                          context: context,
-                          btnOkText: 'i get it',
-                          btnOkOnPress: () async {
-                            await updateDoneOrder(
-                              order['order_id'].toString(),
-                              '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}'
-                              '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
-                            ).then((value) {
-                              value == 'success'
-                                  ? Navigator.pushAndRemoveUntil(context,
-                                      MaterialPageRoute(builder: (conetxt) {
-                                      return CustomDashboard(
-                                          preferences.getString('name')!,
-                                          preferences.getString('password')!,
-                                          preferences.getString('phone')!);
-                                    }), (route) => false)
-                                  : null;
-                            });
-                          },
-                          body: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              'your order on road with : ${delivery.name!}... you get it ?',
-                              textAlign: TextAlign.center,
-                            ),
-                          )).show();
-                    } else {
-                      AwesomeDialog(
-                          context: context,
-                          body: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                                'your order has done by : ${delivery.name!}'
-                                ''),
-                          )).show();
-                    }
-                  },
-                  snippet: itemsName + '  id :' + order['order_id'].toString(),
-                  title: '${order['createTime']}'),
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                order['isWaiting'] == '1'
-                    ? BitmapDescriptor.hueGreen
-                    : order['isRecieved'] == '1'
-                        ? BitmapDescriptor.hueAzure
-                        : BitmapDescriptor.hueRed,
-              ),
-              markerId: MarkerId(order['order_id']),
-              position: LatLng(
-                double.parse(order['lat']),
-                double.parse(
-                  order['long'],
-                ),
-              ),
-            ),
+        BitmapDescriptor waitIcon = await BitmapDescriptor.fromAssetImage(
+          ImageConfiguration(
+            size: Size.fromHeight(30),
           ),
+          "lib/images/waitIcon.png",
+        );
+        BitmapDescriptor doneIcon = await BitmapDescriptor.fromAssetImage(
+          ImageConfiguration(size: Size.fromHeight(10)),
+          "lib/images/doneIcon.png",
+        );
+        BitmapDescriptor activeIcon = await BitmapDescriptor.fromAssetImage(
+          ImageConfiguration(),
+          "lib/images/activeIcon.png",
+        );
+        apiOrders.add(
+          Order.fromJson(
+              order, context, itemsName, false, waitIcon, activeIcon, doneIcon),
         );
       }
       return apiOrders;
@@ -345,7 +210,7 @@ class Api {
           context: context,
           content: 'no internet',
           onOkTap: () {
-            updateCustomScreen(context);
+            updateCustomScreen();
           });
       return [];
     }
@@ -438,10 +303,8 @@ class Api {
     }
   }
 
-  updateCustomScreen(context) {
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) {
-      return CustomDashboard(preferences.getString('name')!,
-          preferences.getString('password')!, preferences.getString('phone')!);
-    }), (route) => false);
+  updateCustomScreen() {
+    Get.off(CustomDashboard(preferences.getString('name')!,
+        preferences.getString('password')!, preferences.getString('phone')!));
   }
 }
