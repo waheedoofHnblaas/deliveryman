@@ -30,7 +30,7 @@ class CustomDashboard extends StatefulWidget {
 }
 
 bool ttt = false;
-Position myLocation = Position(
+Position myLocationCust = Position(
     longitude: 37.166668,
     latitude: 36.216667,
     timestamp: DateTime.now(),
@@ -50,7 +50,7 @@ class _DashboardState extends State<CustomDashboard> {
         per = await Geolocator.requestPermission();
         if (per != LocationPermission.always) {}
       }
-      myLocation = await API.getMyLocation();
+      myLocationCust = await API.getMyLocation();
       setState(() {
         ttt = true;
       });
@@ -61,7 +61,7 @@ class _DashboardState extends State<CustomDashboard> {
         return Login(false);
       }), (route) => false);
     }
-    await API.getMyOrders(myLocation, context);
+    await Api.getMyOrders(myLocationCust, context);
   }
 
   @override
@@ -86,11 +86,9 @@ class _DashboardState extends State<CustomDashboard> {
         actions: [
           IconButton(
               onPressed: () {
-                Navigator.pushAndRemoveUntil(context,
-                    MaterialPageRoute(builder: (context) {
-                  return CustomDashboard(
-                      widget.name, widget.password, widget.phone);
-                }), (route) => false);
+                Get.offAll(
+                  CustomDashboard(widget.name, widget.password, widget.phone),
+                );
               },
               icon: Icon(CupertinoIcons.refresh)),
           IconButton(
@@ -98,7 +96,7 @@ class _DashboardState extends State<CustomDashboard> {
                 preferences.clear();
                 Get.offAll(PersonalScreen());
               },
-              icon: Icon(CupertinoIcons
+              icon: const Icon(CupertinoIcons
                   .rectangle_arrow_up_right_arrow_down_left_slash)),
         ],
       ),
@@ -110,7 +108,7 @@ class _DashboardState extends State<CustomDashboard> {
           onPressed: () async {
             CustomeCircularProgress(context);
             try {
-              API.apiOrders.forEach(
+              Api.apiOrders.forEach(
                 (element) {
                   if (element.ownerId == preferences.getString('id')) {
                     print(element.ownerId);
@@ -126,12 +124,14 @@ class _DashboardState extends State<CustomDashboard> {
                 },
               );
               if (!haveOrder) {
-                list = await API.getorderItems('all');
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return AddScreen(
-                      LatLng(myLocation.latitude, myLocation.longitude), list);
-                }));
+                list = await Api.getorderItems('all');
+                Get.back();
+                Get.to(
+                  AddScreen(
+                    LatLng(myLocationCust.latitude, myLocationCust.longitude),
+                    list,
+                  ),
+                );
               } else {
                 Navigator.pop(context);
 
@@ -144,37 +144,37 @@ class _DashboardState extends State<CustomDashboard> {
                     btnCancelOnPress: () async {
                       CustomeCircularProgress(context);
 
-                      await API
-                          .deleteOrder(_order.orderId.toString())
+                      await Api.deleteOrder(_order.orderId.toString())
                           .then((value) async {
-                        list = await API.getorderItems('all');
+                        list = await Api.getorderItems('all');
 
                         if (value == 'success') {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (conetxt) {
-                            return AddScreen(
-                                LatLng(
-                                    myLocation.latitude, myLocation.longitude),
-                                list);
-                          }));
+                          Get.to(
+                            AddScreen(
+                                LatLng(myLocationCust.latitude,
+                                    myLocationCust.longitude),
+                                list),
+                          );
                         } else {
-                          Navigator.pop(context);
+                          Get.back();
                           CustomAwesomeDialog(
                               context: context,
                               content: 'error with connection',
                               onOkTap: () {
-                                Navigator.pushAndRemoveUntil(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return CustomDashboard(widget.name,
-                                      widget.password, widget.phone);
-                                }), (route) => false);
+                                Get.offAll(
+                                  CustomDashboard(
+                                    widget.name,
+                                    widget.password,
+                                    widget.phone,
+                                  ),
+                                );
                               });
                         }
                       });
                     }).show();
               }
             } catch (e) {
-              Navigator.pop(context);
+              Get.back();
               CustomAwesomeDialog(context: context, content: '$e');
             }
           },
@@ -186,7 +186,7 @@ class _DashboardState extends State<CustomDashboard> {
       body: Center(
         child: ttt
             ? FutureBuilder<List<Order>>(
-                future: API.getMyOrders(myLocation, context),
+                future: Api.getMyOrders(myLocationCust, context),
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       !snapshot.hasError &&
@@ -202,8 +202,8 @@ class _DashboardState extends State<CustomDashboard> {
                         GoogleMap(
                           markers: Set.of(marks),
                           initialCameraPosition: CameraPosition(
-                            target: LatLng(
-                                myLocation.latitude, myLocation.longitude),
+                            target: LatLng(myLocationCust.latitude,
+                                myLocationCust.longitude),
                             zoom: 11.5,
                           ),
                         ),

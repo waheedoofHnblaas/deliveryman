@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:google_map/conmponent/customAwesome.dart';
 import 'package:google_map/oop/Order.dart';
 import 'package:google_map/conmponent/customDrawer.dart';
 import 'package:google_map/database/google_map_api.dart';
@@ -75,7 +76,7 @@ class _EmpDashboardState extends State<MainDashboard> {
   @override
   void initState() {
     getPos();
-    API.apiOrders.forEach((element) {
+    Api.apiOrders.forEach((element) {
       print(element.createTime);
     });
   }
@@ -85,7 +86,7 @@ class _EmpDashboardState extends State<MainDashboard> {
     return Scaffold(
       backgroundColor: Colors.white,
       drawerEdgeDragWidth: MediaQuery.of(context).size.width / 3,
-      drawer: CustomAwesomeDrawer(context, myLocation),
+      drawer: CustomAwesomeDrawer(context, myLocation,Api.apiOrders),
       appBar: AppBar(
         elevation: 0,
         actions: [
@@ -103,39 +104,45 @@ class _EmpDashboardState extends State<MainDashboard> {
                   return PersonalScreen();
                 }), (route) => false);
               },
-              icon: const Icon(CupertinoIcons
-                  .rectangle_arrow_up_right_arrow_down_left_slash)),
+              icon: const Icon(
+                CupertinoIcons.rectangle_arrow_up_right_arrow_down_left_slash,
+              )),
         ],
         title: Text('Orders EMP: ${preferences.getString('name')}'),
       ),
       body: Center(
         child: ttt
-            ? FutureBuilder<List<Order>>(
-                future: API.getMainOrders(myLocation, context),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData &&
-                      !snapshot.hasError &&
-                      snapshot.connectionState == ConnectionState.done) {
-                    List<Marker> marks = [];
-                    for (Order order in snapshot.data!) {
-                      marks.add(order.marker!);
-                    }
-                    return GoogleMap(
-                      mapType: MapType.terrain,
-                      myLocationEnabled: true,
-                      myLocationButtonEnabled: true,
-                      markers: Set.of(marks),
-                      initialCameraPosition: CameraPosition(
-                        target:
-                            LatLng(myLocation.latitude, myLocation.longitude),
-                        zoom: 12,
-                      ),
-                    );
-                  } else {
-                    return CircularProgressIndicator();
-                  }
-                },
-              )
+            ? Stack(
+              children: [
+                FutureBuilder<List<Order>?>(
+                    future: Api.getMainOrders(myLocation, context,''),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData &&
+                          !snapshot.hasError &&
+                          snapshot.connectionState == ConnectionState.done) {
+                        List<Marker> marks = [];
+                        for (Order order in snapshot.data!) {
+
+                          marks.add(order.marker!);
+                        }
+                        return GoogleMap(
+                          mapType: MapType.terrain,
+                          myLocationEnabled: true,
+                          myLocationButtonEnabled: true,
+                          markers: Set.of(marks),
+                          initialCameraPosition: CameraPosition(
+                            target:
+                                LatLng(myLocation.latitude, myLocation.longitude),
+                            zoom: 12,
+                          ),
+                        );
+                      } else {
+                        return CircularProgressIndicator();
+                      }
+                    },
+                  ),
+              ],
+            )
             : CircularProgressIndicator(),
       ),
     );

@@ -34,89 +34,97 @@ class _PersonalScreenState extends State<PersonalScreen> {
               left: 0,
               right: 0,
               top: 0,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Get.theme.backgroundColor,
-                  borderRadius: BorderRadius.all(Radius.circular(33)),
-                ),
-                child: SingleChildScrollView(
-                  reverse: true,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      SizedBox(
-                        child: Image.asset(
-                          "lib/images/delivery.png",
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Get.theme.backgroundColor,
+                    borderRadius: BorderRadius.all(Radius.circular(33)),
+                  ),
+                  child: SingleChildScrollView(
+                    reverse: true,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          child: Hero(
+                            tag: 'icon',
+                            child: Image.asset(
+                              "lib/images/delivery.png",
+                            ),
+                          ),
+                          height: MediaQuery.of(context).size.height * 0.4,
                         ),
-                        height: MediaQuery.of(context).size.height * 0.4,
-                      ),
-                      const SizedBox(height: 55),
-                      Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: Text(
-                          'are you ?',
-                          style: TextStyle(color: Get.theme.primaryColor),
+                        const SizedBox(height: 55),
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text(
+                            'are you ?',
+                            style: TextStyle(color: Get.theme.primaryColor),
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Expanded(
-                              child: OutlineButton(
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                child: OutlineButton(
 
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(33)),
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    isCustom = !isCustom;
-                                    isEmp = false;
-                                  });
-                                },
-                                child: Text(
-                                  'Customer',
-                                  style:
-                                      TextStyle(color: Get.theme.primaryColor),
-                                ),
-                                borderSide: BorderSide(
-                                  color: isCustom
-                                      ? Get.theme.primaryColor
-                                      : Get.theme.backgroundColor,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 8,),
-                            Expanded(
-                              child: OutlineButton(
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(33)),
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    isEmp = !isEmp;
-                                    isCustom = false;
-                                  });
-                                },
-                                child: Text(
-                                  'Employee',
-                                  style:
-                                      TextStyle(color: Get.theme.primaryColor),
-                                ),
-                                borderSide: BorderSide(
-                                  color: isEmp
-                                      ? Get.theme.primaryColor
-                                      : Get.theme.backgroundColor,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(33)),
+                                  ),
+
+                                  onPressed: () {
+                                    setState(() {
+                                      isCustom = !isCustom;
+                                      isEmp = false;
+                                    });
+                                  },
+                                  child: Text(
+                                    'Customer',
+                                    style:
+                                        TextStyle(color: Get.theme.primaryColor),
+                                  ),
+                                  borderSide: BorderSide(
+                                    color: isCustom
+                                        ? Get.theme.primaryColor
+                                        : Get.theme.backgroundColor,
+                                  ),
+
                                 ),
                               ),
-                            ),
-                          ],
+                              SizedBox(width: 8,),
+                              Expanded(
+                                child: OutlineButton(
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(33)),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      isEmp = !isEmp;
+                                      isCustom = false;
+                                    });
+                                  },
+                                  child: Text(
+                                    'Employee',
+                                    style:
+                                        TextStyle(color: Get.theme.primaryColor),
+                                  ),
+                                  borderSide: BorderSide(
+                                    color: isEmp
+                                        ? Get.theme.primaryColor
+                                        : Get.theme.backgroundColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -126,6 +134,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
               child: InkWell(
                 onTap: () {
                   if (!isEmp && !isCustom) {
+                    Get.to(Login(false));
                   } else {
                     if (isEmp) {
                       Get.to(Login(isEmp));

@@ -6,6 +6,8 @@ Widget CustomeTextFeild(
   lab,
   String content,
   context, {
+    auto = true,
+      type = TextInputAction.next,
   isPassword = false,
   TextInputType isNumber = TextInputType.name,
 }) {
@@ -23,11 +25,12 @@ Widget CustomeTextFeild(
         height: 60,
         width: MediaQuery.of(context).size.width - 10,
         child: TextFormField(
-            textInputAction: TextInputAction.next,
+
+            textInputAction: type,
             initialValue: content,
             keyboardType: isNumber,
             style: TextStyle(fontSize: 16),
-            autofocus: true,
+            autofocus: auto,
             textAlign: TextAlign.center,
             cursorHeight: 25,
             obscureText: isPassword,

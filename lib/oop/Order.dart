@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_map/conmponent/CustomCirProgress.dart';
 import 'package:google_map/conmponent/customAwesome.dart';
 import 'package:google_map/database/api.dart';
@@ -61,7 +62,7 @@ class Order {
       //         : 90,
       infoWindow: InfoWindow(
           onTap: () async {
-            var delivery = await API.getEmpNameById(
+            var delivery = await Api.getEmpNameById(
               json['delivery_id'],
             );
             if (isEmp) {
@@ -70,18 +71,15 @@ class Order {
                     context: context,
                     content: 'I will Arrive',
                     onOkTap: () async {
-                      API
+                      Api
                           .updateGettingOrder(json['order_id'],
-                              preferences.getString('id')!, getNowTime())
+                              preferences.getString('id')!, API.getNowTime())
                           .then((value) async {
                         value == 'success'
-                            ? Navigator.pushAndRemoveUntil(context,
-                                MaterialPageRoute(builder: (conetxt) {
-                                return MainDashboard(
-                                    preferences.getString('name')!,
-                                    preferences.getString('password')!,
-                                    preferences.getString('phone')!);
-                              }), (route) => false)
+                            ? Get.offAll(MainDashboard(
+                            preferences.getString('name')!,
+                            preferences.getString('password')!,
+                            preferences.getString('phone')!))
                             : null;
                       });
                     });
@@ -106,17 +104,14 @@ class Order {
                     btnCancelOnPress: () async {
                       CustomeCircularProgress(context);
 
-                      await API
+                      await Api
                           .deleteOrder(json['order_id'].toString())
                           .then((value) {
                         value == 'success'
-                            ? Navigator.pushAndRemoveUntil(context,
-                                MaterialPageRoute(builder: (conetxt) {
-                                return CustomDashboard(
-                                    preferences.getString('name')!,
-                                    preferences.getString('password')!,
-                                    preferences.getString('phone')!);
-                              }), (route) => false)
+                            ? Get.offAll(CustomDashboard(
+                            preferences.getString('name')!,
+                            preferences.getString('password')!,
+                            preferences.getString('phone')!))
                             : null;
                       });
                     }).show();
@@ -126,20 +121,17 @@ class Order {
                     context: context,
                     btnOkText: 'i get it',
                     btnOkOnPress: () async {
-                      await API
+                      await Api
                           .updateDoneOrder(
                         json['order_id'].toString(),
-                        getNowTime(),
+                        API.getNowTime(),
                       )
                           .then((value) {
                         value == 'success'
-                            ? Navigator.pushAndRemoveUntil(context,
-                                MaterialPageRoute(builder: (conetxt) {
-                                return CustomDashboard(
-                                    preferences.getString('name')!,
-                                    preferences.getString('password')!,
-                                    preferences.getString('phone')!);
-                              }), (route) => false)
+                            ? Get.offAll(CustomDashboard(
+                            preferences.getString('name')!,
+                            preferences.getString('password')!,
+                            preferences.getString('phone')!))
                             : null;
                       });
                     },
@@ -183,24 +175,20 @@ class Order {
     totalPrice = json['totalPrice'];
   }
 
-// Map<String, dynamic> toJson() {
-//   final Map<String, dynamic> data = new Map<String, dynamic>();
-//   data['order_id'] = this.orderId;
-//   data['owner_id'] = this.ownerId;
-//   data['delivery_id'] = this.deliveryId;
-//   data['isWaiting'] = this.isWaiting;
-//   data['isRecieved'] = this.isRecieved;
-//   data['lat'] = this.lat;
-//   data['long'] = this.long;
-//   data['createTime'] = this.createTime;
-//   data['getDelTime'] = this.getDelTime;
-//   data['doneCustTime'] = this.doneCustTime;
-//   data['totalPrice'] = this.totalPrice;
-//   return data;
-// }
+Map<String, dynamic> toJson(lat,long) {
+  final Map<String, dynamic> data = new Map<String, dynamic>();
+  data['owner_id']= preferences.get('id').toString();
+  data['delivery_id']= '0';
+  data['isWaiting']= '1';
+  data['isRecieved']= '0';
+  data['getDelTime']= '0';
+  data['doneCustTime']= '0';
+  data['totalPrice']= '0';
+  data['lat']= lat;
+  data['long']= long;
+  data['createTime']= API.getNowTime();
+  return data;
+}
 }
 
-String getNowTime() {
-  return '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}'
-      '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}';
-}
+

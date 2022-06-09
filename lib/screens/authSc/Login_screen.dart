@@ -77,7 +77,11 @@ class _LoginState extends State<Login> {
         print('register failed ${response['status']}');
       }
     } catch (e) {
-      CustomAwesomeDialog(context: context, content: 'network error $e');
+      if(e.toString().contains("Receiver")){
+        CustomAwesomeDialog(context: context, content: 'server error wait...');
+      }else{
+        CustomAwesomeDialog(context: context, content: 'network error');
+      }
       print(e);
     }
   }
@@ -106,45 +110,49 @@ class _LoginState extends State<Login> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Get.theme.backgroundColor,
-                    borderRadius: BorderRadius.all(Radius.circular(33)),
-                  ),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 100,
-                        child: Image.asset('lib/images/delivery.png'),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      CustomeTextFeild((val) {
-                        setState(() {
-                          name = val;
-                        });
-                      }, 'your personal name', '', context),
-                      CustomeTextFeild(
-                        (val) {
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Get.theme.backgroundColor,
+                      borderRadius: BorderRadius.all(Radius.circular(33)),
+                    ),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 100,
+                          child: Hero(
+                              tag: 'icon',
+                              child: Image.asset('lib/images/delivery.png')),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        CustomeTextFeild((val) {
                           setState(() {
-                            password = val;
+                            name = val;
                           });
-                        },
-                        'your password',
-                        '',
-                        context,
-                        isPassword: true,
-                      ),
-                    ],
+                        }, 'your personal name', '', context),
+                        CustomeTextFeild(
+                          (val) {
+                            setState(() {
+                              password = val;
+                            });
+                          },
+                          'your password',
+                          '',
+                          context,
+                          isPassword: true,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 CustomeButton(() async {
                   if (name != '' && password != '') {
                     await login();
                   } else {
-                    AwesomeDialog(context: context, title: 'empty field')
-                        .show();
+                   CustomAwesomeDialog(context: context, content:  'empty field');
                   }
                 }, 'login', context),
                 widget.isEmp

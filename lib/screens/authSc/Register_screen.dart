@@ -80,48 +80,58 @@ class _RegisterState extends State<Register> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Get.theme.backgroundColor,
-                    borderRadius: BorderRadius.all(Radius.circular(33)),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: 100,
-                        child: Image.asset('lib/images/delivery.png'),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      CustomeTextFeild((v) {
-                        setState(() {
-                          name = v;
-                        });
-                      }, 'your personal name', '', context),
-                      CustomeTextFeild((v) {
-                        setState(() {
-                          phone = v;
-                        });
-                      }, 'your phone number', '', context,
-                          isNumber: TextInputType.number),
-                      CustomeTextFeild((v) {
-                        setState(() {
-                          password = v;
-                        });
-                      }, 'your phone password', '', context, isPassword: true),
-                    ],
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Get.theme.backgroundColor,
+                      borderRadius: BorderRadius.all(Radius.circular(33)),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 100,
+                          child: Hero(
+                              tag: 'icon',
+                              child: Image.asset('lib/images/delivery.png')),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        CustomeTextFeild((v) {
+                          setState(() {
+                            name = v;
+                          });
+                        }, 'your personal name', '', context),
+                        CustomeTextFeild((v) {
+                          setState(() {
+                            phone = v;
+                          });
+                        }, 'your phone number', '', context,
+                            isNumber: TextInputType.number),
+                        CustomeTextFeild((v) {
+                          setState(() {
+                            password = v;
+                          });
+                        }, 'your phone password', '', context, isPassword: true),
+                      ],
+                    ),
                   ),
                 ),
                 CustomeButton(
                   () async {
                     if (name == '' || password == '' || phone == '') {
-                      CustomAwesomeDialog(context: context, content: 'empty field');
+                      CustomAwesomeDialog(
+                          context: context, content: 'empty field');
                     } else if (password.length < 7) {
-                      CustomAwesomeDialog(context: context, content: 'password shorter than 6 letters');
+                      CustomAwesomeDialog(
+                          context: context,
+                          content: 'password shorter than 6 letters');
                     } else if (name.length < 7) {
-                      CustomAwesomeDialog(context: context, content: 'name shorter than 6 letters');
+                      CustomAwesomeDialog(
+                          context: context,
+                          content: 'name shorter than 6 letters');
                     } else {
                       await regist();
                     }

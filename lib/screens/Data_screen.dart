@@ -1,13 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_map/oop/Order.dart';
+import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
+import 'package:google_map/screens/dashSc/MainDash.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class DataScreen extends StatefulWidget {
-  DataScreen(this.latlong, this.marker);
+  DataScreen(this._order);
 
   late CameraPosition latlong;
-  late Marker marker;
+  late Order _order;
 
   @override
   State<DataScreen> createState() => _DataScreenState();
@@ -21,8 +24,22 @@ class _DataScreenState extends State<DataScreen> {
         child: Stack(
           children: [
             GoogleMap(
-              initialCameraPosition: widget.latlong,
-              markers: {widget.marker},
+              initialCameraPosition: CameraPosition(
+                zoom: 12,
+                target: LatLng(
+                  widget._order.marker!.position.latitude,
+                  widget._order.marker!.position.longitude,
+                ),
+              ),
+              markers: {
+                widget._order.marker!,
+                Marker(
+                  markerId: const MarkerId('123325'),
+                  position: LatLng(myLocation.latitude, myLocation.longitude),
+                  infoWindow: const InfoWindow(title: 'your location'),
+                )
+              },
+              myLocationEnabled: true,
             ),
             Positioned(
               top: 30,

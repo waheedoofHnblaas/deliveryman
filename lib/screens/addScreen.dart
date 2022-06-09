@@ -1,10 +1,9 @@
-import 'dart:math';
-
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:google_map/conmponent/CustomItemCard.dart';
 import 'package:google_map/conmponent/customAwesome.dart';
 import 'package:google_map/oop/Item.dart';
@@ -36,7 +35,9 @@ class _AddScreenState extends State<AddScreen> {
   final PhpApi _api = PhpApi();
   Api API = Api();
 
-  List<Item> _listitems = [];
+  bool total = true;
+  final Order _order = Order();
+  final List<Item> _listitems = [];
 
   addOrder() async {
     CustomeCircularProgress(context);
@@ -44,20 +45,7 @@ class _AddScreenState extends State<AddScreen> {
     try {
       var response = await _api.postRequest(
         addorederLink,
-        {
-          'owner_id': preferences.get('id').toString(),
-          'delivery_id': '0',
-          'isWaiting': '1',
-          'isRecieved': '0',
-          'getDelTime': '0',
-          'doneCustTime': '0',
-          'totalPrice': '0',
-          'lat': lat,
-          'long': long,
-          'createTime':
-              '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}'
-                  '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
-        },
+        _order.toJson(lat, long),
       );
 
       print('add failed ${response['orderId']}');
@@ -77,10 +65,11 @@ class _AddScreenState extends State<AddScreen> {
     }
   }
 
-  addOrderItem(
-      {required String lastOrderId,
-      required String itemId,
-      required String itemCount}) async {
+  addOrderItem({
+    required String lastOrderId,
+    required String itemId,
+    required String itemCount,
+  }) async {
     try {
       var response = await _api.postRequest(
         addItemsOrderLink,
@@ -143,16 +132,29 @@ class _AddScreenState extends State<AddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('add order'),
+        leading: IconButton(
+          iconSize: 25,
+          onPressed: () {
+            Get.back();
+          },
+          icon: const Icon(
+            CupertinoIcons.back,
+          ),
+        ),
+        backgroundColor: Get.theme.primaryColor,
+        title: const Text('add'),
+        centerTitle: true,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: [
-            Stack(
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SizedBox(
-                  height: MediaQuery.of(context).size.height / 2.8,
+                  height: total
+                      ? MediaQuery.of(context).size.height/1.1
+                      : MediaQuery.of(context).size.height /3,
                   child: GoogleMap(
                     mapToolbarEnabled: true,
                     onMapCreated: (val) {
@@ -174,13 +176,21 @@ class _AddScreenState extends State<AddScreen> {
                         CustomAwesomeDialog(
                             context: context, content: 'out of our map');
                       }
+                      CustomAwesomeDialog(
+                          context: context,
+                          content: 'set here and choose items !',
+                          onOkTap: () {
+                            setState(() {
+                              total = false;
+                            });
+                          });
                     },
                     myLocationEnabled: true,
                     myLocationButtonEnabled: true,
                     markers: lat != ''
                         ? {
                             Marker(
-                                infoWindow: InfoWindow(
+                                infoWindow: const InfoWindow(
                                     title: 'your new order location'),
                                 visible: true,
                                 markerId: MarkerId(id),
@@ -195,168 +205,165 @@ class _AddScreenState extends State<AddScreen> {
                     ),
                   ),
                 ),
-                Positioned(
-                  top: 5,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('dkdk'),
-                        ),
-                        color: Colors.amber,
-                      ),
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('dkdk'),
-                        ),
-                        color: Colors.amber,
-                      ),
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('dkdk'),
-                        ),
-                        color: Colors.amber,
-                      ),
-                    ],
-                  ),
-                ),
+                !total
+                    ?
+                SizedBox(
+                  width: MediaQuery.of(context).size.width - 5,
+                  height: 300,
+                  child: FutureBuilder<List<Item>>(
+                      initialData: widget.getorderItems,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            !snapshot.hasError &&
+                            ConnectionState.waiting !=
+                                snapshot.connectionState) {
+                          return ListView.builder(
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: ((context, index) {
+                                return InkWell(
+                                  onTap: () async {
+                                    AwesomeDialog(
+                                            context: context,
+                                            body: Column(
+                                              children: [
+                                                Text(
+                                                  'count of :${snapshot.data![index].name}',
+                                                  style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  width:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.7,
+                                                  child:
+                                                      SingleChildScrollView(
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    child: Row(
+                                                      children: List.generate(
+                                                          10, (i) {
+                                                        return InkWell(
+                                                          onTap: () {
+                                                            if (i > 0) {
+                                                              _listitems.remove(
+                                                                  snapshot.data![
+                                                                      index]);
+                                                              snapshot
+                                                                      .data![
+                                                                          index]
+                                                                      .count =
+                                                                  (i).toString();
+                                                              _listitems.add(
+                                                                  snapshot.data![
+                                                                      index]);
+                                                            } else {
+                                                              snapshot
+                                                                  .data![
+                                                                      index]
+                                                                  .count = '';
+                                                              _listitems.remove(
+                                                                  snapshot.data![
+                                                                      index]);
+                                                            }
+
+                                                            setState(() {});
+                                                            print(_listitems
+                                                                .length);
+                                                            _listitems.forEach(
+                                                                (element) {
+                                                              print(element
+                                                                      .name! +
+                                                                  ' :====== ' +
+                                                                  element
+                                                                      .count!);
+                                                            });
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          child: Card(
+                                                            color:
+                                                                Colors.green,
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .all(
+                                                                      20.0),
+                                                              child: Text(
+                                                                i >= 0
+                                                                    ? '${i}'
+                                                                    : 'X',
+                                                                style: TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      }),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            dialogType: DialogType.NO_HEADER)
+                                        .show();
+                                  },
+                                  child: CustomItemCard(
+                                      context,
+                                      snapshot,
+                                      index,
+                                      Container(),
+                                      snapshot.data![index].count),
+                                );
+                              }));
+                        } else {
+                          return LinearProgressIndicator();
+                        }
+                      }),
+                ):Container(),
+                // !(itemId[0] == '' || itemId[1] == '' || itemId[2] == '')
+                //     ?
+                // : Text(
+                //     'choose three items',
+                //     style: TextStyle(color: Colors.red),
+                //   ),
               ],
             ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width - 5,
-              height: 300,
-              child: FutureBuilder<List<Item>>(
-                  initialData: widget.getorderItems,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        !snapshot.hasError &&
-                        ConnectionState.waiting != snapshot.connectionState) {
-                      return ListView.builder(
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: ((context, index) {
-                            return InkWell(
-                              onTap: () async {
-                                AwesomeDialog(
-                                        context: context,
-                                        body: Column(
-                                          children: [
-                                            Text(
-                                              'count of :${snapshot.data![index].name}',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.7,
-                                              child: SingleChildScrollView(
-                                                scrollDirection:
-                                                    Axis.horizontal,
-                                                child: Row(
-                                                  children:
-                                                      List.generate(10, (i) {
-                                                    return InkWell(
-                                                      onTap: () {
-                                                        if (i > 0) {
-                                                          _listitems.remove(
-                                                              snapshot.data![
-                                                                  index]);
-                                                          snapshot.data![index]
-                                                                  .count =
-                                                              (i).toString();
-                                                          _listitems.add(
-                                                              snapshot.data![
-                                                                  index]);
-                                                        } else {
-                                                          snapshot.data![index]
-                                                              .count = '';
-                                                          _listitems.remove(
-                                                              snapshot.data![
-                                                                  index]);
-                                                        }
-
-                                                        setState(() {});
-                                                        print(
-                                                            _listitems.length);
-                                                        _listitems
-                                                            .forEach((element) {
-                                                          print(element.name! +
-                                                              ' :====== ' +
-                                                              element.count!);
-                                                        });
-                                                        Navigator.pop(context);
-                                                      },
-                                                      child: Card(
-                                                        color: Colors.green,
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .all(20.0),
-                                                          child: Text(
-                                                            i >= 0
-                                                                ? '${i}'
-                                                                : 'X',
-                                                            style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        dialogType: DialogType.NO_HEADER)
-                                    .show();
-                              },
-                              child: CustomItemCard(context, snapshot, index,
-                                  Container(), snapshot.data![index].count),
-                            );
-                          }));
-                    } else {
-                      return LinearProgressIndicator();
-                    }
-                  }),
-            ),
-            // !(itemId[0] == '' || itemId[1] == '' || itemId[2] == '')
-            //     ?
-            SizedBox(
-              width: MediaQuery.of(context).size.width / 2,
-              child: OutlineButton(
-                color: Colors.green,
-                onPressed: () async {
-                  if ((36.2395093776424 > double.parse(lat) &&
-                          double.parse(lat) > 36.16330528868279) &&
-                      (37.08518844097853 < double.parse(long) &&
-                          double.parse(long) < 37.20690105110407)) {
-                    if (_listitems.length == 0) {
-                      CustomAwesomeDialog(
-                          context: context, content: 'no item selected');
-                    } else {
-                      await addOrder();
-                    }
-                  } else {
-                    CustomAwesomeDialog(
-                        context: context, content: 'out of our map');
-                  }
-                },
-                child: const Text('sure'),
-              ),
-            )
-            // : Text(
-            //     'choose three items',
-            //     style: TextStyle(color: Colors.red),
-            //   ),
+            total
+                ? Container()
+                : Positioned(
+                    bottom: 10,
+                    right: 12,
+                    left: 12,
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width / 2,
+                      child: MaterialButton(
+                        color: Colors.green,
+                        onPressed: () async {
+                          if ((36.2395093776424 > double.parse(lat) &&
+                                  double.parse(lat) > 36.16330528868279) &&
+                              (37.08518844097853 < double.parse(long) &&
+                                  double.parse(long) < 37.20690105110407)) {
+                            if (_listitems.length == 0) {
+                              CustomAwesomeDialog(
+                                  context: context,
+                                  content: 'no item selected');
+                            } else {
+                              await addOrder();
+                            }
+                          } else {
+                            CustomAwesomeDialog(
+                                context: context, content: 'out of our map');
+                          }
+                        },
+                        child: const Text('sure'),
+                      ),
+                    ))
           ],
         ),
       ),

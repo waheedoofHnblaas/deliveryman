@@ -22,7 +22,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class Api {
-  Future<Position> getMyLocation() async {
+    Future<Position> getMyLocation() async {
     Position cl = await Geolocator.getCurrentPosition().then((value) => value);
     print('++++++++++++++++++++++$cl+++++++++++++++++++++++++++');
     return cl;
@@ -46,14 +46,14 @@ class Api {
   //   }
   // }
 
-  double getDestanceBetween(
+  static double getDestanceBetween(
       startLatitude, startLongitude, endLatitude, endLongitude) {
     double cl = Geolocator.distanceBetween(
         startLatitude, startLongitude, endLatitude, endLongitude);
     return cl;
   }
 
-  double getDestanceMyLocationToOrder(Position mylocation, Order order) {
+  static double getDestanceMyLocationToOrder(Position mylocation, Order order) {
     double cl = Geolocator.distanceBetween(
         mylocation.latitude,
         mylocation.longitude,
@@ -77,32 +77,22 @@ class Api {
   //   return orders;
   // }
 
-  List<Order> apiOrders = [];
+  static List<Order> apiOrders = [];
 
-  Future<List<Order>> getMainOrders(Position mylocation, context) async {
+
+  static Future<List<Order>?> getMainOrders(Position mylocation, context, search ) async {
     try {
+      apiOrders.clear();
       var response = await http.get(Uri.parse(getordersLink));
       print(jsonDecode(response.body));
       final data = jsonDecode(response.body);
       for (Map<String, dynamic> order in data) {
-        // String items = '';
-        // await getorderItems(order['order_id']).then((value) {
-        //   value.forEach((element) {
-        //     items = items +'-'+element.;
-        //   });
-        // });
 
-        int destance = Geolocator.distanceBetween(
-                mylocation.latitude,
-                mylocation.longitude,
-                double.parse(order['lat']),
-                double.parse(order['long']))
-            .ceil();
         String itemsName = '';
         List<Item> items = await getorderItems(order['order_id']);
-        items.forEach((element) {
-          itemsName = '${element.name!}:${element.count}' + '-' + itemsName;
-        });
+        for (var element in items) {
+          itemsName = '${element.name!}:${element.count} -' + itemsName;
+        }
 
         if (order['delivery_id'] == preferences.getString('id')! ||
             order['isWaiting'] == '1' ||
@@ -134,7 +124,7 @@ class Api {
     }
   }
 
-  Future<Employee> getEmpNameById(
+  static  Future<Employee> getEmpNameById(
     String Id,
   ) async {
     try {
@@ -149,43 +139,44 @@ class Api {
       return jsonDecode(e.toString());
     }
   }
-
-  Future<Customer> getCustomNameById(
+  String getNowTime() {
+    return '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}'
+        '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}';
+  }
+  static  Future<Customer> getCustomNameById(
     String Id,
   ) async {
-    try {
-      final PhpApi _api = PhpApi();
-      var res = await _api.postRequest(getCustloyeeByIdLink, {'id': Id});
+    if(Id!=''){
+      try {
+        final PhpApi _api = PhpApi();
+        var res = await _api.postRequest(getCustloyeeByIdLink, {'id': Id});
 
-      // List<dynamic> data = jsonDecode(res);
+        // List<dynamic> data = jsonDecode(res);
 
-      return Customer.fromJson(res);
-    } catch (e) {
-      print('catch getItems error $e}');
-      return jsonDecode(e.toString());
+        return Customer.fromJson(res);
+      } catch (e) {
+        print('catch getItems error $e}');
+        return jsonDecode(e.toString());
+      }
+    }else{
+     return Customer();
     }
+
   }
 
-  Future<List<Order>> getMyOrders(Position mylocation, context) async {
+  static  Future<List<Order>> getMyOrders(Position mylocation, context) async {
     try {
       var response = await http.get(Uri.parse(getordersLink));
       print(jsonDecode(response.body));
       final data = jsonDecode(response.body);
       for (Map<String, dynamic> order in data) {
-        // String items = '';
-        // await getorderItems(order['order_id']).then((value) {
-        //   value.forEach((element) {
-        //     items = items +'-'+element.;
-        //   });
-        // });
-
         String itemsName = '';
         List<Item> items = await getorderItems(order['order_id']);
-        items.forEach((element) {
+        for (var element in items) {
           itemsName = '${element.name!}:${element.count}' + '-' + itemsName;
-        });
+        }
         BitmapDescriptor waitIcon = await BitmapDescriptor.fromAssetImage(
-          ImageConfiguration(
+          const ImageConfiguration(
             size: Size.fromHeight(30),
           ),
           "lib/images/waitIcon.png",
@@ -216,7 +207,7 @@ class Api {
     }
   }
 
-  Future<String> deleteOrder(String id) async {
+  static  Future<String> deleteOrder(String id) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
@@ -235,7 +226,7 @@ class Api {
     }
   }
 
-  Future<String> updateGettingOrder(
+  static  Future<String> updateGettingOrder(
       String orderId, String deliveryId, String getDelTime) async {
     try {
       PhpApi _api = PhpApi();
@@ -259,7 +250,7 @@ class Api {
     }
   }
 
-  Future<String> updateDoneOrder(String id, String doneCustTime) async {
+  static  Future<String> updateDoneOrder(String id, String doneCustTime) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
@@ -278,7 +269,7 @@ class Api {
     }
   }
 
-  Future<List<Item>> getorderItems(String orderID) async {
+  static  Future<List<Item>> getorderItems(String orderID) async {
     List<Item> apitems = [];
     try {
       final PhpApi _api = PhpApi();
@@ -303,7 +294,7 @@ class Api {
     }
   }
 
-  updateCustomScreen() {
+  static  updateCustomScreen() {
     Get.off(CustomDashboard(preferences.getString('name')!,
         preferences.getString('password')!, preferences.getString('phone')!));
   }
