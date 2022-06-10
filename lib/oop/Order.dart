@@ -62,27 +62,31 @@ class Order {
       //         : 90,
       infoWindow: InfoWindow(
           onTap: () async {
-            var delivery = await Api.getEmpNameById(
+            var delivery = await API.getEmpNameById(
               json['delivery_id'],
             );
             if (isEmp) {
               if (json['isWaiting'] == '1' && json['isRecieved'] == '0') {
                 CustomAwesomeDialog(
-                    context: context,
-                    content: 'I will Arrive',
-                    onOkTap: () async {
-                      Api
-                          .updateGettingOrder(json['order_id'],
-                              preferences.getString('id')!, API.getNowTime())
-                          .then((value) async {
-                        value == 'success'
-                            ? Get.offAll(MainDashboard(
-                            preferences.getString('name')!,
-                            preferences.getString('password')!,
-                            preferences.getString('phone')!))
-                            : null;
-                      });
+                  context: context,
+                  content: 'I will Arrive',
+                  onOkTap: () async {
+                    API
+                        .updateGettingOrder(json['order_id'],
+                            preferences.getString('id')!, API.getNowTime())
+                        .then((value) async {
+                      value == 'success'
+                          ? Get.offAll(
+                              MainDashboard(
+                                  preferences.getString('name')!,
+                                  preferences.getString('password')!,
+                                  preferences.getString('phone')!),
+                            )
+                          : null;
                     });
+                  },
+                  onCancelTap: () {},
+                );
               } else if (json['isWaiting'] == '0' &&
                   json['isRecieved'] == '0') {
                 CustomAwesomeDialog(
@@ -90,66 +94,67 @@ class Order {
                   content: json['delivery_id'] != preferences.getString('id')
                       ? 'with delivery man :${delivery.name}'
                       : 'with you',
+                  onCancelTap: () {},
                 );
               } else {
                 CustomAwesomeDialog(
-                    context: context,
-                    content: 'your order has done by : ${delivery.name!}');
+                  context: context,
+                  content: 'your order has done by : ${delivery.name!}',
+                  onCancelTap: () {},
+                );
               }
             } else {
               if (json['isWaiting'] == '1' && json['isRecieved'] == '0') {
-                AwesomeDialog(
-                    context: context,
-                    btnCancelText: 'delete',
-                    btnCancelOnPress: () async {
-                      CustomeCircularProgress(context);
+                CustomAwesomeDialog(
+                  context: context,
+                  content: 'delete order ?',
+                  onOkTap: () async {
+                    CustomeCircularProgress(context);
 
-                      await Api
-                          .deleteOrder(json['order_id'].toString())
-                          .then((value) {
-                        value == 'success'
-                            ? Get.offAll(CustomDashboard(
-                            preferences.getString('name')!,
-                            preferences.getString('password')!,
-                            preferences.getString('phone')!))
-                            : null;
-                      });
-                    }).show();
+                    await API
+                        .deleteOrder(json['order_id'].toString())
+                        .then((value) {
+                      value == 'success'
+                          ? Get.offAll(
+                              CustomDashboard(
+                                  preferences.getString('name')!,
+                                  preferences.getString('password')!,
+                                  preferences.getString('phone')!),
+                            )
+                          : null;
+                    });
+                  },
+                );
               } else if (json['isWaiting'] == '0' &&
                   json['isRecieved'] == '0') {
-                AwesomeDialog(
+                CustomAwesomeDialog(
+                  context: context,
+                  content: 'your order with ${delivery.name} do you  get it ?',
+                  onOkTap: () async {
+                    await API
+                        .updateDoneOrder(
+                      json['order_id'].toString(),
+                      API.getNowTime(),
+                    )
+                        .then((value) {
+                      value == 'success'
+                          ? Get.offAll(
+                              CustomDashboard(
+                                  preferences.getString('name')!,
+                                  preferences.getString('password')!,
+                                  preferences.getString('phone')!),
+                            )
+                          : null;
+                    });
+                  },
+                  onCancelTap: () {},
+                );
+              } else if (json['isWaiting'] == '0' &&
+                  json['isRecieved'] == '1') {
+                CustomAwesomeDialog(
                     context: context,
-                    btnOkText: 'i get it',
-                    btnOkOnPress: () async {
-                      await Api
-                          .updateDoneOrder(
-                        json['order_id'].toString(),
-                        API.getNowTime(),
-                      )
-                          .then((value) {
-                        value == 'success'
-                            ? Get.offAll(CustomDashboard(
-                            preferences.getString('name')!,
-                            preferences.getString('password')!,
-                            preferences.getString('phone')!))
-                            : null;
-                      });
-                    },
-                    body: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        'your order on road with : ${delivery.name!}... you get it ?',
-                        textAlign: TextAlign.center,
-                      ),
-                    )).show();
-              } else {
-                AwesomeDialog(
-                    context: context,
-                    body: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text('your order has done by : ${delivery.name!}'
-                          ''),
-                    )).show();
+                    content: 'your order has done by : ${delivery.name!}',
+                  onCancelTap: () {},);
               }
             }
           },
@@ -175,20 +180,18 @@ class Order {
     totalPrice = json['totalPrice'];
   }
 
-Map<String, dynamic> toJson(lat,long) {
-  final Map<String, dynamic> data = new Map<String, dynamic>();
-  data['owner_id']= preferences.get('id').toString();
-  data['delivery_id']= '0';
-  data['isWaiting']= '1';
-  data['isRecieved']= '0';
-  data['getDelTime']= '0';
-  data['doneCustTime']= '0';
-  data['totalPrice']= '0';
-  data['lat']= lat;
-  data['long']= long;
-  data['createTime']= API.getNowTime();
-  return data;
+  Map<String, dynamic> toJson(lat, long) {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['owner_id'] = preferences.get('id').toString();
+    data['delivery_id'] = '0';
+    data['isWaiting'] = '1';
+    data['isRecieved'] = '0';
+    data['getDelTime'] = '0';
+    data['doneCustTime'] = '0';
+    data['totalPrice'] = '0';
+    data['lat'] = lat;
+    data['long'] = long;
+    data['createTime'] = API.getNowTime();
+    return data;
+  }
 }
-}
-
-

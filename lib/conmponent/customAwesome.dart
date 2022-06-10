@@ -9,18 +9,33 @@ CustomAwesomeDialog(
     context: context,
     title: title,
     body: Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.4,
-        child: Text(
-          content,
-          style: TextStyle(fontSize: 21, color: Get.theme.backgroundColor),
-          textAlign: TextAlign.center,
+      padding: const EdgeInsets.all(16.0),
+      child: Card(
+
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        color: Get.theme.primaryColor,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.4,
+            child: Text(
+              content,
+              style: TextStyle(fontSize: 21, color: Get.theme.backgroundColor),
+              textAlign: TextAlign.center,
+            ),
+          ),
         ),
       ),
     ),
     btnOkText: title,
     btnOkOnPress: onOkTap,
+    btnCancelText: 'make call',
+    btnCancelIcon: Icons.phone,
+    btnCancelColor: Get.theme.backgroundColor,
+    animType: AnimType.SCALE,
+    
     btnCancelOnPress: onCancelTap,
   ).show();
 }

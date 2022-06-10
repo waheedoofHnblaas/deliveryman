@@ -1,23 +1,16 @@
 import 'dart:convert';
-import 'dart:math';
-
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_map/conmponent/customAwesome.dart';
 import 'package:google_map/oop/Item.dart';
 import 'package:google_map/oop/Order.dart';
-import 'package:google_map/conmponent/CustomCirProgress.dart';
 import 'package:google_map/oop/custom.dart';
 import 'package:google_map/database/api.dart';
 import 'package:google_map/database/api_links.dart';
 import 'package:google_map/oop/employee.dart';
 import 'package:google_map/main.dart';
 import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
-import 'package:google_map/screens/Data_screen.dart';
-import 'package:google_map/screens/dashSc/MainDash.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
@@ -46,14 +39,14 @@ class Api {
   //   }
   // }
 
-  static double getDestanceBetween(
+   double getDestanceBetween(
       startLatitude, startLongitude, endLatitude, endLongitude) {
     double cl = Geolocator.distanceBetween(
         startLatitude, startLongitude, endLatitude, endLongitude);
     return cl;
   }
 
-  static double getDestanceMyLocationToOrder(Position mylocation, Order order) {
+   double getDestanceMyLocationToOrder(Position mylocation, Order order) {
     double cl = Geolocator.distanceBetween(
         mylocation.latitude,
         mylocation.longitude,
@@ -77,10 +70,10 @@ class Api {
   //   return orders;
   // }
 
-  static List<Order> apiOrders = [];
+   List<Order> apiOrders = [];
 
 
-  static Future<List<Order>?> getMainOrders(Position mylocation, context, search ) async {
+   Future<List<Order>?> getMainOrders(Position mylocation, context, search ) async {
     try {
       apiOrders.clear();
       var response = await http.get(Uri.parse(getordersLink));
@@ -124,7 +117,7 @@ class Api {
     }
   }
 
-  static  Future<Employee> getEmpNameById(
+    Future<Employee> getEmpNameById(
     String Id,
   ) async {
     try {
@@ -143,7 +136,7 @@ class Api {
     return '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}'
         '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}';
   }
-  static  Future<Customer> getCustomNameById(
+    Future<Customer> getCustomNameById(
     String Id,
   ) async {
     if(Id!=''){
@@ -164,7 +157,7 @@ class Api {
 
   }
 
-  static  Future<List<Order>> getMyOrders(Position mylocation, context) async {
+    Future<List<Order>> getMyOrders(Position mylocation, context) async {
     try {
       var response = await http.get(Uri.parse(getordersLink));
       print(jsonDecode(response.body));
@@ -207,7 +200,7 @@ class Api {
     }
   }
 
-  static  Future<String> deleteOrder(String id) async {
+    Future<String> deleteOrder(String id) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
@@ -226,7 +219,7 @@ class Api {
     }
   }
 
-  static  Future<String> updateGettingOrder(
+    Future<String> updateGettingOrder(
       String orderId, String deliveryId, String getDelTime) async {
     try {
       PhpApi _api = PhpApi();
@@ -250,7 +243,7 @@ class Api {
     }
   }
 
-  static  Future<String> updateDoneOrder(String id, String doneCustTime) async {
+    Future<String> updateDoneOrder(String id, String doneCustTime) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
@@ -269,7 +262,7 @@ class Api {
     }
   }
 
-  static  Future<List<Item>> getorderItems(String orderID) async {
+    Future<List<Item>> getorderItems(String orderID) async {
     List<Item> apitems = [];
     try {
       final PhpApi _api = PhpApi();
@@ -294,7 +287,7 @@ class Api {
     }
   }
 
-  static  updateCustomScreen() {
+    updateCustomScreen() {
     Get.off(CustomDashboard(preferences.getString('name')!,
         preferences.getString('password')!, preferences.getString('phone')!));
   }

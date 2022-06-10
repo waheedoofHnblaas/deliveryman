@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:google_map/conmponent/CustomButton.dart';
 import 'package:google_map/conmponent/customAwesome.dart';
 import 'package:google_map/oop/Order.dart';
 import 'package:google_map/conmponent/customDrawer.dart';
@@ -37,13 +40,12 @@ class MainDashboard extends StatefulWidget {
 
 bool choose = false;
 List<Marker> chooseMarker = [const Marker(markerId: MarkerId(''))];
-
 bool ttt = false;
+bool all = true, wait = false, done = false, withD = false;
 
 class _EmpDashboardState extends State<MainDashboard> {
-  Api API = Api();
-
   Future<void> getPos() async {
+    Api API = Api();
     try {
       LocationPermission per = await Geolocator.checkPermission();
       if (per == LocationPermission.denied) {
@@ -76,17 +78,19 @@ class _EmpDashboardState extends State<MainDashboard> {
   @override
   void initState() {
     getPos();
-    Api.apiOrders.forEach((element) {
+    API.apiOrders.forEach((element) {
       print(element.createTime);
     });
   }
+
+  Api API = Api();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       drawerEdgeDragWidth: MediaQuery.of(context).size.width / 3,
-      drawer: CustomAwesomeDrawer(context, myLocation,Api.apiOrders),
+      drawer: CustomAwesomeDrawer(context, myLocation, API.apiOrders),
       appBar: AppBar(
         elevation: 0,
         actions: [
@@ -108,43 +112,217 @@ class _EmpDashboardState extends State<MainDashboard> {
                 CupertinoIcons.rectangle_arrow_up_right_arrow_down_left_slash,
               )),
         ],
-        title: Text('Orders EMP: ${preferences.getString('name')}'),
+        title: ListTile(
+          title: Text(
+            '${preferences.getString('name')}',
+            style: TextStyle(color: Get.theme.backgroundColor),
+          ),
+          leading: Text('delivery man'),
+        ),
       ),
       body: Center(
-        child: ttt
-            ? Stack(
-              children: [
-                FutureBuilder<List<Order>?>(
-                    future: Api.getMainOrders(myLocation, context,''),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData &&
-                          !snapshot.hasError &&
-                          snapshot.connectionState == ConnectionState.done) {
-                        List<Marker> marks = [];
+          child: Stack(
+        children: [
+          ttt
+              ? FutureBuilder<List<Order>?>(
+                  future: API.getMainOrders(myLocation, context, ''),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData &&
+                        !snapshot.hasError &&
+                        snapshot.connectionState == ConnectionState.done) {
+                      List<Marker> marks = [];
+                      if (done) {
                         for (Order order in snapshot.data!) {
-
+                          if (order.isRecieved == true) {
+                            marks.add(order.marker!);
+                          }
+                        }
+                      } else if (wait) {
+                        for (Order order in snapshot.data!) {
+                          if (order.isWaiting == true) {
+                            marks.add(order.marker!);
+                          }
+                        }
+                      } else if (withD) {
+                        for (Order order in snapshot.data!) {
+                          if (order.isWaiting == false &&
+                              order.isRecieved == false) {
+                            marks.add(order.marker!);
+                          }
+                        }
+                      } else {
+                        for (Order order in snapshot.data!) {
                           marks.add(order.marker!);
                         }
-                        return GoogleMap(
-                          mapType: MapType.terrain,
-                          myLocationEnabled: true,
-                          myLocationButtonEnabled: true,
-                          markers: Set.of(marks),
-                          initialCameraPosition: CameraPosition(
-                            target:
-                                LatLng(myLocation.latitude, myLocation.longitude),
-                            zoom: 12,
-                          ),
-                        );
-                      } else {
-                        return CircularProgressIndicator();
                       }
-                    },
+
+                      return GoogleMap(
+                        mapType: MapType.terrain,
+                        myLocationEnabled: true,
+                        myLocationButtonEnabled: true,
+                        markers: Set.of(marks),
+                        initialCameraPosition: CameraPosition(
+                          target:
+                              LatLng(myLocation.latitude, myLocation.longitude),
+                          zoom: 12,
+                        ),
+                      );
+                    } else {
+                      return CircularProgressIndicator();
+                    }
+                  },
+                )
+              : Container(child: CircularProgressIndicator()),
+          Positioned(
+            top: 55,
+            right: 0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: RotatedBox(
+                    quarterTurns: 1,
+                    child: RaisedButton(
+                      onPressed: () {
+                        setState(() {
+                          all = true;
+                          wait = false;
+                          done = false;
+                          withD = false;
+                        });
+                      },
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      child: Text(
+                        'ALL',
+                        style: TextStyle(
+                          color: !all
+                              ? Get.theme.backgroundColor
+                              : Get.theme.primaryColor,
+                        ),
+                      ),
+                      color: all
+                          ? Get.theme.backgroundColor
+                          : Get.theme.primaryColor,
+                    ),
                   ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: RotatedBox(
+                    quarterTurns: 1,
+                    child: RaisedButton(
+                      onPressed: () {
+                        setState(() {
+                          all = false;
+                          wait = false;
+                          done = true;
+                          withD = false;
+                        });
+                      },
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      child: Text(
+                        'DONE',
+                        style: TextStyle(
+                          color: !done
+                              ? Get.theme.backgroundColor
+                              : Get.theme.primaryColor,
+                        ),
+                      ),
+                      color: done
+                          ? Get.theme.backgroundColor
+                          : Get.theme.primaryColor,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: RotatedBox(
+                    quarterTurns: 1,
+                    child: RaisedButton(
+                      onPressed: () {
+                        setState(() {
+                          all = false;
+                          wait = true;
+                          done = false;
+                          withD = false;
+                        });
+                      },
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      child: Text(
+                        'NEW',
+                        style: TextStyle(
+                          color: !wait
+                              ? Get.theme.backgroundColor
+                              : Get.theme.primaryColor,
+                        ),
+                      ),
+                      color: wait
+                          ? Get.theme.backgroundColor
+                          : Get.theme.primaryColor,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Stack(
+                    children: [
+                      RotatedBox(
+                        quarterTurns: 1,
+                        child: RaisedButton(
+                          onPressed: () {
+                            setState(() {
+                              all = false;
+                              wait = false;
+                              done = false;
+                              withD = true;
+                            });
+                          },
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                          child: Text(
+                            'with delivery',
+                            style: TextStyle(
+                              color: !withD
+                                  ? Get.theme.backgroundColor
+                                  : Get.theme.primaryColor,
+                            ),
+                          ),
+                          color: withD
+                              ? Get.theme.backgroundColor
+                              : Get.theme.primaryColor,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: -2,
+                        right: 0,
+                        left: 0,
+                        child: Container(
+                            child: LinearProgressIndicator(
+                                backgroundColor: !withD
+                                    ? Get.theme.primaryColor
+                                    : Get.theme.backgroundColor,
+                                color: Colors.lightGreenAccent),
+                            color: !withD
+                                ? Get.theme.primaryColor
+                                : Get.theme.backgroundColor,
+                            margin: EdgeInsets.all(11)),
+                      )
+                    ],
+                  ),
+                ),
               ],
-            )
-            : CircularProgressIndicator(),
-      ),
+            ),
+          )
+        ],
+      )),
     );
   }
 }

@@ -27,6 +27,7 @@ class CustomAwesomeDrawer extends StatefulWidget {
 
 class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
   String searsh = '';
+  Api API = Api();
 
   @override
   void initState() {
@@ -76,20 +77,23 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                   height: MediaQuery.of(context).size.height * 0.8,
                   child: SingleChildScrollView(
                     child: Column(
-                      children: List.generate(widget._order.length, (i) {
-                        print(i);
-                        if (searsh.isEmpty) {
-                          return component(i);
-                        } else if (searsh.isNotEmpty) {
-                          if (searsh != widget._order[i].orderId.toString()) {
-                            return Container();
+                      children: List.generate(
+                        widget._order.length,
+                        (i) {
+                          print(i);
+                          if (searsh.isEmpty) {
+                            return component(widget._order.length - i - 1);
+                          } else if (searsh.isNotEmpty) {
+                            if (searsh != widget._order[i].orderId.toString()) {
+                              return Container();
+                            } else {
+                              return component(i);
+                            }
                           } else {
-                            return component(i);
+                            return Container();
                           }
-                        } else {
-                          return Container();
-                        }
-                      }),
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -144,8 +148,8 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             FutureBuilder<Customer>(
-                              future: Api.getCustomNameById(
-                                  widget._order[i].ownerId!),
+                              future: API
+                                  .getCustomNameById(widget._order[i].ownerId!),
                               builder: (context, customersnap) {
                                 if (!customersnap.hasData ||
                                     customersnap.hasError) {
@@ -164,9 +168,12 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                                 }
                               },
                             ),
-                            !widget._order[i].isWaiting!
+                            (!widget._order[i].isWaiting! &&
+                                        widget._order[i].isRecieved!) ||
+                                    (!widget._order[i].isWaiting! &&
+                                        !widget._order[i].isRecieved!)
                                 ? FutureBuilder<Employee>(
-                                    future: Api.getEmpNameById(
+                                    future: API.getEmpNameById(
                                       widget._order[i].deliveryId!,
                                     ),
                                     builder: (context, employeesnap) {
@@ -188,7 +195,13 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                                       }
                                     },
                                   )
-                                : Container(),
+                                : Container(
+                                    child: const Text(
+                                      '  new',
+                                      style:
+                                          TextStyle(color: Colors.green),
+                                    ),
+                                  ),
                           ],
                         ),
                       ),
@@ -224,7 +237,7 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                     ],
                   ),
                   FutureBuilder<List<Item>>(
-                    future: Api.getorderItems(widget._order[i].orderId!),
+                    future: API.getorderItems(widget._order[i].orderId!),
                     builder: (context, itemssnap) {
                       if (itemssnap.hasData && !itemssnap.hasError) {
                         return SizedBox(
