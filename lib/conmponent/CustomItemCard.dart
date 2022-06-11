@@ -3,7 +3,7 @@ import 'package:google_map/oop/Item.dart';
 
 Widget CustomItemCard(
   context,
-  AsyncSnapshot<List<Item>> snapshot,
+  List<Item> snapshot,
   int index,
   Widget chl,
   String? count,
@@ -27,10 +27,10 @@ Widget CustomItemCard(
                 color: n >= 1 ? Colors.teal[100] : Colors.white,
                 child: ListTile(
                   title: Text(
-                    snapshot.data![index].name!,
+                    snapshot[index].name!,
                     style: TextStyle(fontSize: 21),
                   ),
-                  subtitle: Text(snapshot.data![index].price! + ' \$'),
+                  subtitle: Text(snapshot[index].price! + ' \$'),
                   leading:  Card(
                     child: Padding(
                       padding: const EdgeInsets.all(15.0),
@@ -38,7 +38,7 @@ Widget CustomItemCard(
                     ),
                     color: Colors.teal[100],
                   ),
-                  trailing: Text(snapshot.data![index].weight! + ' kg'),
+                  trailing: Text(snapshot[index].weight! + ' kg'),
                 ),
               )
             ],

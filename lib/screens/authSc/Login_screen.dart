@@ -77,9 +77,9 @@ class _LoginState extends State<Login> {
         print('register failed ${response['status']}');
       }
     } catch (e) {
-      if(e.toString().contains("Receiver")){
+      if (e.toString().contains("Receiver")) {
         CustomAwesomeDialog(context: context, content: 'server error wait...');
-      }else{
+      } else {
         CustomAwesomeDialog(context: context, content: 'network error');
       }
       print(e);
@@ -89,6 +89,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Get.theme.primaryColor,
       appBar: AppBar(
         leading: IconButton(
@@ -107,8 +108,9 @@ class _LoginState extends State<Login> {
       body: Center(
         child: Container(
           child: SingleChildScrollView(
+            physics: NeverScrollableScrollPhysics(),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Padding(
                   padding: const EdgeInsets.all(12.0),
@@ -120,13 +122,12 @@ class _LoginState extends State<Login> {
                     child: Column(
                       children: [
                         SizedBox(
-                          height: 100,
+                          height: (MediaQuery.of(context).size.height -
+                                  MediaQuery.of(context).viewInsets.bottom) *
+                              .2,
                           child: Hero(
                               tag: 'icon',
                               child: Image.asset('lib/images/delivery.png')),
-                        ),
-                        const SizedBox(
-                          height: 20,
                         ),
                         CustomeTextFeild((val) {
                           setState(() {
@@ -152,7 +153,8 @@ class _LoginState extends State<Login> {
                   if (name != '' && password != '') {
                     await login();
                   } else {
-                   CustomAwesomeDialog(context: context, content:  'empty field');
+                    CustomAwesomeDialog(
+                        context: context, content: 'empty field');
                   }
                 }, 'login', context),
                 widget.isEmp

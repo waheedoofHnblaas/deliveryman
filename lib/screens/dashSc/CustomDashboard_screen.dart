@@ -86,11 +86,11 @@ class _DashboardState extends State<CustomDashboard> {
         title: ListTile(
 
           title: Text(
-            '${preferences.getString('name')}',
+            '${widget.name}',
             style: TextStyle(color: Get.theme.backgroundColor),
           ),
           trailing: Text(
-            '${preferences.getString('phone')}',
+            '${widget.phone}',
             style: TextStyle(color: Get.theme.backgroundColor),
           ),
         ),
@@ -145,7 +145,6 @@ class _DashboardState extends State<CustomDashboard> {
                 );
               } else {
                 Navigator.pop(context);
-
                 AwesomeDialog(
                     context: context,
                     btnOkText: 'open',
@@ -205,6 +204,7 @@ class _DashboardState extends State<CustomDashboard> {
                           !snapshot.hasError &&
                           snapshot.connectionState == ConnectionState.done) {
                         List<Marker> marks = [];
+
                         if (done) {
                           for (Order order in snapshot.data!) {
                             if (order.isRecieved == true) {
@@ -229,6 +229,7 @@ class _DashboardState extends State<CustomDashboard> {
                             marks.add(order.marker!);
                           }
                         }
+
                         return Stack(
                           children: [
                             GoogleMap(myLocationEnabled: true,myLocationButtonEnabled: true,

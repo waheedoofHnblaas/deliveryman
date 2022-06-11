@@ -159,7 +159,9 @@ class Api {
 
     Future<List<Order>> getMyOrders(Position mylocation, context) async {
     try {
-      var response = await http.get(Uri.parse(getordersLink));
+      apiOrders.clear();
+
+    var response = await http.get(Uri.parse(getordersLink));
       print(jsonDecode(response.body));
       final data = jsonDecode(response.body);
       for (Map<String, dynamic> order in data) {
@@ -168,24 +170,28 @@ class Api {
         for (var element in items) {
           itemsName = '${element.name!}:${element.count}' + '-' + itemsName;
         }
-        BitmapDescriptor waitIcon = await BitmapDescriptor.fromAssetImage(
-          const ImageConfiguration(
-            size: Size.fromHeight(30),
-          ),
-          "lib/images/waitIcon.png",
-        );
-        BitmapDescriptor doneIcon = await BitmapDescriptor.fromAssetImage(
-          ImageConfiguration(size: Size.fromHeight(10)),
-          "lib/images/doneIcon.png",
-        );
-        BitmapDescriptor activeIcon = await BitmapDescriptor.fromAssetImage(
-          ImageConfiguration(),
-          "lib/images/activeIcon.png",
-        );
-        apiOrders.add(
-          Order.fromJson(
-              order, context, itemsName, false, waitIcon, activeIcon, doneIcon),
-        );
+        if(order['owner_id'] == preferences.getString('id')!){
+          BitmapDescriptor waitIcon = await BitmapDescriptor.fromAssetImage(
+            const ImageConfiguration(
+              size: Size.fromHeight(30),
+            ),
+            "lib/images/waitIcon.png",
+          );
+          BitmapDescriptor doneIcon = await BitmapDescriptor.fromAssetImage(
+            ImageConfiguration(size: Size.fromHeight(10)),
+            "lib/images/doneIcon.png",
+          );
+          BitmapDescriptor activeIcon = await BitmapDescriptor.fromAssetImage(
+            ImageConfiguration(),
+            "lib/images/activeIcon.png",
+          );
+          apiOrders.add(
+            Order.fromJson(
+                order, context, itemsName, false, waitIcon, activeIcon, doneIcon),
+          );
+        }
+
+
       }
       return apiOrders;
     } catch (e) {

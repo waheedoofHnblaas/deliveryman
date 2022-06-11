@@ -47,7 +47,7 @@ class _RegisterState extends State<Register> {
       if (response['status'] == 'user is here') {
         CustomAwesomeDialog(context: context, content: 'user is exist');
       } else if (response['status'] == 'success') {
-        Get.offAll(CustomDashboard(name, password, phone));
+        Get.offAll(Login(false));
       } else {
         CustomAwesomeDialog(
             context: context, content: 'network connection less');
@@ -78,6 +78,7 @@ class _RegisterState extends State<Register> {
       body: Center(
         child: Container(
           child: SingleChildScrollView(
+
             child: Column(
               children: [
                 Padding(
@@ -91,7 +92,9 @@ class _RegisterState extends State<Register> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(
-                          height: 100,
+                          height: (MediaQuery.of(context).size.height -
+                              MediaQuery.of(context).viewInsets.bottom) *
+                              .2,
                           child: Hero(
                               tag: 'icon',
                               child: Image.asset('lib/images/delivery.png')),
@@ -103,18 +106,18 @@ class _RegisterState extends State<Register> {
                           setState(() {
                             name = v;
                           });
-                        }, 'your personal name', '', context),
+                        }, 'your name', '', context),
                         CustomeTextFeild((v) {
                           setState(() {
                             phone = v;
                           });
-                        }, 'your phone number', '', context,
+                        }, 'your phone', '', context,
                             isNumber: TextInputType.number),
                         CustomeTextFeild((v) {
                           setState(() {
                             password = v;
                           });
-                        }, 'your phone password', '', context, isPassword: true),
+                        }, 'your password', '', context, isPassword: true),
                       ],
                     ),
                   ),
