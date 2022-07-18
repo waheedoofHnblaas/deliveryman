@@ -47,13 +47,13 @@ class Api {
     return cl;
   }
 
-  double getDestanceMyLocationToOrder(Position mylocation, Order order) {
+  int getDestanceMyLocationToOrder(Position mylocation, LatLng position) {
     double cl = Geolocator.distanceBetween(
         mylocation.latitude,
         mylocation.longitude,
-        order.marker!.position.latitude,
-        order.marker!.position.longitude);
-    return cl;
+        position.latitude,
+        position.longitude);
+    return cl.ceil();
   }
 
   // static Future<List<Order>> getOrders(Position mylocation) async {

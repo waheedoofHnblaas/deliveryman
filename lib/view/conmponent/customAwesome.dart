@@ -8,10 +8,11 @@ CustomAwesomeDialog(
     dialogBackgroundColor: Get.theme.primaryColor,
     context: context,
     title: title,
+    titleTextStyle: TextStyle(color: Get.theme.primaryColor),
     body: Padding(
       padding: const EdgeInsets.all(16.0),
       child: Card(
-
+        elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
@@ -23,7 +24,7 @@ CustomAwesomeDialog(
             child: Text(
               content,
               style: TextStyle(fontSize: 21, color: Get.theme.backgroundColor),
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.left,
             ),
           ),
         ),
@@ -35,7 +36,6 @@ CustomAwesomeDialog(
     btnCancelIcon: Icons.phone,
     btnCancelColor: Get.theme.backgroundColor,
     animType: AnimType.SCALE,
-    
     btnCancelOnPress: onCancelTap,
   ).show();
 }

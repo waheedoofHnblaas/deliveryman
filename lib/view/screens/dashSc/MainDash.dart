@@ -40,7 +40,7 @@ class MainDashboard extends StatefulWidget {
 bool choose = false;
 List<Marker> chooseMarker = [const Marker(markerId: MarkerId(''))];
 bool ttt = false;
-bool all = true, wait = false, done = false, withD = false;
+bool all = false, wait = true, done = false, withD = false;
 bool showList = false;
 
 Api API = Api();
@@ -157,12 +157,12 @@ class _EmpDashboardState extends State<MainDashboard> {
               children: [
                 SortBtn(
                   'ALL',
-                  ! all? Get.theme.backgroundColor : Get.theme.primaryColor,
+                  !all? Get.theme.backgroundColor : Get.theme.primaryColor,
                   all? Get.theme.backgroundColor : Get.theme.primaryColor,
                   () {
                     setState(() {
-                      all = false;
-                      wait = true;
+                      all = true;
+                      wait = false;
                       done = false;
                       withD = false;
                     });
@@ -174,8 +174,8 @@ class _EmpDashboardState extends State<MainDashboard> {
                   wait ? Get.theme.backgroundColor : Get.theme.primaryColor,
                   () {
                     setState(() {
-                      all = true;
-                      wait = false;
+                      all = false;
+                      wait = true;
                       done = false;
                       withD = false;
                     });

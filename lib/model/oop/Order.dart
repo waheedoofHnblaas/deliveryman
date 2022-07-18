@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:google_map/main.dart';
 import 'package:google_map/model/database/google_map_api.dart';
+import 'package:google_map/model/oop/Item.dart';
 import 'package:google_map/view/conmponent/CustomCirProgress.dart';
 import 'package:google_map/view/conmponent/customAwesome.dart';
 import 'package:google_map/view/screens/dashSc/CustomDashboard_screen.dart';
@@ -48,8 +49,8 @@ class Order {
     orderId = json['order_id'];
     ownerId = json['owner_id'];
     deliveryId = json['delivery_id'];
-    deliveryLong = json['deliveryLong']==''?'1.1':json['deliveryLong'];
-    deliveryLat = json['deliveryLat']==''?'1.1':json['deliveryLat'];
+    deliveryLong = json['deliveryLong'] == '' ? '1.1' : json['deliveryLong'];
+    deliveryLat = json['deliveryLat'] == '' ? '1.1' : json['deliveryLat'];
     isWaiting = json['isWaiting'] == '0' ? false : true;
 
     isRecieved = json['isRecieved'] == '0' ? false : true;
@@ -68,10 +69,21 @@ class Order {
               json['owner_id'],
             );
             if (isEmp) {
+              double itemsWeight = 0;
+            List<Item> items = await Api.getorderItems(orderId!);
+            for (var element in items) {
+              itemsWeight += (double.parse(element.weight!)*double.parse(element.count!));
+              print(double.parse(element.weight!)*double.parse(element.count!));
+            }
+
+
+              int meters = API.getDestanceMyLocationToOrder(myLocation, marker!.position);
               if (json['isWaiting'] == '1' && json['isRecieved'] == '0') {
                 CustomAwesomeDialog(
                   context: context,
-                  content: 'I will Arrive to ${owner.name}',
+                  content:
+                      'Arrive to : ${owner.name}\n'
+                          'long: ${meters} m\ncost: ${(itemsWeight*.2).ceil()}\$ \nweight: ${itemsWeight} kg ',
                   onOkTap: () async {
                     API
                         .updateGettingOrder(
@@ -109,7 +121,8 @@ class Order {
               } else {
                 CustomAwesomeDialog(
                   context: context,
-                  content: 'your order has done by : ${delivery.name!} to ${owner.name}',
+                  content:
+                      'your order has done by : ${delivery.name!} to ${owner.name}',
                   onCancelTap: () {},
                 );
               }
