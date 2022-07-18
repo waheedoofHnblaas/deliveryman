@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
-import 'package:google_map/screens/dashSc/MainDash.dart';
-import 'package:google_map/screens/person_screen.dart';
+import 'package:google_map/view/screens/dashSc/CustomDashboard_screen.dart';
+import 'package:google_map/view/screens/dashSc/MainDash.dart';
+import 'package:google_map/view/screens/person_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 late SharedPreferences preferences;

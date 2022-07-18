@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:google_map/oop/Order.dart';
-import 'package:google_map/database/google_map_api.dart';
+import 'package:google_map/model/oop/Order.dart';
 import 'package:google_map/main.dart';
-import 'package:google_map/screens/authSc/Login_screen.dart';
-import 'package:google_map/screens/person_screen.dart';
 import 'package:google_map/view/conmponent/customDrawer.dart';
+import 'package:google_map/view/conmponent/sortBtn.dart';
+import 'package:google_map/view/screens/authSc/Login_screen.dart';
+import 'package:google_map/view/screens/person_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import '../../../model/database/google_map_api.dart';
 
 Position myLocation = Position(
     longitude: 37.166668,
@@ -153,144 +155,57 @@ class _EmpDashboardState extends State<MainDashboard> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: RotatedBox(
-                    quarterTurns: 1,
-                    child: RaisedButton(
-                      onPressed: () {
-                        setState(() {
-                          all = true;
-                          wait = false;
-                          done = false;
-                          withD = false;
-                        });
-                      },
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                      child: Text(
-                        'ALL',
-                        style: TextStyle(
-                          color: !all
-                              ? Get.theme.backgroundColor
-                              : Get.theme.primaryColor,
-                        ),
-                      ),
-                      color: all
-                          ? Get.theme.backgroundColor
-                          : Get.theme.primaryColor,
-                    ),
-                  ),
+                SortBtn(
+                  'ALL',
+                  ! all? Get.theme.backgroundColor : Get.theme.primaryColor,
+                  all? Get.theme.backgroundColor : Get.theme.primaryColor,
+                  () {
+                    setState(() {
+                      all = false;
+                      wait = true;
+                      done = false;
+                      withD = false;
+                    });
+                  },
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: RotatedBox(
-                    quarterTurns: 1,
-                    child: RaisedButton(
-                      onPressed: () {
-                        setState(() {
-                          all = false;
-                          wait = false;
-                          done = true;
-                          withD = false;
-                        });
-                      },
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                      child: Text(
-                        'DONE',
-                        style: TextStyle(
-                          color: !done
-                              ? Get.theme.backgroundColor
-                              : Get.theme.primaryColor,
-                        ),
-                      ),
-                      color: done
-                          ? Get.theme.backgroundColor
-                          : Get.theme.primaryColor,
-                    ),
-                  ),
+                SortBtn(
+                  'NEW',
+                  !wait ? Get.theme.backgroundColor : Get.theme.primaryColor,
+                  wait ? Get.theme.backgroundColor : Get.theme.primaryColor,
+                  () {
+                    setState(() {
+                      all = true;
+                      wait = false;
+                      done = false;
+                      withD = false;
+                    });
+                  },
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: RotatedBox(
-                    quarterTurns: 1,
-                    child: RaisedButton(
-                      onPressed: () {
-                        setState(() {
-                          all = false;
-                          wait = true;
-                          done = false;
-                          withD = false;
-                        });
-                      },
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                      child: Text(
-                        'NEW',
-                        style: TextStyle(
-                          color: !wait
-                              ? Get.theme.backgroundColor
-                              : Get.theme.primaryColor,
-                        ),
-                      ),
-                      color: wait
-                          ? Get.theme.backgroundColor
-                          : Get.theme.primaryColor,
-                    ),
-                  ),
+                SortBtn(
+                  'DONE',
+                  !done ? Get.theme.backgroundColor : Get.theme.primaryColor,
+                  done ? Get.theme.backgroundColor : Get.theme.primaryColor,
+                  () {
+                    setState(() {
+                      all = false;
+                      wait = false;
+                      done = true;
+                      withD = false;
+                    });
+                  },
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Stack(
-                    children: [
-                      RotatedBox(
-                        quarterTurns: 1,
-                        child: RaisedButton(
-                          onPressed: () {
-                            setState(() {
-                              all = false;
-                              wait = false;
-                              done = false;
-                              withD = true;
-                            });
-                          },
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
-                          child: Text(
-                            'with delivery',
-                            style: TextStyle(
-                              color: !withD
-                                  ? Get.theme.backgroundColor
-                                  : Get.theme.primaryColor,
-                            ),
-                          ),
-                          color: withD
-                              ? Get.theme.backgroundColor
-                              : Get.theme.primaryColor,
-                        ),
-                      ),
-                      Positioned(
-                        bottom: -2,
-                        right: 0,
-                        left: 0,
-                        child: Container(
-                            child: LinearProgressIndicator(
-                                backgroundColor: !withD
-                                    ? Get.theme.primaryColor
-                                    : Get.theme.backgroundColor,
-                                color: Colors.lightGreenAccent),
-                            color: !withD
-                                ? Get.theme.primaryColor
-                                : Get.theme.backgroundColor,
-                            margin: EdgeInsets.all(11)),
-                      )
-                    ],
-                  ),
+                SortBtn(
+                  'with delivery',
+                  !withD ? Get.theme.backgroundColor : Get.theme.primaryColor,
+                  withD ? Get.theme.backgroundColor : Get.theme.primaryColor,
+                  () {
+                    setState(() {
+                      all = false;
+                      wait = false;
+                      done = false;
+                      withD = true;
+                    });
+                  },
                 ),
               ],
             ),

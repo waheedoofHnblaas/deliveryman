@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_map/oop/Order.dart';
-import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
-import 'package:google_map/screens/dashSc/MainDash.dart';
+import 'package:google_map/model/oop/Order.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class DataScreen extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_map/screens/authSc/Login_screen.dart';
 import 'package:get/get.dart';
+import 'package:google_map/view/screens/authSc/Login_screen.dart';
 
 class PersonalScreen extends StatefulWidget {
   const PersonalScreen({Key? key}) : super(key: key);
@@ -50,7 +50,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
                           child: Hero(
                             tag: 'icon',
                             child: Image.asset(
-                              "lib/images/delivery.png",
+                              "lib/view/images/delivery.png",
                             ),
                           ),
                           height: MediaQuery.of(context).size.height * 0.4,

@@ -2,14 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator_platform_interface/src/models/position.dart';
 import 'package:get/get.dart';
-import 'package:google_map/oop/Item.dart';
-import 'package:google_map/oop/Order.dart';
-import 'package:google_map/database/google_map_api.dart';
-import 'package:google_map/oop/custom.dart';
-import 'package:google_map/oop/employee.dart';
-import 'package:google_map/screens/Data_screen.dart';
-import 'package:google_map/screens/dashSc/MainDash.dart';
+import 'package:google_map/model/database/google_map_api.dart';
+import 'package:google_map/model/oop/Item.dart';
+import 'package:google_map/model/oop/Order.dart';
+import 'package:google_map/model/oop/custom.dart';
+import 'package:google_map/model/oop/employee.dart';
 import 'package:google_map/view/conmponent/CustomTextField.dart';
+import 'package:google_map/view/screens/Data_screen.dart';
+import 'package:google_map/view/screens/dashSc/MainDash.dart';
 
 class CustomAwesomeDrawer extends StatefulWidget {
   CustomAwesomeDrawer(this.context, this.myLocation);

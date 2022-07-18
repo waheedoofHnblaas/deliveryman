@@ -1,16 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_map/database/api.dart';
-import 'package:google_map/database/api_links.dart';
 import 'package:google_map/main.dart';
-import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
-import 'package:google_map/screens/dashSc/MainDash.dart';
-import 'package:google_map/screens/authSc/Register_screen.dart';
+import 'package:google_map/model/database/api.dart';
 import 'package:google_map/view/conmponent/CustomButton.dart';
 import 'package:google_map/view/conmponent/CustomCirProgress.dart';
 import 'package:google_map/view/conmponent/CustomTextField.dart';
 import 'package:google_map/view/conmponent/customAwesome.dart';
+import 'package:google_map/view/screens/authSc/Register_screen.dart';
+import 'package:google_map/view/screens/dashSc/CustomDashboard_screen.dart';
+import 'package:google_map/view/screens/dashSc/MainDash.dart';
+import '../../../model/database/api_links.dart';
+
+
 
 class Login extends StatefulWidget {
   Login(this.isEmp);
@@ -122,7 +124,7 @@ class _LoginState extends State<Login> {
                               .2,
                           child: Hero(
                               tag: 'icon',
-                              child: Image.asset('lib/images/delivery.png')),
+                              child: Image.asset('lib/view/images/delivery.png')),
                         ),
                         CustomeTextFeild((val) {
                           setState(() {

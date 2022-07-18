@@ -2,17 +2,18 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:google_map/oop/Item.dart';
-import 'package:google_map/oop/Order.dart';
-import 'package:google_map/oop/custom.dart';
-import 'package:google_map/database/api.dart';
-import 'package:google_map/database/api_links.dart';
-import 'package:google_map/oop/employee.dart';
+import 'package:google_map/model/database/api.dart';
 import 'package:google_map/main.dart';
-import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
+import 'package:google_map/model/oop/Item.dart';
+import 'package:google_map/model/oop/Order.dart';
+import 'package:google_map/model/oop/custom.dart';
+import 'package:google_map/model/oop/employee.dart';
 import 'package:google_map/view/conmponent/customAwesome.dart';
+import 'package:google_map/view/screens/dashSc/CustomDashboard_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+
+import 'api_links.dart';
 
 class Api {
   Future<Position> getMyLocation() async {
@@ -94,15 +95,15 @@ class Api {
           print(order['getDelTime']);
           BitmapDescriptor waitIcon = await BitmapDescriptor.fromAssetImage(
             ImageConfiguration(),
-            "lib/images/waitIcon.png",
+            "lib/view/images/waitIcon.png",
           );
           BitmapDescriptor doneIcon = await BitmapDescriptor.fromAssetImage(
             ImageConfiguration(),
-            "lib/images/doneIcon.png",
+            "lib/view/images/doneIcon.png",
           );
           BitmapDescriptor activeIcon = await BitmapDescriptor.fromAssetImage(
             ImageConfiguration(),
-            "lib/images/activeIcon.png",
+            "lib/view/images/activeIcon.png",
           );
           apiOrders.add(
             Order.fromJson(order, context, itemsName, true, waitIcon,
@@ -176,15 +177,15 @@ class Api {
             const ImageConfiguration(
               size: Size.fromHeight(30),
             ),
-            "lib/images/waitIcon.png",
+            "lib/view/images/waitIcon.png",
           );
           BitmapDescriptor doneIcon = await BitmapDescriptor.fromAssetImage(
             ImageConfiguration(size: Size.fromHeight(10)),
-            "lib/images/doneIcon.png",
+            "lib/view/images/doneIcon.png",
           );
           BitmapDescriptor activeIcon = await BitmapDescriptor.fromAssetImage(
             ImageConfiguration(),
-            "lib/images/activeIcon.png",
+            "lib/view/images/activeIcon.png",
           );
           apiOrders.add(
             Order.fromJson(order, context, itemsName, false, waitIcon,

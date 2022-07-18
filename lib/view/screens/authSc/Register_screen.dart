@@ -1,16 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_map/database/api.dart';
-import 'package:google_map/screens/authSc/Login_screen.dart';
-import 'package:google_map/database/api_links.dart';
+import 'package:google_map/model/database/api.dart';
 import 'package:google_map/view/conmponent/CustomButton.dart';
 import 'package:google_map/view/conmponent/CustomCirProgress.dart';
 import 'package:google_map/view/conmponent/CustomTextField.dart';
 import 'package:google_map/view/conmponent/customAwesome.dart';
+import 'package:google_map/view/screens/authSc/Login_screen.dart';
+import '../../../model/database/api_links.dart';
 
 class Register extends StatefulWidget {
-  Register(this.isEmp);
+  Register(this.isEmp, {Key? key}) : super(key: key);
 
   late bool isEmp;
 
@@ -90,7 +90,7 @@ class _RegisterState extends State<Register> {
                               .2,
                           child: Hero(
                               tag: 'icon',
-                              child: Image.asset('lib/images/delivery.png')),
+                              child: Image.asset('lib/view/images/delivery.png')),
                         ),
                         const SizedBox(
                           height: 20,

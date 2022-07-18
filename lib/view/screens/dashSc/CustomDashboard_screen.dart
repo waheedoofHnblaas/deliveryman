@@ -4,18 +4,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:google_map/oop/Item.dart';
-import 'package:google_map/oop/Order.dart';
-import 'package:google_map/database/google_map_api.dart';
+import 'package:google_map/model/oop/Item.dart';
+import 'package:google_map/model/oop/Order.dart';
 import 'package:google_map/main.dart';
-import 'package:google_map/screens/authSc/Login_screen.dart';
-import 'package:google_map/screens/addScreen.dart';
-import 'package:google_map/screens/person_screen.dart';
 import 'package:google_map/view/conmponent/CustomCirProgress.dart';
 import 'package:google_map/view/conmponent/customAwesome.dart';
+import 'package:google_map/view/screens/addScreen.dart';
+import 'package:google_map/view/screens/authSc/Login_screen.dart';
+import 'package:google_map/view/screens/person_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import '../../database/google_map_api.dart';
+import '../../../model/database/google_map_api.dart';
 
 class CustomDashboard extends StatefulWidget {
   CustomDashboard(String this.name, String this.password, String this.phone);
@@ -41,7 +40,7 @@ Api API = Api();
 class _DashboardState extends State<CustomDashboard> {
 
   Api API = Api();
-  bool all = true, wait = false, done = false, withD = false;
+  bool all = false, wait = true, done = false, withD = false;
   Future<void> getPos() async {
     try {
       LocationPermission per = await Geolocator.checkPermission();

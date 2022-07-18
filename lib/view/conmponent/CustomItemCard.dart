@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_map/oop/Item.dart';
+import 'package:get/get.dart';
+import 'package:google_map/model/oop/Item.dart';
 
 Widget CustomItemCard(
   context,
@@ -14,38 +15,38 @@ Widget CustomItemCard(
   } else {
     n = 0;
   }
-  return Card(
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.9,
-          child: Column(
-            children: [
-              Card(
-                color: n >= 1 ? Colors.teal[100] : Colors.white,
-                child: ListTile(
-                  title: Text(
-                    snapshot[index].name!,
-                    style: TextStyle(fontSize: 21),
-                  ),
-                  subtitle: Text(snapshot[index].price! + ' \$'),
-                  leading:  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Text(n.toString()),
-                    ),
-                    color: Colors.teal[100],
-                  ),
-                  trailing: Text(snapshot[index].weight! + ' kg'),
-                ),
-              )
-            ],
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      SizedBox(
+        width: MediaQuery.of(context).size.width * 0.8,
+        child: ListTile(
+          tileColor: n >= 1 ? Colors.teal[100] : Colors.white,
+          title: Text(
+            snapshot[index].name!,
+            style: TextStyle(fontSize: 21, color: Get.theme.primaryColor),
+          ),
+          subtitle: Text(
+            snapshot[index].weight! + ' kg',
+            style: TextStyle(fontSize: 11, color: Get.theme.primaryColor),
+          ),
+          leading: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Text(
+                n.toString(),
+                style: TextStyle(fontSize: 18, color: Get.theme.backgroundColor),
+              ),
+            ),
+            color: Get.theme.primaryColor,
+          ),
+          trailing: Text(
+            snapshot[index].price! + ' \$',
+            style: TextStyle(fontSize: 21,color: Get.theme.primaryColor),
           ),
         ),
-        chl,
-      ],
-    ),
+      ),
+      chl,
+    ],
   );
 }
