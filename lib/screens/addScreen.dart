@@ -1,24 +1,19 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:google_map/conmponent/CustomItemCard.dart';
-import 'package:google_map/conmponent/customAwesome.dart';
 import 'package:google_map/oop/Item.dart';
 import 'package:google_map/oop/Order.dart';
-import 'package:google_map/conmponent/CustomCirProgress.dart';
-import 'package:google_map/conmponent/CustomTextField.dart';
-import 'package:google_map/oop/custom.dart';
 import 'package:google_map/database/api.dart';
 import 'package:google_map/database/api_links.dart';
 import 'package:google_map/database/google_map_api.dart';
 import 'package:google_map/main.dart';
 import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
-import 'package:google_map/screens/authSc/Login_screen.dart';
-import 'package:google_map/screens/person_screen.dart';
+import 'package:google_map/view/conmponent/CustomCirProgress.dart';
+import 'package:google_map/view/conmponent/CustomItemCard.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import '../view/conmponent/customAwesome.dart';
 
 class AddScreen extends StatefulWidget {
   AddScreen(this.latLng, this.getorderItems);
@@ -62,6 +57,7 @@ class _AddScreenState extends State<AddScreen> {
       }
     } catch (e) {
       print(e);
+      print('============addOrder============');
     }
   }
 
@@ -97,6 +93,7 @@ class _AddScreenState extends State<AddScreen> {
       }
     } catch (e) {
       print(e);
+      print('============addOrderItem====$lastOrderId========');
     }
   }
 

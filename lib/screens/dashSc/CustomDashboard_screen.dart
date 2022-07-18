@@ -1,21 +1,18 @@
 import 'dart:async';
-import 'dart:ffi';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:google_map/conmponent/customAwesome.dart';
 import 'package:google_map/oop/Item.dart';
 import 'package:google_map/oop/Order.dart';
-import 'package:google_map/conmponent/CustomCirProgress.dart';
 import 'package:google_map/database/google_map_api.dart';
 import 'package:google_map/main.dart';
 import 'package:google_map/screens/authSc/Login_screen.dart';
-import 'package:google_map/screens/authSc/Register_screen.dart';
 import 'package:google_map/screens/addScreen.dart';
 import 'package:google_map/screens/person_screen.dart';
+import 'package:google_map/view/conmponent/CustomCirProgress.dart';
+import 'package:google_map/view/conmponent/customAwesome.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../database/google_map_api.dart';
@@ -119,7 +116,7 @@ class _DashboardState extends State<CustomDashboard> {
           onPressed: () async {
             CustomeCircularProgress(context);
             try {
-              API.apiOrders.forEach(
+              Api.apiOrders.forEach(
                 (element) {
                   if (element.ownerId == preferences.getString('id')) {
                     print(element.ownerId);
@@ -135,7 +132,7 @@ class _DashboardState extends State<CustomDashboard> {
                 },
               );
               if (!haveOrder) {
-                list = await API.getorderItems('all');
+                list = await Api.getorderItems('all');
                 Get.back();
                 Get.to(
                   AddScreen(
@@ -156,7 +153,7 @@ class _DashboardState extends State<CustomDashboard> {
 
                       await API.deleteOrder(_order.orderId.toString())
                           .then((value) async {
-                        list = await API.getorderItems('all');
+                        list = await Api.getorderItems('all');
 
                         if (value == 'success') {
                           Get.to(
@@ -198,7 +195,7 @@ class _DashboardState extends State<CustomDashboard> {
           children: [
             ttt
                 ? FutureBuilder<List<Order>>(
-                    future: API.getMyOrders(myLocationCust, context),
+                    future: Api.getMyOrders(myLocationCust, context),
                     builder: (context, snapshot) {
                       if (snapshot.hasData &&
                           !snapshot.hasError &&

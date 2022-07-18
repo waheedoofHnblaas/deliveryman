@@ -1,20 +1,13 @@
-import 'dart:async';
-
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_map/conmponent/CustomButton.dart';
-import 'package:google_map/conmponent/CustomCirProgress.dart';
-import 'package:google_map/conmponent/CustomTextField.dart';
-import 'package:google_map/conmponent/color.dart';
-import 'package:google_map/conmponent/customAwesome.dart';
 import 'package:google_map/database/api.dart';
-import 'package:google_map/main.dart';
-import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
 import 'package:google_map/screens/authSc/Login_screen.dart';
 import 'package:google_map/database/api_links.dart';
-import 'package:google_map/screens/dashSc/MainDash.dart';
+import 'package:google_map/view/conmponent/CustomButton.dart';
+import 'package:google_map/view/conmponent/CustomCirProgress.dart';
+import 'package:google_map/view/conmponent/CustomTextField.dart';
+import 'package:google_map/view/conmponent/customAwesome.dart';
 
 class Register extends StatefulWidget {
   Register(this.isEmp);

@@ -1,17 +1,11 @@
-import 'dart:convert';
 
-import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_map/conmponent/CustomCirProgress.dart';
-import 'package:google_map/conmponent/customAwesome.dart';
-import 'package:google_map/database/api.dart';
-import 'package:google_map/database/api_links.dart';
 import 'package:google_map/database/google_map_api.dart';
 import 'package:google_map/main.dart';
-import 'package:google_map/oop/employee.dart';
 import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
 import 'package:google_map/screens/dashSc/MainDash.dart';
+import 'package:google_map/view/conmponent/CustomCirProgress.dart';
+import 'package:google_map/view/conmponent/customAwesome.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Order {
@@ -19,6 +13,8 @@ class Order {
   String? orderId;
   String? ownerId;
   String? deliveryId;
+  String? deliveryLat;
+  String? deliveryLong;
   bool? isWaiting;
   bool? isRecieved;
   Marker? marker;
@@ -31,6 +27,8 @@ class Order {
       {this.orderId,
       this.ownerId,
       this.deliveryId,
+      this.deliveryLat,
+      this.deliveryLong,
       this.isWaiting,
       this.isRecieved,
       this.marker,
@@ -51,6 +49,8 @@ class Order {
     orderId = json['order_id'];
     ownerId = json['owner_id'];
     deliveryId = json['delivery_id'];
+    deliveryLong = json['deliveryLong']==''?'1.1':json['deliveryLong'];
+    deliveryLat = json['deliveryLat']==''?'1.1':json['deliveryLat'];
     isWaiting = json['isWaiting'] == '0' ? false : true;
 
     isRecieved = json['isRecieved'] == '0' ? false : true;
@@ -65,15 +65,23 @@ class Order {
             var delivery = await API.getEmpNameById(
               json['delivery_id'],
             );
+            var owner = await API.getCustomNameById(
+              json['owner_id'],
+            );
             if (isEmp) {
               if (json['isWaiting'] == '1' && json['isRecieved'] == '0') {
                 CustomAwesomeDialog(
                   context: context,
-                  content: 'I will Arrive',
+                  content: 'I will Arrive to ${owner.name}',
                   onOkTap: () async {
                     API
-                        .updateGettingOrder(json['order_id'],
-                            preferences.getString('id')!, API.getNowTime())
+                        .updateGettingOrder(
+                      json['order_id']!,
+                      myLocation.latitude.toString(),
+                      myLocation.longitude.toString(),
+                      preferences.getString('id')!,
+                      API.getNowTime(),
+                    )
                         .then((value) async {
                       value == 'success'
                           ? Get.offAll(
@@ -89,17 +97,20 @@ class Order {
                 );
               } else if (json['isWaiting'] == '0' &&
                   json['isRecieved'] == '0') {
+                var owner = await API.getCustomNameById(
+                  json['owner_id'],
+                );
                 CustomAwesomeDialog(
                   context: context,
                   content: json['delivery_id'] != preferences.getString('id')
                       ? 'with delivery man :${delivery.name}'
-                      : 'with you',
+                      : 'with you to ${owner.name}',
                   onCancelTap: () {},
                 );
               } else {
                 CustomAwesomeDialog(
                   context: context,
-                  content: 'your order has done by : ${delivery.name!}',
+                  content: 'your order has done by : ${delivery.name!} to ${owner.name}',
                   onCancelTap: () {},
                 );
               }
@@ -152,9 +163,10 @@ class Order {
               } else if (json['isWaiting'] == '0' &&
                   json['isRecieved'] == '1') {
                 CustomAwesomeDialog(
-                    context: context,
-                    content: 'your order has done by : ${delivery.name!}',
-                  onCancelTap: () {},);
+                  context: context,
+                  content: 'your order has done by : ${delivery.name!}',
+                  onCancelTap: () {},
+                );
               }
             }
           },
@@ -184,6 +196,8 @@ class Order {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['owner_id'] = preferences.get('id').toString();
     data['delivery_id'] = '0';
+    data['deliveryLat'] = '0';
+    data['deliveryLong'] = '0';
     data['isWaiting'] = '1';
     data['isRecieved'] = '0';
     data['getDelTime'] = '0';

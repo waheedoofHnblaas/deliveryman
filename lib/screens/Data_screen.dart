@@ -33,10 +33,14 @@ class _DataScreenState extends State<DataScreen> {
               ),
               markers: {
                 widget._order.marker!,
+
                 Marker(
-                  markerId: const MarkerId('123325'),
-                  position: LatLng(myLocation.latitude, myLocation.longitude),
-                  infoWindow: const InfoWindow(title: 'your location'),
+                  markerId: const MarkerId('5436536'),
+                  position: LatLng(
+                    double.parse(widget._order.deliveryLat!),
+                    double.parse(widget._order.deliveryLong!),
+                  ),
+                  infoWindow: const InfoWindow(title: 'your location order'),
                 )
               },
               myLocationEnabled: true,

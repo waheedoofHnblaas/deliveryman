@@ -1,123 +1,90 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:awesome_drawer_bar/awesome_drawer_bar.dart';
 import 'package:geolocator_platform_interface/src/models/position.dart';
 import 'package:get/get.dart';
-import 'package:google_map/conmponent/CustomTextField.dart';
 import 'package:google_map/oop/Item.dart';
 import 'package:google_map/oop/Order.dart';
 import 'package:google_map/database/google_map_api.dart';
-import 'package:google_map/main.dart';
 import 'package:google_map/oop/custom.dart';
 import 'package:google_map/oop/employee.dart';
 import 'package:google_map/screens/Data_screen.dart';
 import 'package:google_map/screens/dashSc/MainDash.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_map/view/conmponent/CustomTextField.dart';
 
 class CustomAwesomeDrawer extends StatefulWidget {
-  CustomAwesomeDrawer(this.context, this.myLocation, this._order);
+  CustomAwesomeDrawer(this.context, this.myLocation);
 
   late BuildContext context;
   late Position myLocation;
-  late List<Order> _order;
 
   @override
   State<CustomAwesomeDrawer> createState() => _CustomAwesomeDrawerState();
 }
 
 class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
-  String searsh = '';
-  Api API = Api();
-
   @override
   void initState() {
     // TODO: implement initState
 
-    print(widget._order);
+    print('===========================');
   }
+
+  String searsh = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: AwesomeDrawerBar(
-      isRTL: true,
-      slideHeight: MediaQuery.of(context).size.height - 20,
-      mainScreen: Scaffold(
-        backgroundColor: Get.theme.primaryColor,
-        appBar: AppBar(
-          actions: [],
-          leading: IconButton(
-            iconSize: 25,
-            onPressed: () {
-              Get.back();
-            },
-            icon: const Icon(
-              CupertinoIcons.back,
-            ),
-          ),
-          title: const Text(
-            'Orders',
-          ),
-          centerTitle: true,
-        ),
-        body: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                CustomeTextFeild((val) {
+        body: Scaffold(
+      backgroundColor: Get.theme.primaryColor,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              CustomeTextFeild(
+                (val) {
                   setState(() {
                     searsh = val.toString();
-                    print(val);
                   });
-                }, 'search', '', context,
-                    type: TextInputAction.none,
-                    auto: false,
-                    isNumber: TextInputType.number),
-                SizedBox(
+                },
+                'search',
+                '',
+                context,
+                type: TextInputAction.none,
+                auto: false,
+                isNumber: TextInputType.number,
+              ),
+              SizedBox(
                   height: MediaQuery.of(context).size.height * 0.8,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: List.generate(
-                        widget._order.length,
-                        (i) {
-                          print(i);
-                          if (searsh.isEmpty) {
-                            return component(widget._order.length - i - 1);
-                          } else if (searsh.isNotEmpty) {
-                            if (searsh != widget._order[i].orderId.toString()) {
-                              return Container();
+                  child: FutureBuilder<List<Order>?>(
+                    future: Api.getMainOrders(myLocation, context),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData &&
+                          !snapshot.hasError &&
+                          snapshot.connectionState == ConnectionState.done) {
+                        return ListView.builder(
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            if (snapshot.data![index].orderId == searsh ||
+                                searsh.isEmpty) {
+                              return component(snapshot.data![index]);
                             } else {
-                              return component(i);
+                              return Container();
                             }
-                          } else {
-                            return Container();
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+                          },
+                        );
+                      } else {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                    },
+                  )),
+            ],
           ),
         ),
       ),
-      menuScreen: MainDashboard(
-        preferences.getString('name')!,
-        preferences.getString('password')!,
-        preferences.getString('phone')!,
-      ),
-      type: StyleState.popUp,
-      borderRadius: 24.0,
-      showShadow: true,
-      angle: -12.0,
-      backgroundColor: Colors.blue,
-      openCurve: Curves.easeInOutBack,
-      closeCurve: Curves.bounceIn,
     ));
   }
 
-  Widget component(i) {
+  Widget component(order) {
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.3,
       child: Padding(
@@ -125,11 +92,11 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
         child: InkWell(
           onTap: () {
             Get.to(
-              DataScreen(widget._order[i]),
+              DataScreen(order),
             );
           },
           child: Card(
-            color: !widget._order[i].isWaiting! && !widget._order[i].isRecieved!
+            color: !order.isWaiting! && !order.isRecieved!
                 ? Colors.lightGreenAccent
                 : Get.theme.backgroundColor,
             shape: RoundedRectangleBorder(
@@ -148,8 +115,7 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             FutureBuilder<Customer>(
-                              future: API
-                                  .getCustomNameById(widget._order[i].ownerId!),
+                              future: API.getCustomNameById(order.ownerId!),
                               builder: (context, customersnap) {
                                 if (!customersnap.hasData ||
                                     customersnap.hasError) {
@@ -168,13 +134,11 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                                 }
                               },
                             ),
-                            (!widget._order[i].isWaiting! &&
-                                        widget._order[i].isRecieved!) ||
-                                    (!widget._order[i].isWaiting! &&
-                                        !widget._order[i].isRecieved!)
+                            (!order.isWaiting! && order.isRecieved!) ||
+                                    (!order.isWaiting! && !order.isRecieved!)
                                 ? FutureBuilder<Employee>(
                                     future: API.getEmpNameById(
-                                      widget._order[i].deliveryId!,
+                                      order.deliveryId!,
                                     ),
                                     builder: (context, employeesnap) {
                                       if (!employeesnap.hasData ||
@@ -198,8 +162,7 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                                 : Container(
                                     child: const Text(
                                       '  new',
-                                      style:
-                                          TextStyle(color: Colors.green),
+                                      style: TextStyle(color: Colors.green),
                                     ),
                                   ),
                           ],
@@ -210,19 +173,18 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(widget._order[i].createTime!),
-                            Text(widget._order[i].getDelTime!),
-                            Text(widget._order[i].doneCustTime!),
+                            Text(order.createTime!),
+                            Text(order.getDelTime!),
+                            Text(order.doneCustTime!),
                             Card(
-                              child: Text('id :' + widget._order[i].orderId!),
+                              child: Text('id :' + order.orderId!),
                             ),
-                            widget._order[i].isRecieved!
+                            order.isRecieved!
                                 ? const Icon(
                                     Icons.done_all,
                                     color: Colors.white,
                                   )
-                                : !widget._order[i].isRecieved! &&
-                                        !widget._order[i].isWaiting!
+                                : !order.isRecieved! && !order.isWaiting!
                                     ? const Icon(
                                         Icons.done_all,
                                         color: Colors.lightGreenAccent,
@@ -237,13 +199,14 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                     ],
                   ),
                   FutureBuilder<List<Item>>(
-                    future: API.getorderItems(widget._order[i].orderId!),
+                    future: Api.getorderItems(order.orderId!),
                     builder: (context, itemssnap) {
                       if (itemssnap.hasData && !itemssnap.hasError) {
                         return SizedBox(
                           height: MediaQuery.of(context).size.height * 0.1,
                           width: MediaQuery.of(context).size.width * 0.8,
                           child: ListView.builder(
+                            shrinkWrap: true,
                             scrollDirection: Axis.horizontal,
                             itemCount: itemssnap.data!.length,
                             itemBuilder: (context, index) {

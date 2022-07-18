@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:google_map/conmponent/customAwesome.dart';
 import 'package:google_map/oop/Item.dart';
 import 'package:google_map/oop/Order.dart';
 import 'package:google_map/oop/custom.dart';
@@ -11,11 +10,12 @@ import 'package:google_map/database/api_links.dart';
 import 'package:google_map/oop/employee.dart';
 import 'package:google_map/main.dart';
 import 'package:google_map/screens/dashSc/CustomDashboard_screen.dart';
+import 'package:google_map/view/conmponent/customAwesome.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class Api {
-    Future<Position> getMyLocation() async {
+  Future<Position> getMyLocation() async {
     Position cl = await Geolocator.getCurrentPosition().then((value) => value);
     print('++++++++++++++++++++++$cl+++++++++++++++++++++++++++');
     return cl;
@@ -39,14 +39,14 @@ class Api {
   //   }
   // }
 
-   double getDestanceBetween(
+  double getDestanceBetween(
       startLatitude, startLongitude, endLatitude, endLongitude) {
     double cl = Geolocator.distanceBetween(
         startLatitude, startLongitude, endLatitude, endLongitude);
     return cl;
   }
 
-   double getDestanceMyLocationToOrder(Position mylocation, Order order) {
+  double getDestanceMyLocationToOrder(Position mylocation, Order order) {
     double cl = Geolocator.distanceBetween(
         mylocation.latitude,
         mylocation.longitude,
@@ -70,17 +70,17 @@ class Api {
   //   return orders;
   // }
 
-   List<Order> apiOrders = [];
+  static List<Order> apiOrders = [];
+  static List<int> OrderIds = [];
 
-
-   Future<List<Order>?> getMainOrders(Position mylocation, context, search ) async {
+  static Future<List<Order>?> getMainOrders(
+      Position mylocation, context) async {
     try {
       apiOrders.clear();
       var response = await http.get(Uri.parse(getordersLink));
       print(jsonDecode(response.body));
       final data = jsonDecode(response.body);
       for (Map<String, dynamic> order in data) {
-
         String itemsName = '';
         List<Item> items = await getorderItems(order['order_id']);
         for (var element in items) {
@@ -117,7 +117,7 @@ class Api {
     }
   }
 
-    Future<Employee> getEmpNameById(
+  Future<Employee> getEmpNameById(
     String Id,
   ) async {
     try {
@@ -132,14 +132,16 @@ class Api {
       return jsonDecode(e.toString());
     }
   }
+
   String getNowTime() {
     return '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}'
         '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}';
   }
-    Future<Customer> getCustomNameById(
+
+  Future<Customer> getCustomNameById(
     String Id,
   ) async {
-    if(Id!=''){
+    if (Id != '') {
       try {
         final PhpApi _api = PhpApi();
         var res = await _api.postRequest(getCustloyeeByIdLink, {'id': Id});
@@ -151,17 +153,16 @@ class Api {
         print('catch getItems error $e}');
         return jsonDecode(e.toString());
       }
-    }else{
-     return Customer();
+    } else {
+      return Customer();
     }
-
   }
 
-    Future<List<Order>> getMyOrders(Position mylocation, context) async {
+  static Future<List<Order>> getMyOrders(Position mylocation, context) async {
     try {
       apiOrders.clear();
 
-    var response = await http.get(Uri.parse(getordersLink));
+      var response = await http.get(Uri.parse(getordersLink));
       print(jsonDecode(response.body));
       final data = jsonDecode(response.body);
       for (Map<String, dynamic> order in data) {
@@ -170,7 +171,7 @@ class Api {
         for (var element in items) {
           itemsName = '${element.name!}:${element.count}' + '-' + itemsName;
         }
-        if(order['owner_id'] == preferences.getString('id')!){
+        if (order['owner_id'] == preferences.getString('id')!) {
           BitmapDescriptor waitIcon = await BitmapDescriptor.fromAssetImage(
             const ImageConfiguration(
               size: Size.fromHeight(30),
@@ -186,12 +187,10 @@ class Api {
             "lib/images/activeIcon.png",
           );
           apiOrders.add(
-            Order.fromJson(
-                order, context, itemsName, false, waitIcon, activeIcon, doneIcon),
+            Order.fromJson(order, context, itemsName, false, waitIcon,
+                activeIcon, doneIcon),
           );
         }
-
-
       }
       return apiOrders;
     } catch (e) {
@@ -206,7 +205,7 @@ class Api {
     }
   }
 
-    Future<String> deleteOrder(String id) async {
+  Future<String> deleteOrder(String id) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
@@ -225,8 +224,13 @@ class Api {
     }
   }
 
-    Future<String> updateGettingOrder(
-      String orderId, String deliveryId, String getDelTime) async {
+  Future<String> updateGettingOrder(
+    String orderId,
+    deliveryLat,
+    deliveryLong,
+    String deliveryId,
+    String getDelTime,
+  ) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
@@ -235,6 +239,8 @@ class Api {
           'order_id': orderId,
           'delivery_id': deliveryId,
           'getDelTime': getDelTime,
+          'deliveryLat': deliveryLat,
+          'deliveryLong': deliveryLong,
         },
       );
       if (response['status'] == 'success') {
@@ -249,7 +255,7 @@ class Api {
     }
   }
 
-    Future<String> updateDoneOrder(String id, String doneCustTime) async {
+  Future<String> updateDoneOrder(String id, String doneCustTime) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
@@ -268,7 +274,7 @@ class Api {
     }
   }
 
-    Future<List<Item>> getorderItems(String orderID) async {
+  static Future<List<Item>> getorderItems(String orderID) async {
     List<Item> apitems = [];
     try {
       final PhpApi _api = PhpApi();
@@ -293,7 +299,7 @@ class Api {
     }
   }
 
-    updateCustomScreen() {
+  static updateCustomScreen() {
     Get.off(CustomDashboard(preferences.getString('name')!,
         preferences.getString('password')!, preferences.getString('phone')!));
   }

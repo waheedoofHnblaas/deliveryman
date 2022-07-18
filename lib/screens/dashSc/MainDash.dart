@@ -1,18 +1,15 @@
 import 'dart:async';
-import 'dart:math' as math;
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:google_map/conmponent/CustomButton.dart';
-import 'package:google_map/conmponent/customAwesome.dart';
 import 'package:google_map/oop/Order.dart';
-import 'package:google_map/conmponent/customDrawer.dart';
 import 'package:google_map/database/google_map_api.dart';
 import 'package:google_map/main.dart';
 import 'package:google_map/screens/authSc/Login_screen.dart';
 import 'package:google_map/screens/person_screen.dart';
+import 'package:google_map/view/conmponent/customDrawer.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 Position myLocation = Position(
@@ -42,6 +39,9 @@ bool choose = false;
 List<Marker> chooseMarker = [const Marker(markerId: MarkerId(''))];
 bool ttt = false;
 bool all = true, wait = false, done = false, withD = false;
+bool showList = false;
+
+Api API = Api();
 
 class _EmpDashboardState extends State<MainDashboard> {
   Future<void> getPos() async {
@@ -77,102 +77,76 @@ class _EmpDashboardState extends State<MainDashboard> {
 
   @override
   void initState() {
+    super.initState();
     getPos();
-    API.apiOrders.forEach((element) {
+    Api.apiOrders.forEach((element) {
       print(element.createTime);
+      or.add(element);
     });
   }
 
-  Api API = Api();
+  List<Order> or = [];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      drawerEdgeDragWidth: MediaQuery.of(context).size.width / 3,
-      drawer: CustomAwesomeDrawer(context, myLocation, API.apiOrders),
-      appBar: AppBar(
-        elevation: 0,
-        actions: [
-          IconButton(
-              onPressed: () {
-                Get.offAll(
-                    MainDashboard(widget.name, widget.password, widget.phone));
-              },
-              icon: Icon(CupertinoIcons.refresh)),
-          IconButton(
-              onPressed: () {
-                preferences.clear();
-                Navigator.pushAndRemoveUntil(context,
-                    MaterialPageRoute(builder: (context) {
-                  return PersonalScreen();
-                }), (route) => false);
-              },
-              icon: const Icon(
-                CupertinoIcons.rectangle_arrow_up_right_arrow_down_left_slash,
-              )),
-        ],
-        title: ListTile(
-          title: Text(
-            '${preferences.getString('name')}',
-            style: TextStyle(color: Get.theme.backgroundColor),
-          ),
-          leading: Text('delivery man'),
-        ),
-      ),
-      body: Center(
-          child: Stack(
+    List<Widget> wid = [
+      Stack(
         children: [
           ttt
-              ? FutureBuilder<List<Order>?>(
-                  future: API.getMainOrders(myLocation, context, ''),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        !snapshot.hasError &&
-                        snapshot.connectionState == ConnectionState.done) {
-                      List<Marker> marks = [];
-                      if (done) {
-                        for (Order order in snapshot.data!) {
-                          if (order.isRecieved == true) {
+              ? Center(
+                  child: FutureBuilder<List<Order>?>(
+                    future: Api.getMainOrders(
+                      myLocation,
+                      context,
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData &&
+                          !snapshot.hasError &&
+                          snapshot.connectionState == ConnectionState.done) {
+                        List<Marker> marks = [];
+                        if (done) {
+                          for (Order order in snapshot.data!) {
+                            if (order.isRecieved == true) {
+                              marks.add(order.marker!);
+                            }
+                          }
+                        } else if (wait) {
+                          for (Order order in snapshot.data!) {
+                            if (order.isWaiting == true) {
+                              marks.add(order.marker!);
+                            }
+                          }
+                        } else if (withD) {
+                          for (Order order in snapshot.data!) {
+                            if (order.isWaiting == false &&
+                                order.isRecieved == false) {
+                              marks.add(order.marker!);
+                            }
+                          }
+                        } else {
+                          for (Order order in snapshot.data!) {
                             marks.add(order.marker!);
                           }
                         }
-                      } else if (wait) {
-                        for (Order order in snapshot.data!) {
-                          if (order.isWaiting == true) {
-                            marks.add(order.marker!);
-                          }
-                        }
-                      } else if (withD) {
-                        for (Order order in snapshot.data!) {
-                          if (order.isWaiting == false &&
-                              order.isRecieved == false) {
-                            marks.add(order.marker!);
-                          }
-                        }
-                      } else {
-                        for (Order order in snapshot.data!) {
-                          marks.add(order.marker!);
-                        }
-                      }
 
-                      return GoogleMap(
-                        mapType: MapType.terrain,
-                        myLocationEnabled: true,
-                        myLocationButtonEnabled: true,
-                        markers: Set.of(marks),
-                        initialCameraPosition: CameraPosition(
-                          target:
-                              LatLng(myLocation.latitude, myLocation.longitude),
-                          zoom: 12,
-                        ),
-                      );
-                    } else {
-                      return CircularProgressIndicator();
-                    }
-                  },
+                        return GoogleMap(
+                          mapType: MapType.terrain,
+                          myLocationEnabled: true,
+                          myLocationButtonEnabled: true,
+                          markers: Set.of(marks),
+                          initialCameraPosition: CameraPosition(
+                            target: LatLng(
+                                myLocation.latitude, myLocation.longitude),
+                            zoom: 12,
+                          ),
+                        );
+                      } else {
+                        return CircularProgressIndicator();
+                      }
+                    },
+                  ),
                 )
-              : Container(child: CircularProgressIndicator()),
+              : Center(child: CircularProgressIndicator()),
           Positioned(
             top: 55,
             right: 0,
@@ -322,7 +296,118 @@ class _EmpDashboardState extends State<MainDashboard> {
             ),
           )
         ],
-      )),
+      ),
+      CustomAwesomeDrawer(
+        context,
+        myLocation,
+      )
+    ];
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      drawerEdgeDragWidth: MediaQuery.of(context).size.width / 3,
+      appBar: AppBar(
+        elevation: 0,
+        actions: [
+          IconButton(
+              onPressed: () {
+                Get.offAll(
+                    MainDashboard(widget.name, widget.password, widget.phone));
+              },
+              icon: Icon(CupertinoIcons.refresh)),
+          IconButton(
+              onPressed: () {
+                preferences.clear();
+                Navigator.pushAndRemoveUntil(context,
+                    MaterialPageRoute(builder: (context) {
+                  return PersonalScreen();
+                }), (route) => false);
+              },
+              icon: const Icon(
+                CupertinoIcons.rectangle_arrow_up_right_arrow_down_left_slash,
+              )),
+        ],
+        title: ListTile(
+          title: Text(
+            '${preferences.getString('name')}',
+            style: TextStyle(color: Get.theme.backgroundColor),
+          ),
+          leading: Text('delivery man'),
+        ),
+      ),
+      body: Center(
+        child: Stack(
+          children: [
+            wid[0],
+            showList ? wid[1] : Container(),
+            Positioned(
+              left: MediaQuery.of(context).size.width / 3,
+              right: MediaQuery.of(context).size.width / 3,
+              bottom: 30,
+              height: 60,
+              child:
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      showList = true;
+                    });
+                  },
+                  child: Card(
+                    color: showList
+                        ? Get.theme.primaryColor
+                        : Get.theme.backgroundColor,
+                    shape: const RoundedRectangleBorder(
+                      side: BorderSide(color: Colors.white70, width: 1),
+                      borderRadius:
+                          BorderRadius.horizontal(left: Radius.circular(22)),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(11.0),
+                      child: Text(
+                        'List',
+                        style: TextStyle(
+                          color: !showList
+                              ? Get.theme.primaryColor
+                              : Get.theme.backgroundColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      showList = false;
+                    });
+                  },
+                  child: Card(
+                    color: !showList
+                        ? Get.theme.primaryColor
+                        : Get.theme.backgroundColor,
+                    shape: const RoundedRectangleBorder(
+                      side: BorderSide(color: Colors.white70, width: 1),
+                      borderRadius:
+                          BorderRadius.horizontal(right: Radius.circular(22)),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(11.0),
+                      child: Text(
+                        'Map',
+                        style: TextStyle(
+                          color: showList
+                              ? Get.theme.primaryColor
+                              : Get.theme.backgroundColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
