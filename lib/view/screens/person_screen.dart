@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_map/view/screens/authSc/Login_screen.dart';
-
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 class PersonalScreen extends StatefulWidget {
   const PersonalScreen({Key? key}) : super(key: key);
 
@@ -12,6 +12,11 @@ class PersonalScreen extends StatefulWidget {
 bool isEmp = false, isCustom = false;
 
 class _PersonalScreenState extends State<PersonalScreen> {
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +55,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
                           child: Hero(
                             tag: 'icon',
                             child: Image.asset(
-                              "lib/view/images/delivery.png",
+                              "lib/view/images/deliveryGif.gif",
                             ),
                           ),
                           height: MediaQuery.of(context).size.height * 0.4,

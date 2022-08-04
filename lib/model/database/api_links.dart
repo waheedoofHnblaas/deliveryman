@@ -20,11 +20,13 @@ const String doneorderUpdateLink = '${server}doneorderupdate.php';
 
 
 const String getordersLink = '${server}getorders.php';
+const String getordersByOwnerIdLink = '${server}getordersByOwnerId.php';
 const String getorderUpdateLink = '${server}getorderupdate.php';
 const String getorederItemsLink = '${server}getorderitems.php';
 const String getEmployeeByIdLink = '${server}getEmployeeById.php';
 const String getCustloyeeByIdLink = '${server}getCustloyeeByIdLink.php';
 const String getitemsLink = '${server}getitems.php';
+const String getRateByIdLink = '${server}getRateById.php';
 
 
 const CameraPosition cameraPosition = CameraPosition(target: LatLng(36.201909545860694, 37.13433723896742),zoom: 12);

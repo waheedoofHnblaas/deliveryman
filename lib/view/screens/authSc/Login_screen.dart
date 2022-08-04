@@ -124,7 +124,7 @@ class _LoginState extends State<Login> {
                               .2,
                           child: Hero(
                               tag: 'icon',
-                              child: Image.asset('lib/view/images/delivery.png')),
+                              child: Image.asset('lib/view/images/deliveryGif.gif')),
                         ),
                         CustomeTextFeild((val) {
                           setState(() {

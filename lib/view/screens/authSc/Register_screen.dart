@@ -90,7 +90,7 @@ class _RegisterState extends State<Register> {
                               .2,
                           child: Hero(
                               tag: 'icon',
-                              child: Image.asset('lib/view/images/delivery.png')),
+                              child: Image.asset('lib/view/images/deliveryGif.gif')),
                         ),
                         const SizedBox(
                           height: 20,

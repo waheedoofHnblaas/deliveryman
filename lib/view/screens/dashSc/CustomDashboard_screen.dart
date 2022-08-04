@@ -11,6 +11,7 @@ import 'package:google_map/view/conmponent/CustomCirProgress.dart';
 import 'package:google_map/view/conmponent/customAwesome.dart';
 import 'package:google_map/view/screens/addScreen.dart';
 import 'package:google_map/view/screens/authSc/Login_screen.dart';
+import 'package:google_map/view/screens/dashSc/MainDash.dart';
 import 'package:google_map/view/screens/person_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -40,7 +41,7 @@ Api API = Api();
 class _DashboardState extends State<CustomDashboard> {
 
   Api API = Api();
-  bool all = false, wait = true, done = false, withD = false;
+  bool all = true, wait = false, done = false, withD = false;
   Future<void> getPos() async {
     try {
       LocationPermission per = await Geolocator.checkPermission();
@@ -115,7 +116,8 @@ class _DashboardState extends State<CustomDashboard> {
           onPressed: () async {
             CustomeCircularProgress(context);
             try {
-              Api.apiOrders.forEach(
+              List<Order> _apiOrders=await Api.getMyOrders(myLocation, context,preferences.getString('id')!);
+              _apiOrders.forEach(
                 (element) {
                   if (element.ownerId == preferences.getString('id')) {
                     print(element.ownerId);
@@ -194,7 +196,7 @@ class _DashboardState extends State<CustomDashboard> {
           children: [
             ttt
                 ? FutureBuilder<List<Order>>(
-                    future: Api.getMyOrders(myLocationCust, context),
+                    future: Api.getMyOrders(myLocationCust, context,preferences.getString('id')!),
                     builder: (context, snapshot) {
                       if (snapshot.hasData &&
                           !snapshot.hasError &&

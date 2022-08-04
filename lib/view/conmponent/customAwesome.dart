@@ -31,6 +31,7 @@ CustomAwesomeDialog(
       ),
     ),
     btnOkText: title,
+    buttonsTextStyle: TextStyle(color: Get.theme.primaryColor),
     btnOkOnPress: onOkTap,
     btnCancelText: 'make call',
     btnCancelIcon: Icons.phone,

@@ -48,11 +48,8 @@ class Api {
   }
 
   int getDestanceMyLocationToOrder(Position mylocation, LatLng position) {
-    double cl = Geolocator.distanceBetween(
-        mylocation.latitude,
-        mylocation.longitude,
-        position.latitude,
-        position.longitude);
+    double cl = Geolocator.distanceBetween(mylocation.latitude,
+        mylocation.longitude, position.latitude, position.longitude);
     return cl.ceil();
   }
 
@@ -71,13 +68,14 @@ class Api {
   //   return orders;
   // }
 
-  static List<Order> apiOrders = [];
+  static List<Order> _apiOrders = [];
   static List<int> OrderIds = [];
 
   static Future<List<Order>?> getMainOrders(
       Position mylocation, context) async {
     try {
-      apiOrders.clear();
+      _apiOrders.clear();
+
       var response = await http.get(Uri.parse(getordersLink));
       print(jsonDecode(response.body));
       final data = jsonDecode(response.body);
@@ -94,28 +92,100 @@ class Api {
           print('+++++++++++++++++++++++++++++++++++++++++++++++');
           print(order['getDelTime']);
           BitmapDescriptor waitIcon = await BitmapDescriptor.fromAssetImage(
-            ImageConfiguration(),
+            const ImageConfiguration(),
             "lib/view/images/waitIcon.png",
           );
           BitmapDescriptor doneIcon = await BitmapDescriptor.fromAssetImage(
-            ImageConfiguration(),
+            const ImageConfiguration(),
             "lib/view/images/doneIcon.png",
           );
           BitmapDescriptor activeIcon = await BitmapDescriptor.fromAssetImage(
-            ImageConfiguration(),
+            const ImageConfiguration(),
             "lib/view/images/activeIcon.png",
           );
-          apiOrders.add(
+          if (!_apiOrders.contains(
             Order.fromJson(order, context, itemsName, true, waitIcon,
+                activeIcon, doneIcon),
+          )) {
+            _apiOrders.add(
+              Order.fromJson(order, context, itemsName, true, waitIcon,
+                  activeIcon, doneIcon),
+            );
+          } else {
+            print('----------------_apiOrders.contains----------------------');
+          }
+        }
+      }
+      return _apiOrders;
+    } catch (e) {
+      print('catch getMainOrder error $e}');
+      CustomAwesomeDialog(
+          context: context,
+          content: 'no internet or server error',
+          onOkTap: () {
+            updateCustomScreen();
+          });
+      return [];
+    }
+  }
+
+  static Future<List<Order>> getMyOrders(
+      Position mylocation, context, String ownerId) async {
+    try {
+      _apiOrders.clear();
+
+      // var respons = await http.get(Uri.parse(getordersLink));
+     final PhpApi _api = PhpApi();
+
+
+      final data =  await _api.postRequest(getordersByOwnerIdLink, {'id': ownerId});
+      print(data);
+
+      for (Map<String, dynamic> order in data) {
+        String itemsName = '';
+        List<Item> items = await getorderItems(order['order_id']);
+        for (var element in items) {
+          itemsName = '${element.name!}:${element.count}' + '-' + itemsName;
+        }
+        BitmapDescriptor waitIcon = await BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(
+            size: Size.fromHeight(30),
+          ),
+          "lib/view/images/waitIcon.png",
+        );
+        BitmapDescriptor doneIcon = await BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(),
+          "lib/view/images/doneIcon.png",
+        );
+        BitmapDescriptor activeIcon = await BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(),
+          "lib/view/images/activeIcon.png",
+        );
+        if (!_apiOrders.contains(
+          Order.fromJson(
+              order, context, itemsName, true, waitIcon, activeIcon, doneIcon),
+        )) {
+          _apiOrders.add(
+            Order.fromJson(order, context, itemsName, false, waitIcon,
                 activeIcon, doneIcon),
           );
         }
       }
-      return apiOrders;
+      return _apiOrders.toList();
     } catch (e) {
-      print('catch getMainOrder error $e}');
+      print('catch getMyOrders error $e}');
+      CustomAwesomeDialog(
+          context: context,
+          content: 'no internet or server error',
+          onOkTap: () {
+            updateCustomScreen();
+          });
       return [];
     }
+  }
+
+  deleteOrdersList() {
+    _apiOrders.clear();
   }
 
   Future<Employee> getEmpNameById(
@@ -156,53 +226,6 @@ class Api {
       }
     } else {
       return Customer();
-    }
-  }
-
-  static Future<List<Order>> getMyOrders(Position mylocation, context) async {
-    try {
-      apiOrders.clear();
-
-      var response = await http.get(Uri.parse(getordersLink));
-      print(jsonDecode(response.body));
-      final data = jsonDecode(response.body);
-      for (Map<String, dynamic> order in data) {
-        String itemsName = '';
-        List<Item> items = await getorderItems(order['order_id']);
-        for (var element in items) {
-          itemsName = '${element.name!}:${element.count}' + '-' + itemsName;
-        }
-        if (order['owner_id'] == preferences.getString('id')!) {
-          BitmapDescriptor waitIcon = await BitmapDescriptor.fromAssetImage(
-            const ImageConfiguration(
-              size: Size.fromHeight(30),
-            ),
-            "lib/view/images/waitIcon.png",
-          );
-          BitmapDescriptor doneIcon = await BitmapDescriptor.fromAssetImage(
-            ImageConfiguration(size: Size.fromHeight(10)),
-            "lib/view/images/doneIcon.png",
-          );
-          BitmapDescriptor activeIcon = await BitmapDescriptor.fromAssetImage(
-            ImageConfiguration(),
-            "lib/view/images/activeIcon.png",
-          );
-          apiOrders.add(
-            Order.fromJson(order, context, itemsName, false, waitIcon,
-                activeIcon, doneIcon),
-          );
-        }
-      }
-      return apiOrders;
-    } catch (e) {
-      print('catch getMainOrder error $e}');
-      CustomAwesomeDialog(
-          context: context,
-          content: 'no internet',
-          onOkTap: () {
-            updateCustomScreen();
-          });
-      return [];
     }
   }
 
@@ -256,12 +279,39 @@ class Api {
     }
   }
 
-  Future<String> updateDoneOrder(String id, String doneCustTime) async {
+  Future<String> updateDoneOrder(
+      String id, String doneCustTime, String deliveryId, String rate) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
         doneorderUpdateLink,
-        {'id': id, 'doneCustTime': doneCustTime},
+        {
+          'id': id,
+          'doneCustTime': doneCustTime,
+          'dId': deliveryId,
+          'rate': rate,
+        },
+      );
+      if (response['status'] == 'success') {
+        return 'success';
+      } else {
+        print('add failed ${response['status']}');
+        return 'failed';
+      }
+    } catch (e) {
+      print(e);
+      return 'failed';
+    }
+  }
+
+  Future<String> getRateById(String id) async {
+    try {
+      PhpApi _api = PhpApi();
+      var response = await _api.postRequest(
+        getRateByIdLink,
+        {
+          'id': id,
+        },
       );
       if (response['status'] == 'success') {
         return 'success';

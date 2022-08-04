@@ -12,7 +12,8 @@ import 'package:google_map/view/screens/Data_screen.dart';
 import 'package:google_map/view/screens/dashSc/MainDash.dart';
 
 class CustomAwesomeDrawer extends StatefulWidget {
-  CustomAwesomeDrawer(this.context, this.myLocation);
+  CustomAwesomeDrawer(this.context, this.myLocation, {Key? key})
+      : super(key: key);
 
   late BuildContext context;
   late Position myLocation;
@@ -26,9 +27,11 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
   void initState() {
     // TODO: implement initState
 
+    _api.deleteOrdersList();
     print('===========================');
   }
 
+  final Api _api = Api();
   String searsh = '';
 
   @override
@@ -58,13 +61,14 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                   child: FutureBuilder<List<Order>?>(
                     future: Api.getMainOrders(myLocation, context),
                     builder: (context, snapshot) {
-                      if (snapshot.hasData &&
-                          !snapshot.hasError &&
-                          snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasData && !snapshot.hasError) {
+                        print(snapshot.data!.length);
+                        print('========================snapshot=============');
                         return ListView.builder(
                           itemCount: snapshot.data!.length,
                           itemBuilder: (context, index) {
-                            if (snapshot.data![index].orderId == searsh ||
+                           if (snapshot.data![index].orderId ==
+                                    searsh ||
                                 searsh.isEmpty) {
                               return component(snapshot.data![index]);
                             } else {

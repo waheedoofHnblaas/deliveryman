@@ -40,7 +40,7 @@ class MainDashboard extends StatefulWidget {
 bool choose = false;
 List<Marker> chooseMarker = [const Marker(markerId: MarkerId(''))];
 bool ttt = false;
-bool all = false, wait = true, done = false, withD = false;
+bool all = true, wait = false, done = false, withD = false;
 bool showList = false;
 
 Api API = Api();
@@ -81,13 +81,10 @@ class _EmpDashboardState extends State<MainDashboard> {
   void initState() {
     super.initState();
     getPos();
-    Api.apiOrders.forEach((element) {
-      print(element.createTime);
-      or.add(element);
-    });
+
   }
 
-  List<Order> or = [];
+
 
   @override
   Widget build(BuildContext context) {
@@ -212,6 +209,8 @@ class _EmpDashboardState extends State<MainDashboard> {
           )
         ],
       ),
+
+
       CustomAwesomeDrawer(
         context,
         myLocation,
@@ -247,7 +246,7 @@ class _EmpDashboardState extends State<MainDashboard> {
             '${preferences.getString('name')}',
             style: TextStyle(color: Get.theme.backgroundColor),
           ),
-          leading: Text('delivery man'),
+          leading: Text('delivery :',style: Get.textTheme.subtitle1,),
         ),
       ),
       body: Center(

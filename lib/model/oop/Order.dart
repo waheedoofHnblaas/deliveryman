@@ -85,6 +85,7 @@ class Order {
                       'Arrive to : ${owner.name}\n'
                           'long: ${meters} m\ncost: ${(itemsWeight*.2).ceil()}\$ \nweight: ${itemsWeight} kg ',
                   onOkTap: () async {
+
                     API
                         .updateGettingOrder(
                       json['order_id']!,
@@ -103,6 +104,8 @@ class Order {
                             )
                           : null;
                     });
+
+
                   },
                   onCancelTap: () {},
                 );
@@ -152,12 +155,17 @@ class Order {
                   json['isRecieved'] == '0') {
                 CustomAwesomeDialog(
                   context: context,
-                  content: 'your order with ${delivery.name} do you  get it ?',
+                  content: 'your order with ${delivery.name!} do you  get it ?',
                   onOkTap: () async {
+
+
+
+                    String rate = await API.getRateById(delivery.id!);
+
                     await API
                         .updateDoneOrder(
                       json['order_id'].toString(),
-                      API.getNowTime(),
+                      API.getNowTime(),delivery.id!,rate+'/'
                     )
                         .then((value) {
                       value == 'success'
