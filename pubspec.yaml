@@ -44,13 +44,25 @@ dependencies:
   shared_preferences: ^2.0.15
   awesome_drawer_bar: ^1.0.0
   onesignal_flutter: ^3.3.2
-
   get: 4.6.1
+  flutter_native_splash: ^2.1.6
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^1.0.0
+  flutter_launcher_icons: ^0.9.3
+  fluttertoast: ^8.0.5
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: lib/view/images/splash.gif
+flutter_icons:
+  android: ture
+  ios: true
+  image_path: "lib/view/images/icon.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "lib/view/images/delivery.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

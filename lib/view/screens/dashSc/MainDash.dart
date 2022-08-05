@@ -6,11 +6,13 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_map/model/oop/Order.dart';
 import 'package:google_map/main.dart';
+import 'package:google_map/view/conmponent/customAwesome.dart';
 import 'package:google_map/view/conmponent/customDrawer.dart';
 import 'package:google_map/view/conmponent/sortBtn.dart';
 import 'package:google_map/view/screens/authSc/Login_screen.dart';
 import 'package:google_map/view/screens/person_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../model/database/google_map_api.dart';
 
@@ -81,10 +83,23 @@ class _EmpDashboardState extends State<MainDashboard> {
   void initState() {
     super.initState();
     getPos();
-
   }
 
+  DateTime currentBackPressTime = DateTime(2000, 1, 1, 1, 1, 44);
 
+  Future<bool> onWillPop() {
+    DateTime now = DateTime.now();
+    print(now.difference(currentBackPressTime));
+    print(currentBackPressTime.year);
+    print('=================');
+    if (currentBackPressTime.year == 2000 ||
+        now.difference(currentBackPressTime) > Duration(seconds: 2)) {
+      currentBackPressTime = now;
+      Fluttertoast.showToast(msg: 'exit ?');
+      return Future.value(false);
+    }
+    return Future.value(true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,8 +169,8 @@ class _EmpDashboardState extends State<MainDashboard> {
               children: [
                 SortBtn(
                   'ALL',
-                  !all? Get.theme.backgroundColor : Get.theme.primaryColor,
-                  all? Get.theme.backgroundColor : Get.theme.primaryColor,
+                  !all ? Get.theme.backgroundColor : Get.theme.primaryColor,
+                  all ? Get.theme.backgroundColor : Get.theme.primaryColor,
                   () {
                     setState(() {
                       all = true;
@@ -209,8 +224,6 @@ class _EmpDashboardState extends State<MainDashboard> {
           )
         ],
       ),
-
-
       CustomAwesomeDrawer(
         context,
         myLocation,
@@ -220,108 +233,141 @@ class _EmpDashboardState extends State<MainDashboard> {
     return Scaffold(
       backgroundColor: Colors.white,
       drawerEdgeDragWidth: MediaQuery.of(context).size.width / 3,
-      appBar: AppBar(
-        elevation: 0,
-        actions: [
-          IconButton(
-              onPressed: () {
-                Get.offAll(
-                    MainDashboard(widget.name, widget.password, widget.phone));
-              },
-              icon: Icon(CupertinoIcons.refresh)),
-          IconButton(
-              onPressed: () {
-                preferences.clear();
-                Navigator.pushAndRemoveUntil(context,
-                    MaterialPageRoute(builder: (context) {
-                  return PersonalScreen();
-                }), (route) => false);
-              },
-              icon: const Icon(
-                CupertinoIcons.rectangle_arrow_up_right_arrow_down_left_slash,
-              )),
-        ],
-        title: ListTile(
-          title: Text(
-            '${preferences.getString('name')}',
-            style: TextStyle(color: Get.theme.backgroundColor),
-          ),
-          leading: Text('delivery :',style: Get.textTheme.subtitle1,),
-        ),
-      ),
-      body: Center(
-        child: Stack(
-          children: [
-            wid[0],
-            showList ? wid[1] : Container(),
-            Positioned(
-              left: MediaQuery.of(context).size.width / 3,
-              right: MediaQuery.of(context).size.width / 3,
-              bottom: 30,
-              height: 60,
-              child:
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      showList = true;
-                    });
-                  },
+      // appBar: AppBar(
+      //   elevation: 0,
+      //   actions: [
+      //     IconButton(
+      //         onPressed: () {
+      //           Get.offAll(
+      //               MainDashboard(widget.name, widget.password, widget.phone));
+      //         },
+      //         icon: const Icon(CupertinoIcons.refresh)),
+      //     IconButton(
+      //         onPressed: () {
+      //           preferences.clear();
+      //           Navigator.pushAndRemoveUntil(context,
+      //               MaterialPageRoute(builder: (context) {
+      //             return PersonalScreen();
+      //           }), (route) => false);
+      //         },
+      //         icon: const Icon(
+      //           CupertinoIcons.rectangle_arrow_up_right_arrow_down_left_slash,
+      //         )),
+      //   ],
+      //   title: ListTile(
+      //     title: Text(
+      //       '${preferences.getString('name')}',
+      //       style: TextStyle(color: Get.theme.backgroundColor),
+      //     ),
+      //     leading: Text('delivery :',style: Get.textTheme.subtitle1,),
+      //   ),
+      // ),
+      body: WillPopScope(
+          child: Center(
+              child: Stack(
+            children: [
+              wid[0],
+              showList ? wid[1] : Container(),
+              Positioned(
+                  bottom: 0,
+                  right: 0,
+                  left: 0,
                   child: Card(
-                    color: showList
-                        ? Get.theme.primaryColor
-                        : Get.theme.backgroundColor,
-                    shape: const RoundedRectangleBorder(
-                      side: BorderSide(color: Colors.white70, width: 1),
-                      borderRadius:
-                          BorderRadius.horizontal(left: Radius.circular(22)),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(11.0),
-                      child: Text(
-                        'List',
-                        style: TextStyle(
-                          color: !showList
-                              ? Get.theme.primaryColor
-                              : Get.theme.backgroundColor,
+                    color: Get.theme.primaryColor,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                            onPressed: () {
+                              Get.offAll(MainDashboard(
+                                  widget.name, widget.password, widget.phone));
+                            },
+                            icon: const Icon(CupertinoIcons.refresh)),
+                        const SizedBox(
+                          width: 44,
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      showList = false;
-                    });
-                  },
-                  child: Card(
-                    color: !showList
-                        ? Get.theme.primaryColor
-                        : Get.theme.backgroundColor,
-                    shape: const RoundedRectangleBorder(
-                      side: BorderSide(color: Colors.white70, width: 1),
-                      borderRadius:
-                          BorderRadius.horizontal(right: Radius.circular(22)),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(11.0),
-                      child: Text(
-                        'Map',
-                        style: TextStyle(
-                          color: showList
-                              ? Get.theme.primaryColor
-                              : Get.theme.backgroundColor,
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              showList = true;
+                            });
+                          },
+                          child: Card(
+                            color: showList
+                                ? Get.theme.primaryColor
+                                : Get.theme.backgroundColor,
+                            shape: const RoundedRectangleBorder(
+                              side: BorderSide(color: Colors.white70, width: 1),
+                              borderRadius: BorderRadius.horizontal(
+                                  left: Radius.circular(22)),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(11.0),
+                              child: Text(
+                                'List',
+                                style: TextStyle(
+                                  color: !showList
+                                      ? Get.theme.primaryColor
+                                      : Get.theme.backgroundColor,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              showList = false;
+                            });
+                          },
+                          child: Card(
+                            color: !showList
+                                ? Get.theme.primaryColor
+                                : Get.theme.backgroundColor,
+                            shape: const RoundedRectangleBorder(
+                              side: BorderSide(color: Colors.white70, width: 1),
+                              borderRadius: BorderRadius.horizontal(
+                                  right: Radius.circular(22)),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(11.0),
+                              child: Text(
+                                'Map',
+                                style: TextStyle(
+                                  color: showList
+                                      ? Get.theme.primaryColor
+                                      : Get.theme.backgroundColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 44,
+                        ),
+                        IconButton(
+                            onPressed: () {
+                              CustomAwesomeDialog(
+                                  context: context,
+                                  content: 'do you want logout',
+                                  onOkTap: () {
+                                    preferences.clear();
+                                    Navigator.pushAndRemoveUntil(context,
+                                        MaterialPageRoute(builder: (context) {
+                                      return const PersonalScreen();
+                                    }), (route) => false);
+                                  });
+                            },
+                            icon: const Icon(
+                              CupertinoIcons
+                                  .rectangle_arrow_up_right_arrow_down_left_slash,
+                            )),
+                      ],
                     ),
-                  ),
-                ),
-              ]),
-            )
-          ],
-        ),
-      ),
+                  ))
+            ],
+          )),
+          onWillPop: onWillPop),
     );
   }
 }

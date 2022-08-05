@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -69,6 +70,7 @@ class Api {
   // }
 
   static List<Order> _apiOrders = [];
+  static List<Item> _apiItems = [];
   static List<int> OrderIds = [];
 
   static Future<List<Order>?> getMainOrders(
@@ -117,6 +119,32 @@ class Api {
         }
       }
       return _apiOrders;
+    } catch (e) {
+      print('catch getMainOrder error $e}');
+      CustomAwesomeDialog(
+          context: context,
+          content: 'no internet or server error',
+          onOkTap: () {
+            updateCustomScreen();
+          });
+      return [];
+    }
+  }
+
+
+  static Future<List<Employee>?> getEmps(
+      Position mylocation, context) async {
+    List<Employee> emps = [];
+    try {
+      _apiOrders.clear();
+
+      var response = await http.get(Uri.parse(getEmpsLink));
+      print(jsonDecode(response.body));
+      final data = jsonDecode(response.body);
+      for (Map<String, dynamic> emp in data) {
+        emps.add(Employee.fromJson(emp));
+      }
+      return emps;
     } catch (e) {
       print('catch getMainOrder error $e}');
       CustomAwesomeDialog(
@@ -203,6 +231,7 @@ class Api {
       return jsonDecode(e.toString());
     }
   }
+
 
   String getNowTime() {
     return '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}'
@@ -326,8 +355,9 @@ class Api {
   }
 
   static Future<List<Item>> getorderItems(String orderID) async {
-    List<Item> apitems = [];
+
     try {
+      _apiItems.clear();
       final PhpApi _api = PhpApi();
       var res = await _api.postRequest(getorederItemsLink, {'id': orderID});
 
@@ -338,12 +368,12 @@ class Api {
       // List<dynamic> data = jsonDecode(res);
 
       for (Map<String, dynamic> item in res) {
-        apitems.add(
+        _apiItems.add(
           Item.fromJson(item),
         );
       }
 
-      return apitems;
+      return _apiItems;
     } catch (e) {
       print('catch getItems error $e}');
       return jsonDecode(e.toString());

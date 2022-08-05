@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator_platform_interface/src/models/position.dart';
 import 'package:get/get.dart';
+import 'package:google_map/model/database/api.dart';
 import 'package:google_map/model/database/google_map_api.dart';
 import 'package:google_map/model/oop/Item.dart';
 import 'package:google_map/model/oop/Order.dart';
@@ -32,6 +33,7 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
   }
 
   final Api _api = Api();
+
   String searsh = '';
 
   @override
@@ -56,36 +58,102 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                 auto: false,
                 isNumber: TextInputType.number,
               ),
-              SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.8,
-                  child: FutureBuilder<List<Order>?>(
-                    future: Api.getMainOrders(myLocation, context),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && !snapshot.hasError) {
-                        print(snapshot.data!.length);
-                        print('========================snapshot=============');
-                        return ListView.builder(
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (context, index) {
-                           if (snapshot.data![index].orderId ==
-                                    searsh ||
-                                searsh.isEmpty) {
-                              return component(snapshot.data![index]);
-                            } else {
-                              return Container();
-                            }
-                          },
-                        );
-                      } else {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                    },
-                  )),
+              listItems()
             ],
           ),
         ),
       ),
     ));
+  }
+
+  Widget listOrder() {
+    return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.8,
+        child: FutureBuilder<List<Order>?>(
+          future: Api.getMainOrders(myLocation, context),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && !snapshot.hasError) {
+              print(snapshot.data!.length);
+              print('========================snapshot=============');
+              return ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  if (snapshot.data![index].orderId == searsh ||
+                      searsh.isEmpty) {
+                    return component(snapshot.data![index]);
+                  } else {
+                    return Container();
+                  }
+                },
+              );
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+        ));
+  }
+
+  Widget listEmps() {
+    return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.8,
+        child: FutureBuilder<List<Employee>?>(
+          future: Api.getEmps(myLocation, context),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && !snapshot.hasError) {
+              print(snapshot.data!.length);
+              print('========================snapshot=============');
+              return ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  print(snapshot.data![index].phone);
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListTile(
+                      title: Text(snapshot.data![index].name!),
+                      leading: Text(snapshot.data![index].id!),
+                      subtitle: Text(snapshot.data![index].password!),
+                      trailing: Text(snapshot.data![index].phone!),
+                      tileColor: Get.theme.backgroundColor,
+                    ),
+                  );
+                },
+              );
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+        ));
+  }
+  Widget listItems() {
+    return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.8,
+        child: FutureBuilder<List<Item>?>(
+          future: Api.getorderItems('all'),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && !snapshot.hasError) {
+              print(snapshot.data!.length);
+              print('========================snapshot=============');
+              return ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  print(snapshot.data![index].name);
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListTile(
+                      title: Text(snapshot.data![index].name!),
+                      leading: Text(snapshot.data![index].itemId!),
+                      subtitle: Text(snapshot.data![index].info!),
+                      trailing: Text(snapshot.data![index].price!),
+                      tileColor: Get.theme.backgroundColor,
+                    ),
+                  );
+                },
+              );
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+        ));
   }
 
   Widget component(order) {
