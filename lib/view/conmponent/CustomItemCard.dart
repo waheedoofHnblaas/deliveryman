@@ -30,19 +30,23 @@ Widget CustomItemCard(
             snapshot[index].weight! + ' kg',
             style: TextStyle(fontSize: 11, color: Get.theme.primaryColor),
           ),
-          leading: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Text(
-                n.toString(),
-                style: TextStyle(fontSize: 18, color: Get.theme.backgroundColor),
+          leading: InkWell(
+
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Text(
+                  '${n.toString()}/${snapshot[index].quant}',
+                  style: TextStyle(fontSize: 18, color: Get.theme.backgroundColor),
+                ),
               ),
+              color: Get.theme.primaryColor,
             ),
-            color: Get.theme.primaryColor,
           ),
+
           trailing: Text(
-            snapshot[index].price! + ' \$',
-            style: TextStyle(fontSize: 21,color: Get.theme.primaryColor),
+            snapshot[index].price! + ' sp',
+            style: TextStyle(fontSize: 16,color: Get.theme.primaryColor),
           ),
         ),
       ),

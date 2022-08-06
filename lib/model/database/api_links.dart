@@ -13,6 +13,8 @@ const String loginLinkCustom = '${server}login_customer.php';
 
 
 const String addorederLink = '${server}addorder.php';
+const String addItemLink = '${server}addItem.php';
+const String getAllTypesLink = '${server}getAllTypes.php';
 const String addItemsOrderLink = '${server}addItemsOrder.php';
 
 const String deleteorederLink = '${server}deleteorder.php';

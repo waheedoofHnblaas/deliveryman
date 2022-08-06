@@ -9,7 +9,9 @@ import 'package:google_map/main.dart';
 import 'package:google_map/view/conmponent/customAwesome.dart';
 import 'package:google_map/view/conmponent/customDrawer.dart';
 import 'package:google_map/view/conmponent/sortBtn.dart';
+import 'package:google_map/view/screens/addItemSc.dart';
 import 'package:google_map/view/screens/authSc/Login_screen.dart';
+import 'package:google_map/view/screens/dashSc/CustomDashboard_screen.dart';
 import 'package:google_map/view/screens/person_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -44,8 +46,6 @@ List<Marker> chooseMarker = [const Marker(markerId: MarkerId(''))];
 bool ttt = false;
 bool all = true, wait = false, done = false, withD = false;
 bool showList = false;
-
-Api API = Api();
 
 class _EmpDashboardState extends State<MainDashboard> {
   Future<void> getPos() async {
@@ -109,7 +109,7 @@ class _EmpDashboardState extends State<MainDashboard> {
           ttt
               ? Center(
                   child: FutureBuilder<List<Order>?>(
-                    future: Api.getMainOrders(
+                    future: API.getMainOrders(
                       myLocation,
                       context,
                     ),
@@ -282,7 +282,11 @@ class _EmpDashboardState extends State<MainDashboard> {
                               Get.offAll(MainDashboard(
                                   widget.name, widget.password, widget.phone));
                             },
-                            icon: const Icon(CupertinoIcons.refresh)),
+                            icon: Icon(
+                              CupertinoIcons.refresh,
+                              color: Get.theme.backgroundColor,
+                            )),
+
                         const SizedBox(
                           width: 44,
                         ),
@@ -358,9 +362,10 @@ class _EmpDashboardState extends State<MainDashboard> {
                                     }), (route) => false);
                                   });
                             },
-                            icon: const Icon(
+                            icon: Icon(
                               CupertinoIcons
                                   .rectangle_arrow_up_right_arrow_down_left_slash,
+                              color: Get.theme.backgroundColor,
                             )),
                       ],
                     ),

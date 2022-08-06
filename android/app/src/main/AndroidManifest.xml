@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.google_map">
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -9,6 +10,7 @@
         android:label="delivery"
         android:name="${applicationName}"
         android:icon="@mipmap/ture">
+
        <meta-data android:name="com.google.android.geo.API_KEY"
            android:value="AIzaSyBVGX7f7oLPlYgb_2me-qoHwDhhNoN3G9M"/>
         <activity

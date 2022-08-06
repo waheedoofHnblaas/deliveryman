@@ -4,9 +4,10 @@ class Item {
   String? info;
   String? price;
   String? weight;
+  String? quant;
   String? count;
 
-  Item({this.itemId, this.name, this.info, this.price, this.weight, this.count});
+  Item({this.itemId, this.name, this.info, this.price, this.weight, this.quant, this.count});
 
   Item.fromJson(Map<String, dynamic> json) {
     itemId = json['item_id'];
@@ -15,6 +16,7 @@ class Item {
     price = json['price'];
     weight = json['weight'];
     count = json['count'];
+    quant = json['quant'];
   }
 
   Map<String, dynamic> toJson() {
@@ -24,6 +26,7 @@ class Item {
     data['info'] = this.info;
     data['price'] = this.price;
     data['weight'] = this.weight;
+    data['quant'] = this.quant;
     return data;
   }
 }

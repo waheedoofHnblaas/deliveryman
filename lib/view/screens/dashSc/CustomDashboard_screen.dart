@@ -42,6 +42,41 @@ class _DashboardState extends State<CustomDashboard> {
 
   Api API = Api();
   bool all = true, wait = false, done = false, withD = false;
+
+
+  addItem() async {
+    CustomeCircularProgress(context);
+    try {
+      var response = await _phpapi.postRequest(
+        addItemLink,
+        {
+          'name': widget.name,
+          'price': widget.price,
+          'type': widget.type,
+          'weight': widget.weight,
+          'info': widget.info,
+          'quant': widget.quant,
+        },
+      );
+
+      Get.back();
+      if (response['status'] == 'item is here') {
+        CustomAwesomeDialog(context: context, content: 'item is her');
+      } else if (response['status'] == 'success') {
+        Get.offAll(MainDashboard(
+            preferences.getString('name')!,
+            preferences.getString('password')!,
+            preferences.getString('phone')!));
+      } else {
+        CustomAwesomeDialog(
+            context: context, content: 'network connection less');
+      }
+    } catch (e) {
+      CustomAwesomeDialog(context: context, content: 'network error');
+      print(e);
+    }
+  }
+
   Future<void> getPos() async {
     try {
       LocationPermission per = await Geolocator.checkPermission();
@@ -133,7 +168,7 @@ class _DashboardState extends State<CustomDashboard> {
                 },
               );
               if (!haveOrder) {
-                list = await Api.getorderItems('all');
+                list = await API.getorderItems('all');
                 Get.back();
                 Get.to(
                   AddScreen(
@@ -154,9 +189,10 @@ class _DashboardState extends State<CustomDashboard> {
 
                       await API.deleteOrder(_order.orderId.toString())
                           .then((value) async {
-                        list = await Api.getorderItems('all');
+                        list = await API.getorderItems('all');
 
                         if (value == 'success') {
+                          await addItem();
                           Get.to(
                             AddScreen(
                                 LatLng(myLocationCust.latitude,

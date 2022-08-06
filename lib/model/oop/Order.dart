@@ -70,7 +70,7 @@ class Order {
             );
             if (isEmp) {
               double itemsWeight = 0;
-            List<Item> items = await Api.getorderItems(orderId!);
+            List<Item> items = await API.getorderItems(orderId!);
             for (var element in items) {
               itemsWeight += (double.parse(element.weight!)*double.parse(element.count!));
               print(double.parse(element.weight!)*double.parse(element.count!));

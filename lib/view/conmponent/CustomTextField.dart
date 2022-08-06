@@ -9,6 +9,7 @@ Widget CustomeTextFeild(
     auto = true,
       type = TextInputAction.next,
   isPassword = false,
+      readOnly = false,
   TextInputType isNumber = TextInputType.name,
 }) {
   return Padding(
@@ -26,6 +27,7 @@ Widget CustomeTextFeild(
         width: MediaQuery.of(context).size.width - 10,
         child: TextFormField(
 
+          readOnly: readOnly,
             textInputAction: type,
             initialValue: content,
             keyboardType: isNumber,

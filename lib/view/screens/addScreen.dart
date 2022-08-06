@@ -34,6 +34,38 @@ class _AddScreenState extends State<AddScreen> {
   final Order _order = Order();
   final List<Item> _listitems = [];
 
+  addItem(name, price, count) async {
+    CustomeCircularProgress(context);
+    try {
+      var response = await _api.postRequest(
+        addItemLink,
+        {
+          'name': name,
+          'price': price,
+          'quant': '-${count}',
+          'type': 'widget.type',
+          'weight': 'widget.weight',
+          'info': 'widget.info',
+        },
+      );
+
+      Get.back();
+      if (response['status'] == 'item is here') {
+        CustomAwesomeDialog(context: context, content: 'item is her');
+      } else if (response['status'] == 'success') {
+        Get.offAll(CustomDashboard(
+            preferences.getString('name')!,
+            preferences.getString('password')!,
+            preferences.getString('phone')!));
+      } else {
+        CustomAwesomeDialog(
+            context: context, content: 'network connection less');
+      }
+    } catch (e) {
+      CustomAwesomeDialog(context: context, content: 'network error');
+      print(e);
+    }
+  }
   addOrder() async {
     CustomeCircularProgress(context);
 
@@ -51,6 +83,10 @@ class _AddScreenState extends State<AddScreen> {
             itemCount: element.count.toString(),
             itemId: element.itemId.toString(),
           );
+
+          print(element.name);
+          print('============element.name============');
+          await addItem(element.name,element.price,element.count);
         });
       } else {
         print('add failed ${response['status']}');
@@ -217,10 +253,12 @@ class _AddScreenState extends State<AddScreen> {
                     elevation: 0,
                     color: Get.theme.primaryColor,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 80.0,vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 80.0, vertical: 8),
                       child: Text(
                         'add',
-                        style: TextStyle(color: Get.theme.backgroundColor,fontSize: 18),
+                        style: TextStyle(
+                            color: Get.theme.backgroundColor, fontSize: 18),
                       ),
                     ),
                   ),
@@ -330,14 +368,18 @@ class _AddScreenState extends State<AddScreen> {
                                                   scrollDirection:
                                                       Axis.horizontal,
                                                   child: Row(
-                                                    children:
-                                                        List.generate(100, (i) {
+                                                    children: List.generate(
+                                                        int.parse(widget
+                                                            .getorderItems[
+                                                                index]
+                                                            .quant!), (i) {
                                                       return InkWell(
                                                         onTap: () {
                                                           if (i > 0) {
                                                             _listitems.remove(
-                                                                widget.getorderItems[
-                                                                    index]);
+                                                              widget.getorderItems[
+                                                                  index],
+                                                            );
                                                             widget
                                                                     .getorderItems[
                                                                         index]

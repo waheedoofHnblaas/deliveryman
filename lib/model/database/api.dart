@@ -34,22 +34,6 @@ class PhpApi {
       return e;
     }
   }
-  postRequest2(url, data) async {
-    print('postRequest');
-    try {
-      var response = await http.post(
-        Uri.parse(url),
-        body: data,
-      );
-      if (response.statusCode == 200) {
-        return response;
-      } else {
-        return jsonDecode('status'':''network');
-      }
-    } catch (e) {
-      print('catch get Requset error ${e}');
-      return e;
-    }
-  }
+
 
 }

@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_map/model/oop/Item.dart';
 import 'package:google_map/model/oop/Order.dart';
+import 'package:google_map/view/screens/dashSc/CustomDashboard_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 class DataScreen extends StatefulWidget {
   DataScreen(this._order);
 
@@ -22,6 +23,8 @@ class _DataScreenState extends State<DataScreen> {
         child: Stack(
           children: [
             GoogleMap(
+              trafficEnabled: true,
+              myLocationButtonEnabled: true,
               initialCameraPosition: CameraPosition(
                 zoom: 12,
                 target: LatLng(
@@ -56,6 +59,49 @@ class _DataScreenState extends State<DataScreen> {
                     icon: const Icon(
                       CupertinoIcons.back,
                     )),
+              ),
+            ),
+
+            Positioned(
+              bottom: 20,
+              left: 100,
+              child: FutureBuilder<List<Item>?>(
+                future: API.getorderItems(widget._order.orderId!),
+                builder: (BuildContext context, itemssnap) {
+                  if (itemssnap.hasData && !itemssnap.hasError) {
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: List.generate(
+                                itemssnap.data!.length, (index) {
+                              return Card(
+                                color: Colors.white54,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        itemssnap.data![index].name!,
+                                      ),
+                                      Text(
+                                        itemssnap.data![index].count!,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }),
+                          )),
+                    );
+                  } else
+                    return Container();
+                },
               ),
             ),
           ],

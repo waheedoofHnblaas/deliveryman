@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator_platform_interface/src/models/position.dart';
@@ -10,6 +12,7 @@ import 'package:google_map/model/oop/custom.dart';
 import 'package:google_map/model/oop/employee.dart';
 import 'package:google_map/view/conmponent/CustomTextField.dart';
 import 'package:google_map/view/screens/Data_screen.dart';
+import 'package:google_map/view/screens/addItemSc.dart';
 import 'package:google_map/view/screens/dashSc/MainDash.dart';
 
 class CustomAwesomeDrawer extends StatefulWidget {
@@ -24,66 +27,134 @@ class CustomAwesomeDrawer extends StatefulWidget {
 }
 
 class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
-  @override
-  void initState() {
-    // TODO: implement initState
+  final Api API = Api();
 
-    _api.deleteOrdersList();
-    print('===========================');
-  }
-
-  final Api _api = Api();
-
+  bool orderList = false, itemList = false, empsList = false;
   String searsh = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Scaffold(
       backgroundColor: Get.theme.primaryColor,
       body: Center(
         child: SingleChildScrollView(
           child: Column(
             children: [
-              CustomeTextFeild(
-                (val) {
-                  setState(() {
-                    searsh = val.toString();
-                  });
-                },
-                'search',
-                '',
-                context,
-                type: TextInputAction.none,
-                auto: false,
-                isNumber: TextInputType.number,
+              SizedBox(
+                height: 20,
               ),
-              listItems()
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  TextButton(
+                      onPressed: () {
+                        setState(() {
+                          orderList = true;
+                          itemList = false;
+                          empsList = false;
+                        });
+                      },
+                      child: Text(
+                        'orders',
+                        style: TextStyle(
+                          color: Get.theme.backgroundColor,
+                        ),
+                      )),
+                  TextButton(
+                      onPressed: () {
+                        setState(() {
+                          orderList = false;
+                          itemList = true;
+                          empsList = false;
+                        });
+                      },
+                      child: Text(
+                        'items',
+                        style: TextStyle(color: Get.theme.backgroundColor),
+                      )),
+                  TextButton(
+                      onPressed: () {
+                        setState(() {
+                          orderList = false;
+                          itemList = false;
+                          empsList = true;
+                        });
+                      },
+                      child: Text(
+                        'emps',
+                        style: TextStyle(color: Get.theme.backgroundColor),
+                      )),
+                ],
+              ),
+              // CustomeTextFeild(
+              //   (val) {
+              //     setState(() {
+              //       searsh = val.toString();
+              //     });
+              //   },
+              //   'search',
+              //   '',
+              //   context,
+              //   type: TextInputAction.none,
+              //   auto: false,
+              //   isNumber: TextInputType.number,
+              // ),
+              FloatingActionButton(
+                  elevation: 0,
+                  backgroundColor: Get.theme.primaryColor,
+                  foregroundColor: Get.theme.backgroundColor,
+                  child: IconButton(
+                    tooltip: 'add item',
+                    onPressed: () {
+                      itemList
+                          ? Get.to(
+                              () => AddItemScreen(
+                                  name: '',
+                                  price: '',
+                                  info: '',
+                                  quant: '',
+                                  type: '',
+                                  weight: ''),
+                            )
+                          : null;
+                    },
+                    icon: Icon(
+                      CupertinoIcons.add_circled,
+                      semanticLabel: 'add item',
+                      color: Get.theme.backgroundColor,
+                    ),
+                  ),
+                  onPressed: () {}),
+              orderList
+                  ? listOrder()
+                  : itemList
+                      ? listItems()
+                      : listEmps()
             ],
           ),
         ),
       ),
-    ));
+    );
   }
 
   Widget listOrder() {
     return SizedBox(
-        height: MediaQuery.of(context).size.height * 0.8,
+        height: MediaQuery.of(context).size.height * 0.9,
         child: FutureBuilder<List<Order>?>(
-          future: Api.getMainOrders(myLocation, context),
+          future: API.getMainOrders(myLocation, context),
           builder: (context, snapshot) {
-            if (snapshot.hasData && !snapshot.hasError) {
-              print(snapshot.data!.length);
-              print('========================snapshot=============');
+            if (snapshot.hasData &&
+                !snapshot.hasError &&
+                snapshot.connectionState == ConnectionState.done) {
               return ListView.builder(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
-                  if (snapshot.data![index].orderId == searsh ||
-                      searsh.isEmpty) {
-                    return component(snapshot.data![index]);
-                  } else {
-                    return Container();
-                  }
+                  return Column(
+                    children: [
+                      component(snapshot.data![index]),
+                    ],
+                  );
                 },
               );
             } else {
@@ -95,56 +166,24 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
 
   Widget listEmps() {
     return SizedBox(
-        height: MediaQuery.of(context).size.height * 0.8,
+        height: MediaQuery.of(context).size.height * 0.9,
         child: FutureBuilder<List<Employee>?>(
           future: Api.getEmps(myLocation, context),
           builder: (context, snapshot) {
             if (snapshot.hasData && !snapshot.hasError) {
-              print(snapshot.data!.length);
-              print('========================snapshot=============');
               return ListView.builder(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
-                  print(snapshot.data![index].phone);
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ListTile(
-                      title: Text(snapshot.data![index].name!),
-                      leading: Text(snapshot.data![index].id!),
-                      subtitle: Text(snapshot.data![index].password!),
-                      trailing: Text(snapshot.data![index].phone!),
-                      tileColor: Get.theme.backgroundColor,
-                    ),
-                  );
-                },
-              );
-            } else {
-              return const Center(child: CircularProgressIndicator());
-            }
-          },
-        ));
-  }
-  Widget listItems() {
-    return SizedBox(
-        height: MediaQuery.of(context).size.height * 0.8,
-        child: FutureBuilder<List<Item>?>(
-          future: Api.getorderItems('all'),
-          builder: (context, snapshot) {
-            if (snapshot.hasData && !snapshot.hasError) {
-              print(snapshot.data!.length);
-              print('========================snapshot=============');
-              return ListView.builder(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  print(snapshot.data![index].name);
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ListTile(
-                      title: Text(snapshot.data![index].name!),
-                      leading: Text(snapshot.data![index].itemId!),
-                      subtitle: Text(snapshot.data![index].info!),
-                      trailing: Text(snapshot.data![index].price!),
-                      tileColor: Get.theme.backgroundColor,
+                  return InkWell(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListTile(
+                        title: Text(snapshot.data![index].name!),
+                        leading: Text(snapshot.data![index].id!),
+                        subtitle: Text(snapshot.data![index].password!),
+                        trailing: Text(snapshot.data![index].phone!),
+                        tileColor: Get.theme.backgroundColor,
+                      ),
                     ),
                   );
                 },
@@ -156,7 +195,50 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
         ));
   }
 
-  Widget component(order) {
+  Widget listItems() {
+    return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.9,
+        child: FutureBuilder<List<Item>?>(
+          future: API.getorderItems('all'),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && !snapshot.hasError) {
+              return ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    onTap: () {
+                      Get.to(
+                        AddItemScreen(
+                          name: snapshot.data![index].name!.toString(),
+                          price: snapshot.data![index].price!.toString(),
+                          info: snapshot.data![index].info!.toString(),
+                          quant: snapshot.data![index].quant!.toString(),
+                          type: 'type',
+                          weight: snapshot.data![index].weight!.toString(),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListTile(
+                        title: Text(snapshot.data![index].name!),
+                        leading: Text(snapshot.data![index].quant!),
+                        subtitle: Text(snapshot.data![index].info!),
+                        trailing: Text(snapshot.data![index].price!+' s.p'),
+                        tileColor: Get.theme.backgroundColor,
+                      ),
+                    ),
+                  );
+                },
+              );
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+        ));
+  }
+
+  Widget component(Order order) {
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.3,
       child: Padding(
@@ -191,7 +273,7 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                               builder: (context, customersnap) {
                                 if (!customersnap.hasData ||
                                     customersnap.hasError) {
-                                  return Container();
+                                  return const Text('loading...');
                                 } else {
                                   return Card(
                                     shape: RoundedRectangleBorder(
@@ -270,44 +352,20 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                       ),
                     ],
                   ),
-                  FutureBuilder<List<Item>>(
-                    future: Api.getorderItems(order.orderId!),
-                    builder: (context, itemssnap) {
-                      if (itemssnap.hasData && !itemssnap.hasError) {
-                        return SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.1,
-                          width: MediaQuery.of(context).size.width * 0.8,
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            scrollDirection: Axis.horizontal,
-                            itemCount: itemssnap.data!.length,
-                            itemBuilder: (context, index) {
-                              return Card(
-                                color: Colors.white54,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        itemssnap.data![index].name!,
-                                      ),
-                                      Text(
-                                        itemssnap.data![index].count!,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      } else
-                        return Container();
-                    },
-                  ),
+                  !order.isWaiting! && !order.isRecieved!
+                      ? Image.asset(
+                          'lib/view/images/activeIcon.png',
+                          height: 50,
+                        )
+                      : order.isWaiting! && !order.isRecieved!
+                          ? Image.asset(
+                              'lib/view/images/waitIcon.png',
+                              height: 50,
+                            )
+                          : Image.asset(
+                              'lib/view/images/doneIcon.png',
+                              height: 50,
+                            )
                 ],
               ),
             ),

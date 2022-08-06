@@ -19,7 +19,6 @@ import 'api_links.dart';
 class Api {
   Future<Position> getMyLocation() async {
     Position cl = await Geolocator.getCurrentPosition().then((value) => value);
-    print('++++++++++++++++++++++$cl+++++++++++++++++++++++++++');
     return cl;
   }
 
@@ -69,21 +68,28 @@ class Api {
   //   return orders;
   // }
 
-  static List<Order> _apiOrders = [];
+   List<Order> apiOrders = [];
   static List<Item> _apiItems = [];
   static List<int> OrderIds = [];
 
-  static Future<List<Order>?> getMainOrders(
+   Future<List<Order>?> getMainOrders(
       Position mylocation, context) async {
-    try {
-      _apiOrders.clear();
 
-      var response = await http.get(Uri.parse(getordersLink));
-      print(jsonDecode(response.body));
-      final data = jsonDecode(response.body);
+    try {
+
+      apiOrders = [];apiOrders.clear();
+      PhpApi _phpApi = PhpApi();
+      final data =await _phpApi.getRequest(getordersLink);
+
+      for(Map<String, dynamic> data2 in data){
+
+        print('------------------');
+        print(data2);
+      }
+      print('++++++++++++++++++++++++++++++++++++++++++++');
       for (Map<String, dynamic> order in data) {
         String itemsName = '';
-        List<Item> items = await getorderItems(order['order_id']);
+        List<Item> items = await API.getorderItems(order['order_id']);
         for (var element in items) {
           itemsName = '${element.name!}:${element.count} -' + itemsName;
         }
@@ -91,8 +97,8 @@ class Api {
         if (order['delivery_id'] == preferences.getString('id')! ||
             order['isWaiting'] == '1' ||
             preferences.getString('id') == '0') {
-          print('+++++++++++++++++++++++++++++++++++++++++++++++');
-          print(order['getDelTime']);
+
+
           BitmapDescriptor waitIcon = await BitmapDescriptor.fromAssetImage(
             const ImageConfiguration(),
             "lib/view/images/waitIcon.png",
@@ -105,22 +111,14 @@ class Api {
             const ImageConfiguration(),
             "lib/view/images/activeIcon.png",
           );
-          if (!_apiOrders.contains(
+          API.apiOrders.add(
             Order.fromJson(order, context, itemsName, true, waitIcon,
                 activeIcon, doneIcon),
-          )) {
-            _apiOrders.add(
-              Order.fromJson(order, context, itemsName, true, waitIcon,
-                  activeIcon, doneIcon),
-            );
-          } else {
-            print('----------------_apiOrders.contains----------------------');
-          }
+          );
         }
       }
-      return _apiOrders;
+     return API.apiOrders;
     } catch (e) {
-      print('catch getMainOrder error $e}');
       CustomAwesomeDialog(
           context: context,
           content: 'no internet or server error',
@@ -136,17 +134,15 @@ class Api {
       Position mylocation, context) async {
     List<Employee> emps = [];
     try {
-      _apiOrders.clear();
+      API.apiOrders.clear();
 
       var response = await http.get(Uri.parse(getEmpsLink));
-      print(jsonDecode(response.body));
       final data = jsonDecode(response.body);
       for (Map<String, dynamic> emp in data) {
         emps.add(Employee.fromJson(emp));
       }
       return emps;
     } catch (e) {
-      print('catch getMainOrder error $e}');
       CustomAwesomeDialog(
           context: context,
           content: 'no internet or server error',
@@ -160,18 +156,16 @@ class Api {
   static Future<List<Order>> getMyOrders(
       Position mylocation, context, String ownerId) async {
     try {
-      _apiOrders.clear();
-
+      API.apiOrders.clear();
       // var respons = await http.get(Uri.parse(getordersLink));
      final PhpApi _api = PhpApi();
 
 
       final data =  await _api.postRequest(getordersByOwnerIdLink, {'id': ownerId});
-      print(data);
 
       for (Map<String, dynamic> order in data) {
         String itemsName = '';
-        List<Item> items = await getorderItems(order['order_id']);
+        List<Item> items = await API.getorderItems(order['order_id']);
         for (var element in items) {
           itemsName = '${element.name!}:${element.count}' + '-' + itemsName;
         }
@@ -189,19 +183,13 @@ class Api {
           const ImageConfiguration(),
           "lib/view/images/activeIcon.png",
         );
-        if (!_apiOrders.contains(
-          Order.fromJson(
-              order, context, itemsName, true, waitIcon, activeIcon, doneIcon),
-        )) {
-          _apiOrders.add(
-            Order.fromJson(order, context, itemsName, false, waitIcon,
-                activeIcon, doneIcon),
-          );
-        }
+        API.apiOrders.add(
+          Order.fromJson(order, context, itemsName, false, waitIcon,
+              activeIcon, doneIcon),
+        );
       }
-      return _apiOrders.toList();
+      return API.apiOrders;
     } catch (e) {
-      print('catch getMyOrders error $e}');
       CustomAwesomeDialog(
           context: context,
           content: 'no internet or server error',
@@ -212,9 +200,6 @@ class Api {
     }
   }
 
-  deleteOrdersList() {
-    _apiOrders.clear();
-  }
 
   Future<Employee> getEmpNameById(
     String Id,
@@ -227,7 +212,6 @@ class Api {
 
       return Employee.fromJson(res);
     } catch (e) {
-      print('catch getItems error $e}');
       return jsonDecode(e.toString());
     }
   }
@@ -250,7 +234,6 @@ class Api {
 
         return Customer.fromJson(res);
       } catch (e) {
-        print('catch getItems error $e}');
         return jsonDecode(e.toString());
       }
     } else {
@@ -268,11 +251,9 @@ class Api {
       if (response['status'] == 'success') {
         return 'success';
       } else {
-        print('add failed ${response['status']} $id');
         return 'failed';
       }
     } catch (e) {
-      print(e);
       return 'failed';
     }
   }
@@ -299,11 +280,9 @@ class Api {
       if (response['status'] == 'success') {
         return 'success';
       } else {
-        print('add failed ${response['status']}');
         return 'failed';
       }
     } catch (e) {
-      print(e);
       return 'failed';
     }
   }
@@ -324,11 +303,9 @@ class Api {
       if (response['status'] == 'success') {
         return 'success';
       } else {
-        print('add failed ${response['status']}');
         return 'failed';
       }
     } catch (e) {
-      print(e);
       return 'failed';
     }
   }
@@ -345,24 +322,26 @@ class Api {
       if (response['status'] == 'success') {
         return 'success';
       } else {
-        print('add failed ${response['status']}');
         return 'failed';
       }
     } catch (e) {
-      print(e);
       return 'failed';
     }
   }
 
-  static Future<List<Item>> getorderItems(String orderID) async {
+   Future<List<Item>> getorderItems(String orderID) async {
 
     try {
       _apiItems.clear();
       final PhpApi _api = PhpApi();
-      var res = await _api.postRequest(getorederItemsLink, {'id': orderID});
 
+
+      _apiItems=[];
+      var res = [];
       if (orderID == 'all') {
         res = await _api.postRequest(getitemsLink, {'id': orderID});
+      }else{
+         res = await _api.postRequest(getorederItemsLink, {'id': orderID});
       }
 
       // List<dynamic> data = jsonDecode(res);
@@ -375,7 +354,28 @@ class Api {
 
       return _apiItems;
     } catch (e) {
-      print('catch getItems error $e}');
+      return jsonDecode(e.toString());
+    }
+  }
+   Future<List<String>> getAllTypes() async {
+
+    try {
+      List<String> types = [];
+      final PhpApi _api = PhpApi();
+
+
+      var res = [];
+
+      res = await _api.postRequest(getAllTypesLink,{});
+
+      // List<dynamic> data = jsonDecode(res);
+
+      for (Map<String, dynamic> type in res) {
+        types.add(type['typeName']);
+      }
+
+      return types;
+    } catch (e) {
       return jsonDecode(e.toString());
     }
   }
