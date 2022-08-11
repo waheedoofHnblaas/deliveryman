@@ -13,5 +13,4 @@ class AuthController extends GetxController{
     this.password = password;
     this.isEmp = isEmp;
     update();
-  }
-}
+  }}

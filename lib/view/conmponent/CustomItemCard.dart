@@ -18,36 +18,65 @@ Widget CustomItemCard(
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      SizedBox(
-        width: MediaQuery.of(context).size.width * 0.8,
-        child: ListTile(
-          tileColor: n >= 1 ? Colors.teal[100] : Colors.white,
-          title: Text(
-            snapshot[index].name!,
-            style: TextStyle(fontSize: 21, color: Get.theme.primaryColor),
-          ),
-          subtitle: Text(
-            snapshot[index].weight! + ' kg',
-            style: TextStyle(fontSize: 11, color: Get.theme.primaryColor),
-          ),
-          leading: InkWell(
+      Container(
+  color: Get.theme.backgroundColor,
+        width: MediaQuery.of(context).size.width * 0.9,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  child: ListTile(
+                    tileColor: n >= 1 ? Colors.teal[100] : Colors.white,
+                    title: Text(
+                      snapshot[index].name!,
+                      style: TextStyle(fontSize: 26, color: Get.theme.primaryColor),
+                    ),
+                    subtitle: Text(
+                      snapshot[index].weight! + ' kg',
+                      style: TextStyle(fontSize: 11, color: Get.theme.primaryColor),
+                    ),
 
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Text(
-                  '${n.toString()}/${snapshot[index].quant}',
-                  style: TextStyle(fontSize: 18, color: Get.theme.backgroundColor),
+
+                    trailing: Text(
+                      snapshot[index].price! + ' sp',
+                      style: TextStyle(fontSize: 16,color: Get.theme.primaryColor),
+                    ),
+                  ),
                 ),
-              ),
-              color: Get.theme.primaryColor,
-            ),
-          ),
 
-          trailing: Text(
-            snapshot[index].price! + ' sp',
-            style: TextStyle(fontSize: 16,color: Get.theme.primaryColor),
-          ),
+              ],
+            ),
+
+            Row(
+              children: [
+                SizedBox(
+                  width: Get.width*0.7,
+                  child: Slider(
+                      autofocus: true,
+                      activeColor: Get.theme.primaryColor,
+                      onChangeEnd: (i) async {
+
+                      },
+                      value: double.parse(n.toString()),
+                      label: 'count',
+                      divisions: 1000,
+                      max: double.parse(
+                          snapshot[index].quant??'0'),
+                      min: 0,
+                      onChanged: (i) {
+
+                      }),
+                ),
+                Text(
+                  '${n.toString()}/${snapshot[index].quant}',
+                  style: TextStyle(fontSize: 18, color: Get.theme.primaryColor),
+                )
+              ],
+            ),
+            Divider(height: 1,color: Get.theme.primaryColor,)
+          ],
         ),
       ),
       chl,

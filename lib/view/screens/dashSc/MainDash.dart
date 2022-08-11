@@ -107,7 +107,8 @@ class _EmpDashboardState extends State<MainDashboard> {
       Stack(
         children: [
           ttt
-              ? Center(
+              ? Container(
+                  height: Get.height * 0.83,
                   child: FutureBuilder<List<Order>?>(
                     future: API.getMainOrders(
                       myLocation,
@@ -155,59 +156,74 @@ class _EmpDashboardState extends State<MainDashboard> {
                           ),
                         );
                       } else {
-                        return CircularProgressIndicator();
+                        return Center(child: CircularProgressIndicator());
                       }
                     },
                   ),
                 )
               : Center(child: CircularProgressIndicator()),
-          Positioned(
-            top: 55,
-            right: 0,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        ],
+      ),
+      Container(
+        height: Get.height * 0.83,
+        child: CustomAwesomeDrawer(
+          context,
+          myLocation,
+        ),
+      )
+    ];
+
+    return Scaffold(
+      backgroundColor: Get.theme.backgroundColor,
+      appBar: AppBar(
+        actions: [],
+        elevation: 0, centerTitle: true,
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SortBtn(
+              'ALL',
+              !all ? Get.theme.backgroundColor : Get.theme.primaryColor,
+              all ? Get.theme.backgroundColor : Get.theme.primaryColor,
+              () {
+                setState(() {
+                  all = true;
+                  wait = false;
+                  done = false;
+                  withD = false;
+                });
+              },
+            ),
+            SortBtn(
+              'NEW',
+              !wait ? Get.theme.backgroundColor : Get.theme.primaryColor,
+              wait ? Get.theme.backgroundColor : Get.theme.primaryColor,
+              () {
+                setState(() {
+                  all = false;
+                  wait = true;
+                  done = false;
+                  withD = false;
+                });
+              },
+            ),
+            SortBtn(
+              'DONE',
+              !done ? Get.theme.backgroundColor : Get.theme.primaryColor,
+              done ? Get.theme.backgroundColor : Get.theme.primaryColor,
+              () {
+                setState(() {
+                  all = false;
+                  wait = false;
+                  done = true;
+                  withD = false;
+                });
+              },
+            ),
+            Stack(
               children: [
                 SortBtn(
-                  'ALL',
-                  !all ? Get.theme.backgroundColor : Get.theme.primaryColor,
-                  all ? Get.theme.backgroundColor : Get.theme.primaryColor,
-                  () {
-                    setState(() {
-                      all = true;
-                      wait = false;
-                      done = false;
-                      withD = false;
-                    });
-                  },
-                ),
-                SortBtn(
-                  'NEW',
-                  !wait ? Get.theme.backgroundColor : Get.theme.primaryColor,
-                  wait ? Get.theme.backgroundColor : Get.theme.primaryColor,
-                  () {
-                    setState(() {
-                      all = false;
-                      wait = true;
-                      done = false;
-                      withD = false;
-                    });
-                  },
-                ),
-                SortBtn(
-                  'DONE',
-                  !done ? Get.theme.backgroundColor : Get.theme.primaryColor,
-                  done ? Get.theme.backgroundColor : Get.theme.primaryColor,
-                  () {
-                    setState(() {
-                      all = false;
-                      wait = false;
-                      done = true;
-                      withD = false;
-                    });
-                  },
-                ),
-                SortBtn(
-                  'with delivery',
+                  'delivery',
                   !withD ? Get.theme.backgroundColor : Get.theme.primaryColor,
                   withD ? Get.theme.backgroundColor : Get.theme.primaryColor,
                   () {
@@ -219,157 +235,160 @@ class _EmpDashboardState extends State<MainDashboard> {
                     });
                   },
                 ),
+                Positioned(
+                  bottom: -2,
+                  right: 8,
+                  left: 8,
+                  child: Container(
+                      child: LinearProgressIndicator(
+                          backgroundColor: !withD
+                              ? Get.theme.primaryColor
+                              : Get.theme.backgroundColor,
+                          color: Colors.lightGreenAccent),
+                      color: !withD
+                          ? Get.theme.primaryColor
+                          : Get.theme.backgroundColor,
+                      margin: EdgeInsets.all(10)),
+                )
               ],
             ),
-          )
-        ],
+          ],
+        ),
+        // title: ListTile(
+        //   title: Text(
+        //     '${preferences.getString('name')}',
+        //     style: TextStyle(color: Get.theme.backgroundColor),
+        //   ),
+        //   leading: Text('delivery :',style: Get.textTheme.subtitle1,),
+        // ),
       ),
-      CustomAwesomeDrawer(
-        context,
-        myLocation,
-      )
-    ];
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      drawerEdgeDragWidth: MediaQuery.of(context).size.width / 3,
-      // appBar: AppBar(
-      //   elevation: 0,
-      //   actions: [
-      //     IconButton(
-      //         onPressed: () {
-      //           Get.offAll(
-      //               MainDashboard(widget.name, widget.password, widget.phone));
-      //         },
-      //         icon: const Icon(CupertinoIcons.refresh)),
-      //     IconButton(
-      //         onPressed: () {
-      //           preferences.clear();
-      //           Navigator.pushAndRemoveUntil(context,
-      //               MaterialPageRoute(builder: (context) {
-      //             return PersonalScreen();
-      //           }), (route) => false);
-      //         },
-      //         icon: const Icon(
-      //           CupertinoIcons.rectangle_arrow_up_right_arrow_down_left_slash,
-      //         )),
-      //   ],
-      //   title: ListTile(
-      //     title: Text(
-      //       '${preferences.getString('name')}',
-      //       style: TextStyle(color: Get.theme.backgroundColor),
-      //     ),
-      //     leading: Text('delivery :',style: Get.textTheme.subtitle1,),
-      //   ),
-      // ),
       body: WillPopScope(
           child: Center(
-              child: Stack(
+              child: Column(
             children: [
-              wid[0],
-              showList ? wid[1] : Container(),
-              Positioned(
-                  bottom: 0,
-                  right: 0,
-                  left: 0,
-                  child: Card(
-                    color: Get.theme.primaryColor,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                            onPressed: () {
-                              Get.offAll(MainDashboard(
-                                  widget.name, widget.password, widget.phone));
-                            },
-                            icon: Icon(
-                              CupertinoIcons.refresh,
-                              color: Get.theme.backgroundColor,
-                            )),
+              Stack(
+                children: [
+                  wid[0],
+                  showList ? wid[1] : Container(),
+                ],
+              ),
+              Expanded(
+                child: Container(
+                  color: Get.theme.primaryColor,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(width: 10,),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
 
-                        const SizedBox(
-                          width: 44,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              showList = true;
-                            });
-                          },
-                          child: Card(
-                            color: showList
-                                ? Get.theme.primaryColor
-                                : Get.theme.backgroundColor,
-                            shape: const RoundedRectangleBorder(
-                              side: BorderSide(color: Colors.white70, width: 1),
-                              borderRadius: BorderRadius.horizontal(
-                                  left: Radius.circular(22)),
+                            Text(
+                              widget.name,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: Get.theme.backgroundColor),
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(11.0),
-                              child: Text(
-                                'List',
-                                style: TextStyle(
-                                  color: !showList
-                                      ? Get.theme.primaryColor
-                                      : Get.theme.backgroundColor,
-                                ),
+                            Text(
+                              widget.phone,
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: Get.theme.backgroundColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            showList = true;
+                          });
+                        },
+                        child: Card(
+                          color: showList
+                              ? Get.theme.primaryColor
+                              : Get.theme.backgroundColor,
+                          shape: const RoundedRectangleBorder(
+                            side: BorderSide(color: Colors.white70, width: 1),
+                            borderRadius: BorderRadius.horizontal(
+                                left: Radius.circular(22)),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Icon(
+                              Icons.list,
+                              color: !showList
+                                  ? Get.theme.primaryColor
+                                  : Get.theme.backgroundColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            showList = false;
+                          });
+                        },
+                        child: Card(
+                          color: !showList
+                              ? Get.theme.primaryColor
+                              : Get.theme.backgroundColor,
+                          shape: const RoundedRectangleBorder(
+                            side: BorderSide(color: Colors.white70, width: 1),
+                            borderRadius: BorderRadius.horizontal(
+                                right: Radius.circular(22)),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(11.0),
+                            child: Text(
+                              'Map',
+                              style: TextStyle(
+                                color: showList
+                                    ? Get.theme.primaryColor
+                                    : Get.theme.backgroundColor,
                               ),
                             ),
                           ),
                         ),
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              showList = false;
-                            });
+                      ),
+                      const SizedBox(
+                        width: 44,
+                      ),
+                      IconButton(
+                          onPressed: () {
+                            CustomAwesomeDialog(
+                                context: context,
+                                content: 'do you want logout',
+                                onOkTap: () {
+                                  preferences.clear();
+                                  Navigator.pushAndRemoveUntil(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return const PersonalScreen();
+                                  }), (route) => false);
+                                });
                           },
-                          child: Card(
-                            color: !showList
-                                ? Get.theme.primaryColor
-                                : Get.theme.backgroundColor,
-                            shape: const RoundedRectangleBorder(
-                              side: BorderSide(color: Colors.white70, width: 1),
-                              borderRadius: BorderRadius.horizontal(
-                                  right: Radius.circular(22)),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(11.0),
-                              child: Text(
-                                'Map',
-                                style: TextStyle(
-                                  color: showList
-                                      ? Get.theme.primaryColor
-                                      : Get.theme.backgroundColor,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 44,
-                        ),
-                        IconButton(
-                            onPressed: () {
-                              CustomAwesomeDialog(
-                                  context: context,
-                                  content: 'do you want logout',
-                                  onOkTap: () {
-                                    preferences.clear();
-                                    Navigator.pushAndRemoveUntil(context,
-                                        MaterialPageRoute(builder: (context) {
-                                      return const PersonalScreen();
-                                    }), (route) => false);
-                                  });
-                            },
-                            icon: Icon(
-                              CupertinoIcons
-                                  .rectangle_arrow_up_right_arrow_down_left_slash,
-                              color: Get.theme.backgroundColor,
-                            )),
-                      ],
-                    ),
-                  ))
+                          icon: Icon(
+                            CupertinoIcons
+                                .rectangle_arrow_up_right_arrow_down_left_slash,
+                            color: Get.theme.backgroundColor,
+                          )),
+                      const SizedBox(width: 22),
+                      IconButton(
+                          onPressed: () {
+                            Get.offAll(MainDashboard(
+                                widget.name, widget.password, widget.phone));
+                          },
+                          icon: Icon(
+                            CupertinoIcons.refresh,
+                            color: Get.theme.backgroundColor,
+                          )),
+                    ],
+                  ),
+                ),
+              )
             ],
           )),
           onWillPop: onWillPop),

@@ -23,6 +23,7 @@ Future<void> initPlaState() async {
 
 
 Future<void> main() async {
+
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,),

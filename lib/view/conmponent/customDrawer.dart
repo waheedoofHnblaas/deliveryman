@@ -13,6 +13,7 @@ import 'package:google_map/model/oop/employee.dart';
 import 'package:google_map/view/conmponent/CustomTextField.dart';
 import 'package:google_map/view/screens/Data_screen.dart';
 import 'package:google_map/view/screens/addItemSc.dart';
+import 'package:google_map/view/screens/authSc/Register_screen.dart';
 import 'package:google_map/view/screens/dashSc/MainDash.dart';
 
 class CustomAwesomeDrawer extends StatefulWidget {
@@ -117,7 +118,9 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                                   type: '',
                                   weight: ''),
                             )
-                          : null;
+                          : empsList?Get.to(
+                            () => Register(true),
+                      ):null;
                     },
                     icon: Icon(
                       CupertinoIcons.add_circled,

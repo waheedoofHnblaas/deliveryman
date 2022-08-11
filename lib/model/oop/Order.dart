@@ -55,11 +55,6 @@ class Order {
 
     isRecieved = json['isRecieved'] == '0' ? false : true;
     marker = Marker(
-      // rotation: json['isWaiting'] == '1'
-      //     ? 0
-      //     : json['isRecieved'] == '1'
-      //         ? 180
-      //         : 90,
       infoWindow: InfoWindow(
           onTap: () async {
             var delivery = await API.getEmpNameById(

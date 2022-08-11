@@ -24,7 +24,7 @@ CustomAwesomeDialog(
             child: Text(
               content,
               style: TextStyle(fontSize: 21, color: Get.theme.backgroundColor),
-              textAlign: TextAlign.left,
+              textAlign: TextAlign.center,
             ),
           ),
         ),
@@ -32,7 +32,7 @@ CustomAwesomeDialog(
     ),
     btnOkText: title,
     buttonsTextStyle: TextStyle(color: Get.theme.primaryColor),
-    btnOkOnPress: onOkTap,
+    btnOkOnPress: onOkTap,btnOkColor: Get.theme.backgroundColor,
     btnCancelText: 'make call',
     btnCancelIcon: Icons.phone,
     btnCancelColor: Get.theme.backgroundColor,
