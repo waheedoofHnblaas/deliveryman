@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:google_map/model/database/api.dart';
+import 'package:google_map/model/database/api_links.dart';
 import 'package:google_map/model/oop/Item.dart';
 import 'package:google_map/model/oop/Order.dart';
 import 'package:google_map/main.dart';
@@ -41,39 +43,7 @@ Api API = Api();
 class _DashboardState extends State<CustomDashboard> {
   Api API = Api();
   bool all = true, wait = false, done = false, withD = false;
-
-  // addItem() async {
-  //   CustomeCircularProgress(context);
-  //   try {
-  //     var response = await _phpapi.postRequest(
-  //       addItemLink,
-  //       {
-  //         'name': widget.name,
-  //         'price': widget.price,
-  //         'type': widget.type,
-  //         'weight': widget.weight,
-  //         'info': widget.info,
-  //         'quant': widget.quant,
-  //       },
-  //     );
-  //
-  //     Get.back();
-  //     if (response['status'] == 'item is here') {
-  //       CustomAwesomeDialog(context: context, content: 'item is her');
-  //     } else if (response['status'] == 'success') {
-  //       Get.offAll(MainDashboard(
-  //           preferences.getString('name')!,
-  //           preferences.getString('password')!,
-  //           preferences.getString('phone')!));
-  //     } else {
-  //       CustomAwesomeDialog(
-  //           context: context, content: 'network connection less');
-  //     }
-  //   } catch (e) {
-  //     CustomAwesomeDialog(context: context, content: 'network error');
-  //     print(e);
-  //   }
-  // }
+  final PhpApi _phpapi = PhpApi();
 
   Future<void> getPos() async {
     try {
@@ -95,6 +65,35 @@ class _DashboardState extends State<CustomDashboard> {
     }
   }
 
+  // addItem(String itemName,String itemQuant,) async {
+  //   CustomeCircularProgress(context);
+  //   try {
+  //     var response = await _phpapi.postRequest(
+  //       addItemLink,
+  //       {
+  //         'name': itemName,
+  //         'quant': itemQuant,
+  //         // 'price': widget.price,
+  //         // 'type': widget.type,
+  //         // 'weight': widget.weight,
+  //         // 'info': widget.info,
+  //       },
+  //     );
+  //
+  //     Get.back();
+  //     if (response['status'] == 'item is here') {
+  //       CustomAwesomeDialog(context: context, content: 'item is her');
+  //     } else if (response['status'] == 'success') {
+  //       CustomAwesomeDialog(context: context,title: '', content: 'your order has deleted');
+  //     } else {
+  //       CustomAwesomeDialog(
+  //           context: context, content: 'network connection less');
+  //     }
+  //   } catch (e) {
+  //     CustomAwesomeDialog(context: context, content: 'network error');
+  //     print(e);
+  //   }
+  // }
   @override
   void initState() {
     getPos();
@@ -241,7 +240,14 @@ class _DashboardState extends State<CustomDashboard> {
           )),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterFloat,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+                color: Get.theme.backgroundColor,
+                width: 1,
+                style: BorderStyle.solid)),
+        child: FloatingActionButton(
           backgroundColor: Get.theme.primaryColor,
           foregroundColor: Get.theme.backgroundColor,
           onPressed: () async {
@@ -275,14 +281,10 @@ class _DashboardState extends State<CustomDashboard> {
                 );
               } else {
                 Navigator.pop(context);
-                AwesomeDialog(
+                CustomAwesomeDialog(
                     context: context,
-                    btnOkText: 'open',
-                    btnOkOnPress: () {},
-                    btnCancelText: 'delete',
-                    body: const Text('you have order active'),
-                    btnCancelOnPress: () async {
-                      CustomeCircularProgress(context);
+                    content: 'you have active order',title: 'delete',
+                    onOkTap: () async {
 
                       await API
                           .deleteOrder(_order.orderId.toString())
@@ -290,7 +292,6 @@ class _DashboardState extends State<CustomDashboard> {
                         list = await API.getorderItems('all');
 
                         if (value == 'success') {
-                          //   await addItem();
                           Get.to(
                             AddScreen(
                                 LatLng(myLocationCust.latitude,
@@ -303,6 +304,9 @@ class _DashboardState extends State<CustomDashboard> {
                               context: context,
                               content: 'error with connection',
                               onOkTap: () {
+                                setState(() {
+
+                                });
                                 Get.offAll(
                                   CustomDashboard(
                                     widget.name,
@@ -313,20 +317,23 @@ class _DashboardState extends State<CustomDashboard> {
                               });
                         }
                       });
-                    }).show();
+                    },
+                );
               }
             } catch (e) {
               Get.back();
               CustomAwesomeDialog(context: context, content: '$e');
             }
           },
-          child: Icon(Icons.add, color: Get.theme.backgroundColor)),
+          child: Icon(Icons.add, color: Get.theme.backgroundColor, size: 33),
+        ),
+      ),
       backgroundColor: Colors.white,
       body: Center(
         child: Column(
           children: [
             Container(
-              height: Get.height*0.85,
+              height: Get.height * 0.85,
               child: ttt
                   ? FutureBuilder<List<Order>>(
                       future: Api.getMyOrders(myLocationCust, context,
@@ -374,7 +381,8 @@ class _DashboardState extends State<CustomDashboard> {
                             ),
                           );
                         } else {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
                       },
                     )
@@ -385,9 +393,8 @@ class _DashboardState extends State<CustomDashboard> {
                 color: Get.theme.primaryColor,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
-
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Expanded(
@@ -396,12 +403,12 @@ class _DashboardState extends State<CustomDashboard> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          '${widget.name}',
+                          widget.name,
                           style: TextStyle(
                               color: Get.theme.backgroundColor, fontSize: 12),
                         ),
                         Text(
-                          '${widget.phone}',
+                          widget.phone,
                           style: TextStyle(
                               color: Get.theme.backgroundColor, fontSize: 12),
                         ),
@@ -412,8 +419,7 @@ class _DashboardState extends State<CustomDashboard> {
                     ),
                     IconButton(
                         onPressed: () {
-                          Get.offAll(CustomDashboard(
-                              widget.name, widget.password, widget.phone));
+                          setState(() {});
                         },
                         icon: Icon(
                           CupertinoIcons.refresh,

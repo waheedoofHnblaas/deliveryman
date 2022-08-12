@@ -20,13 +20,13 @@ Widget CustomItemCard(
     children: [
       Container(
   color: Get.theme.backgroundColor,
-        width: MediaQuery.of(context).size.width * 0.9,
+        width: MediaQuery.of(context).size.width * 0.8,
         child: Column(
           children: [
             Row(
               children: [
                 SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.6,
+                  width: MediaQuery.of(context).size.width * 0.5,
                   child: ListTile(
                     tileColor: n >= 1 ? Colors.teal[100] : Colors.white,
                     title: Text(
@@ -52,7 +52,7 @@ Widget CustomItemCard(
             Row(
               children: [
                 SizedBox(
-                  width: Get.width*0.7,
+                  width: Get.width*0.5,
                   child: Slider(
                       autofocus: true,
                       activeColor: Get.theme.primaryColor,

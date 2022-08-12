@@ -114,17 +114,13 @@ class _AddScreenState extends State<AddScreen> {
       );
 
       print('add failed ${response['orderId']}');
-      Navigator.pop(context);
+      Get.back();
       if (response['status'] == 'success') {
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-          builder: (context) {
-            return CustomDashboard(
-              preferences.get('name').toString(),
-              preferences.get('password').toString(),
-              preferences.get('phone').toString(),
-            );
-          },
-        ), (route) => false);
+        Get.offAll(()=> CustomDashboard(
+          preferences.get('name').toString(),
+          preferences.get('password').toString(),
+          preferences.get('phone').toString(),
+        ));
       } else {
         print('add failed ${response['status']}');
       }
@@ -343,124 +339,113 @@ class _AddScreenState extends State<AddScreen> {
                             return Column(
                               children: [
                                 InkWell(
-                                  onTap: () async {
-                                    AwesomeDialog(
-                                            dialogBackgroundColor:
-                                                Get.theme.primaryColor,
-                                            context: context,
-                                            body: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  'count : ${widget.getorderItems[index].name}',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Get
-                                                        .theme.backgroundColor,
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: SizedBox(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.8,
-                                                    child:
-                                                        SingleChildScrollView(
-                                                      scrollDirection:
-                                                          Axis.horizontal,
-                                                      child: Row(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        children: List.generate(
-                                                            int.parse(widget
-                                                                .getorderItems[
-                                                                    index]
-                                                                .quant!), (i) {
-                                                          return InkWell(
-                                                            onTap: () {
-                                                              if (i > 0) {
-                                                                _listitems
-                                                                    .remove(
-                                                                  widget.getorderItems[
-                                                                      index],
-                                                                );
-                                                                widget
-                                                                        .getorderItems[
-                                                                            index]
-                                                                        .count =
-                                                                    (i).toString();
-                                                                _listitems.add(
-                                                                    widget.getorderItems[
-                                                                        index]);
-                                                              } else {
-                                                                widget
-                                                                    .getorderItems[
-                                                                        index]
-                                                                    .count = '';
-                                                                _listitems.remove(
-                                                                    widget.getorderItems[
-                                                                        index]);
-                                                              }
 
-                                                              setState(() {});
-                                                              print(_listitems
-                                                                  .length);
-                                                              _listitems.forEach(
-                                                                  (element) {
-                                                                print(element
-                                                                        .name! +
-                                                                    ' :====== ' +
-                                                                    element
-                                                                        .count!);
-                                                              });
-                                                              Get.back();
-                                                            },
-                                                            child: Card(
-                                                              color: Get.theme
-                                                                  .backgroundColor,
-                                                              child: Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                            .all(
-                                                                        20.0),
-                                                                child: Text(
-                                                                    i >= 0
-                                                                        ? '${i}'
-                                                                        : 'X',
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      color: Get
-                                                                          .theme
-                                                                          .primaryColor,
-                                                                    )),
-                                                              ),
-                                                            ),
-                                                          );
-                                                        }),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            dialogType: DialogType.NO_HEADER)
-                                        .show();
-                                  },
-                                  child: CustomItemCard(
-                                      context,
-                                      widget.getorderItems,
-                                      index,
-                                      Container(),
-                                      widget.getorderItems[index].count),
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 8.0),
+                                        child: Column(
+                                          children: [
+                                            IconButton(
+                                                onPressed: () {
+                                                  int count = int.parse(widget
+                                                              .getorderItems[
+                                                                  index]
+                                                              .count ==
+                                                          null
+                                                      ? '0'
+                                                      : widget
+                                                          .getorderItems[index]
+                                                          .count!);
+                                                  int quant = int.parse(widget
+                                                              .getorderItems[
+                                                                  index]
+                                                              .quant ==
+                                                          null
+                                                      ? '0'
+                                                      : widget
+                                                          .getorderItems[index]
+                                                          .quant!);
+                                                  if (count <quant) {
+                                                    setState(() {
+                                                      _listitems.remove(
+                                                          widget.getorderItems[
+                                                              index]);
+                                                      count++;
+                                                      widget
+                                                          .getorderItems[index]
+                                                          .count = (count).toString();
+                                                      _listitems.add(
+                                                          widget.getorderItems[
+                                                              index]);
+                                                    });
+                                                  }
+                                                  print(count);
+                                                  print(
+                                                      '=================count===============');
+                                                },
+                                                icon: Icon(
+                                                    Icons.add_circle_outline,
+                                                    color: Get
+                                                        .theme.primaryColor)),
+                                            IconButton(
+                                                onPressed: () {
+                                                  int count = int.parse(widget
+                                                    .getorderItems[
+                                                index]
+                                                    .count ==
+                                                    null
+                                                    ? '0'
+                                                    : widget
+                                                    .getorderItems[index]
+                                                    .count!);
+                                                int quant = int.parse(widget
+                                                    .getorderItems[
+                                                index]
+                                                    .quant ==
+                                                    null
+                                                    ? '0'
+                                                    : widget
+                                                    .getorderItems[index]
+                                                    .quant!);
+                                                if (1 <=count) {
+                                                  setState(() {
+                                                    _listitems.remove(
+                                                        widget.getorderItems[
+                                                        index]);
+                                                    count--;
+                                                    widget
+                                                        .getorderItems[index]
+                                                        .count = (count).toString();
+                                                    _listitems.add(
+                                                        widget.getorderItems[
+                                                        index]);
+                                                  });
+                                                }else {
+                                                  widget.getorderItems[index].count = null;
+                                                  _listitems.remove(widget.getorderItems[index]);
+                                                }
+                                                print(count);
+                                                print(
+                                                    '=================count===============');
+                                                },
+                                                icon: Icon(
+                                                    Icons.remove_circle_outline,
+                                                    color: Colors.red
+                                                        .withOpacity(0.8))),
+                                          ],
+                                        ),
+                                      ),
+                                      CustomItemCard(
+                                        context,
+                                        widget.getorderItems,
+                                        index,
+                                        Container(),
+                                        widget.getorderItems[index].count,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             );
@@ -469,104 +454,7 @@ class _AddScreenState extends State<AddScreen> {
                         ),
                       ),
 
-                // SizedBox(
-                //   height: 444,
-                //   child: FutureBuilder<List<Item>>(
-                //       initialData: widget.getorderItems,
-                //       builder: (context, snapshot) {
-                //         if (snapshot.hasData &&
-                //             !snapshot.hasError &&
-                //             ConnectionState.waiting != snapshot.connectionState) {
-                //           return ListView.builder(
-                //             itemCount: snapshot.data!.length,
-                //             itemBuilder: (context, index) {
-                //               return InkWell(
-                //                 onTap: () async {
-                //                   AwesomeDialog(
-                //                           context: context,
-                //                           body: Column(
-                //                             children: [
-                //                               Text(
-                //                                 'count of :${snapshot.data![index].name}',
-                //                                 style: TextStyle(
-                //                                   fontWeight: FontWeight.bold,
-                //                                 ),
-                //                               ),
-                //                               SizedBox(
-                //                                 width: MediaQuery.of(context)
-                //                                         .size
-                //                                         .width *
-                //                                     0.7,
-                //                                 child: SingleChildScrollView(
-                //                                   scrollDirection: Axis.horizontal,
-                //                                   child: Row(
-                //                                     children: List.generate(10, (i) {
-                //                                       return InkWell(
-                //                                         onTap: () {
-                //                                           if (i > 0) {
-                //                                             _listitems.remove(snapshot
-                //                                                 .data![index]);
-                //                                             snapshot.data![index]
-                //                                                     .count =
-                //                                                 (i).toString();
-                //                                             _listitems.add(snapshot
-                //                                                 .data![index]);
-                //                                           } else {
-                //                                             snapshot.data![index]
-                //                                                 .count = '';
-                //                                             _listitems.remove(snapshot
-                //                                                 .data![index]);
-                //                                           }
-                //
-                //                                           setState(() {});
-                //                                           print(_listitems.length);
-                //                                           _listitems
-                //                                               .forEach((element) {
-                //                                             print(element.name! +
-                //                                                 ' :====== ' +
-                //                                                 element.count!);
-                //                                           });
-                //                                           Navigator.pop(context);
-                //                                         },
-                //                                         child: Card(
-                //                                           color: Colors.green,
-                //                                           child: Padding(
-                //                                             padding:
-                //                                                 const EdgeInsets.all(
-                //                                                     20.0),
-                //                                             child: Text(
-                //                                               i >= 0 ? '${i}' : 'X',
-                //                                               style: TextStyle(
-                //                                                   fontWeight:
-                //                                                       FontWeight
-                //                                                           .bold),
-                //                                             ),
-                //                                           ),
-                //                                         ),
-                //                                       );
-                //                                     }),
-                //                                   ),
-                //                                 ),
-                //                               ),
-                //                             ],
-                //                           ),
-                //                           dialogType: DialogType.NO_HEADER)
-                //                       .show();
-                //                 },
-                //                 child: CustomItemCard(
-                //                     context,
-                //                     widget.getorderItems,
-                //                     index,
-                //                     Container(),
-                //                     widget.getorderItems[index].count),
-                //               );
-                //             },
-                //           );
-                //         } else {
-                //           return LinearProgressIndicator();
-                //         }
-                //       }),
-                // ),
+
               ],
             ),
       floatingActionButton: total

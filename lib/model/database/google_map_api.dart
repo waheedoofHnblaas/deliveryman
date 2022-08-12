@@ -11,6 +11,8 @@ import 'package:google_map/model/oop/custom.dart';
 import 'package:google_map/model/oop/employee.dart';
 import 'package:google_map/view/conmponent/customAwesome.dart';
 import 'package:google_map/view/screens/dashSc/CustomDashboard_screen.dart';
+import 'package:google_map/view/screens/dashSc/MainDash.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
@@ -40,14 +42,17 @@ class Api {
   //   }
   // }
 
-  double getDestanceBetween(
-      startLatitude, startLongitude, endLatitude, endLongitude) {
-    double cl = Geolocator.distanceBetween(
-        startLatitude, startLongitude, endLatitude, endLongitude);
+  double getDestanceBetween({position1, position2}) {
+    LatLng position11 = LatLng(position1.latitude, position1.longitude);
+    LatLng position22 = LatLng(position2.latitude, position2.longitude);
+
+    double cl = Geolocator.distanceBetween(position11.latitude,
+        position11.longitude, position22.latitude, position22.longitude);
     return cl;
   }
 
-  int getDestanceMyLocationToOrder(Position mylocation, LatLng position) {
+  int getDestanceMyLocationToOrder(Position mylocation, LatLng latLng) {
+    LatLng position = LatLng(latLng.latitude, latLng.longitude);
     double cl = Geolocator.distanceBetween(mylocation.latitude,
         mylocation.longitude, position.latitude, position.longitude);
     return cl.ceil();
@@ -68,21 +73,20 @@ class Api {
   //   return orders;
   // }
 
-   List<Order> apiOrders = [];
   static List<Item> _apiItems = [];
   static List<int> OrderIds = [];
 
-   Future<List<Order>?> getMainOrders(
-      Position mylocation, context) async {
+  Future<List<Order>?> getMainOrders(Position mylocation, context) async {
+    List<Order> apiOrders = [];
 
     try {
+      apiOrders = [];
+      apiOrders.clear();
 
-      apiOrders = [];apiOrders.clear();
       PhpApi _phpApi = PhpApi();
-      final data =await _phpApi.getRequest(getordersLink);
+      final data = await _phpApi.getRequest(getordersLink);
 
-      for(Map<String, dynamic> data2 in data){
-
+      for (Map<String, dynamic> data2 in data) {
         print('------------------');
         print(data2);
       }
@@ -97,8 +101,6 @@ class Api {
         if (order['delivery_id'] == preferences.getString('id')! ||
             order['isWaiting'] == '1' ||
             preferences.getString('id') == '0') {
-
-
           BitmapDescriptor waitIcon = await BitmapDescriptor.fromAssetImage(
             const ImageConfiguration(),
             "lib/view/images/waitIcon.png",
@@ -111,13 +113,19 @@ class Api {
             const ImageConfiguration(),
             "lib/view/images/activeIcon.png",
           );
-          API.apiOrders.add(
-            Order.fromJson(order, context, itemsName, true, waitIcon,
-                activeIcon, doneIcon),
+          apiOrders.add(
+            Order.fromJson(
+                order,
+                context,
+                itemsName,
+                true,
+                waitIcon,
+                activeIcon,
+                doneIcon),
           );
         }
       }
-     return API.apiOrders;
+      return apiOrders;
     } catch (e) {
       CustomAwesomeDialog(
           context: context,
@@ -129,13 +137,9 @@ class Api {
     }
   }
 
-
-  static Future<List<Employee>?> getEmps(
-      Position mylocation, context) async {
+  static Future<List<Employee>?> getEmps(Position mylocation, context) async {
     List<Employee> emps = [];
     try {
-      API.apiOrders.clear();
-
       var response = await http.get(Uri.parse(getEmpsLink));
       final data = jsonDecode(response.body);
       for (Map<String, dynamic> emp in data) {
@@ -153,15 +157,17 @@ class Api {
     }
   }
 
-  static Future<List<Order>> getMyOrders(
-      Position mylocation, context, String ownerId) async {
+  static Future<List<Order>> getMyOrders(Position mylocation, context,
+      String ownerId) async {
+    List<Order> apiOrders = [];
+
     try {
-      API.apiOrders.clear();
+      apiOrders.clear();
       // var respons = await http.get(Uri.parse(getordersLink));
-     final PhpApi _api = PhpApi();
+      final PhpApi _api = PhpApi();
 
-
-      final data =  await _api.postRequest(getordersByOwnerIdLink, {'id': ownerId});
+      final data =
+      await _api.postRequest(getordersByOwnerIdLink, {'id': ownerId});
 
       for (Map<String, dynamic> order in data) {
         String itemsName = '';
@@ -183,12 +189,18 @@ class Api {
           const ImageConfiguration(),
           "lib/view/images/activeIcon.png",
         );
-        API.apiOrders.add(
-          Order.fromJson(order, context, itemsName, false, waitIcon,
-              activeIcon, doneIcon),
+        apiOrders.add(
+          Order.fromJson(
+              order,
+              context,
+              itemsName,
+              false,
+              waitIcon,
+              activeIcon,
+              doneIcon),
         );
       }
-      return API.apiOrders;
+      return apiOrders;
     } catch (e) {
       CustomAwesomeDialog(
           context: context,
@@ -200,10 +212,7 @@ class Api {
     }
   }
 
-
-  Future<Employee> getEmpNameById(
-    String Id,
-  ) async {
+  Future<Employee> getEmpNameById(String Id,) async {
     try {
       final PhpApi _api = PhpApi();
       var res = await _api.postRequest(getEmployeeByIdLink, {'id': Id});
@@ -216,15 +225,24 @@ class Api {
     }
   }
 
-
   String getNowTime() {
-    return '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}'
-        '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}';
+    return '${DateTime
+        .now()
+        .year}/${DateTime
+        .now()
+        .month}/${DateTime
+        .now()
+        .day}'
+        '  ${DateTime
+        .now()
+        .hour}:${DateTime
+        .now()
+        .minute}:${DateTime
+        .now()
+        .second}';
   }
 
-  Future<Customer> getCustomNameById(
-    String Id,
-  ) async {
+  Future<Customer> getCustomNameById(String Id,) async {
     if (Id != '') {
       try {
         final PhpApi _api = PhpApi();
@@ -240,6 +258,49 @@ class Api {
       return Customer();
     }
   }
+
+ Order getCloserOrder(Order order, List<Order> orders) {
+    Order _order = order;
+    orders.remove(order);
+    double dest = getDestanceBetween(
+        position1: order.marker!.position,
+        position2: orders[1].marker!.position);
+    orders.forEach((element) {
+      if (dest > getDestanceBetween(position1: order.marker!.position,
+          position2: element.marker!.position)){
+        dest = getDestanceBetween(position1: order.marker!.position,
+            position2: element.marker!.position);
+        _order = element;
+      };
+    });
+    return _order;
+  }
+  //
+  // Future<List<Order>?> BFS(context) async {
+  //   Api API = Api();
+  //   List<Order> _orders = (await API.getMainOrders(myLocation, context))!;
+  //   List<Order> _waitOrders = [];
+  //
+  //   int i = 0;
+  //   Order shortOrder = _orders[0];
+  //   var shortDest = getDestanceBetween(
+  //       position2: _orders[1].marker!.position,
+  //       position1: shortOrder.marker!.position);
+  //   _orders.forEach((element) {
+  //     if (element.isWaiting!) _waitOrders.add(element);
+  //   });
+  //
+  //   _waitOrders.forEach((element) {
+  //
+  //     print(element.orderId);
+  //     print(getCloserOrder(element, _waitOrders).orderId);
+  //     print('element.orderId==============================');
+  //   });
+  //
+  //   _waitOrders.forEach((element) {
+  //   });
+  //   return _waitOrders;
+  // }
 
   Future<String> deleteOrder(String id) async {
     try {
@@ -258,13 +319,11 @@ class Api {
     }
   }
 
-  Future<String> updateGettingOrder(
-    String orderId,
-    deliveryLat,
-    deliveryLong,
-    String deliveryId,
-    String getDelTime,
-  ) async {
+  Future<String> updateGettingOrder(String orderId,
+      deliveryLat,
+      deliveryLong,
+      String deliveryId,
+      String getDelTime,) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
@@ -287,8 +346,8 @@ class Api {
     }
   }
 
-  Future<String> updateDoneOrder(
-      String id, String doneCustTime, String deliveryId, String rate) async {
+  Future<String> updateDoneOrder(String id, String doneCustTime,
+      String deliveryId, String rate) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
@@ -329,19 +388,17 @@ class Api {
     }
   }
 
-   Future<List<Item>> getorderItems(String orderID) async {
-
+  Future<List<Item>> getorderItems(String orderID) async {
     try {
       _apiItems.clear();
       final PhpApi _api = PhpApi();
 
-
-      _apiItems=[];
+      _apiItems = [];
       var res = [];
       if (orderID == 'all') {
         res = await _api.postRequest(getitemsLink, {'id': orderID});
-      }else{
-         res = await _api.postRequest(getorederItemsLink, {'id': orderID});
+      } else {
+        res = await _api.postRequest(getorederItemsLink, {'id': orderID});
       }
 
       // List<dynamic> data = jsonDecode(res);
@@ -357,16 +414,15 @@ class Api {
       return jsonDecode(e.toString());
     }
   }
-   Future<List<String>> getAllTypes() async {
 
+  Future<List<String>> getAllTypes() async {
     try {
       List<String> types = [];
       final PhpApi _api = PhpApi();
 
-
       var res = [];
 
-      res = await _api.postRequest(getAllTypesLink,{});
+      res = await _api.postRequest(getAllTypesLink, {});
 
       // List<dynamic> data = jsonDecode(res);
 

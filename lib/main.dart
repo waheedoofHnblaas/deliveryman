@@ -6,6 +6,7 @@ import 'package:google_map/view/screens/dashSc/MainDash.dart';
 import 'package:google_map/view/screens/person_screen.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 
 late SharedPreferences preferences;
 
@@ -24,6 +25,7 @@ Future<void> initPlaState() async {
 
 Future<void> main() async {
 
+
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,),
@@ -32,24 +34,39 @@ Future<void> main() async {
   preferences = await SharedPreferences.getInstance();
   // await Api.getOrders(await Api.getMyLocation());
   await initPlaState();
-
+  ThemeData _darkTheme = ThemeData(
+    fontFamily: 'RobotoMono',
+    primaryColor: const Color(0xFF002436),
+    backgroundColor: const Color(0xffc8fdfb),
+    // backgroundColor: Color(0xFF90D9F8),
+    appBarTheme: const AppBarTheme(
+      elevation: 0,
+      titleTextStyle: TextStyle(color: const Color(0xffc8fdfb), fontSize: 18),
+      backgroundColor: Color(0xFF002436),
+      toolbarHeight: 40,
+      centerTitle: true,
+    ),
+      );
+  ThemeData _lightTheme = ThemeData(
+    fontFamily: 'RobotoMono',
+    primaryColor: const Color(0xFF006497),
+    backgroundColor: const Color(0xffffffff),
+    // backgroundColor: Color(0xFF90D9F8),
+    appBarTheme: const AppBarTheme(
+      elevation: 0,
+      titleTextStyle: TextStyle(color: Colors.white, fontSize: 18),
+      backgroundColor: Color(0xFF006497),
+      toolbarHeight: 40,
+      centerTitle: true,
+    ),
+  );
   runApp(
     GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      theme: ThemeData(
-        fontFamily: 'RobotoMono',
-        primaryColor: const Color(0xFF006497),
-        backgroundColor: const Color(0xffffffff),
-        // backgroundColor: Color(0xFF90D9F8),
-        appBarTheme: const AppBarTheme(
-          elevation: 0,
-          titleTextStyle: TextStyle(color: Colors.white, fontSize: 18),
-          backgroundColor: Color(0xFF006497),
-          toolbarHeight: 40,
-          centerTitle: true,
-        ),
-      ),
+      darkTheme: _darkTheme,
+      themeMode: ThemeMode.system,
+      theme:_lightTheme,
       home: preferences.get('id') == null
           ? const PersonalScreen()
           : preferences.getBool('isEmp')!

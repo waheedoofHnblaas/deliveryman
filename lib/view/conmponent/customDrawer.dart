@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator_platform_interface/src/models/position.dart';
 import 'package:get/get.dart';
+import 'package:google_map/main.dart';
 import 'package:google_map/model/database/api.dart';
 import 'package:google_map/model/database/google_map_api.dart';
 import 'package:google_map/model/oop/Item.dart';
@@ -30,7 +31,7 @@ class CustomAwesomeDrawer extends StatefulWidget {
 class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
   final Api API = Api();
 
-  bool orderList = false, itemList = false, empsList = false;
+  bool orderList = true, itemList = false, empsList = false;
   String searsh = '';
 
   @override
@@ -41,9 +42,10 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
+              preferences.getString('id')=='0'?
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -87,7 +89,7 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                         style: TextStyle(color: Get.theme.backgroundColor),
                       )),
                 ],
-              ),
+              ):Text('orders',style: TextStyle(color: Get.theme.backgroundColor),),
               // CustomeTextFeild(
               //   (val) {
               //     setState(() {
@@ -129,6 +131,7 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                     ),
                   ),
                   onPressed: () {}),
+
               orderList
                   ? listOrder()
                   : itemList
@@ -150,12 +153,39 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
             if (snapshot.hasData &&
                 !snapshot.hasError &&
                 snapshot.connectionState == ConnectionState.done) {
+              List<Order> _order = [];
+              if (done) {
+                for (Order order in snapshot.data!) {
+                  if (order.isRecieved == true) {
+                    _order.add(order);
+                  }
+                }
+              } else if (wait) {
+                for (Order order in snapshot.data!) {
+                  if (order.isWaiting == true) {
+                    _order.add(order);
+                  }
+                }
+              } else if (withD) {
+                for (Order order in snapshot.data!) {
+                  if (order.isWaiting == false &&
+                      order.isRecieved == false) {
+                    _order.add(order);
+                  }
+                }
+              } else {
+                for (Order order in snapshot.data!) {
+                  _order.add(order);
+                }
+              }
               return ListView.builder(
-                itemCount: snapshot.data!.length,
+                itemCount: _order.length,
                 itemBuilder: (context, index) {
                   return Column(
                     children: [
-                      component(snapshot.data![index]),
+                      component(_order[index]),
+                      index==_order.length-1?
+                          Container(height: 220,):Container()
                     ],
                   );
                 },
@@ -242,6 +272,7 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
   }
 
   Widget component(Order order) {
+    var dest =  API.getDestanceBetween(position1: order.marker!.position,position2: myLocation);
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.3,
       child: Padding(
@@ -368,7 +399,8 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                           : Image.asset(
                               'lib/view/images/doneIcon.png',
                               height: 50,
-                            )
+                            ),
+                  Text('${dest.ceil().toString()}'+' meter'),
                 ],
               ),
             ),
