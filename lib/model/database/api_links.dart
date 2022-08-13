@@ -4,6 +4,8 @@
 //192.168.43.206  192.168.43.206
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 //http://waheedoof.great-site.net/
+//http://f31-preview.biz.nf/waheedoof2.great-site
+const String server3 = 'http://f31-preview.biz.nf/waheedoof2.great-site/';
 const String server = 'http://192.168.43.206/';
 const String server2 = 'http://waheedoof.great-site.net/';
 //const String server = 'https://84c4-188-160-16-2.eu.ngrok.io/';

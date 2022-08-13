@@ -25,11 +25,8 @@ Future<void> initPlaState() async {
 
 Future<void> main() async {
 
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive,overlays: []);
 
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,),
-  );
   WidgetsFlutterBinding.ensureInitialized();
   preferences = await SharedPreferences.getInstance();
   // await Api.getOrders(await Api.getMyLocation());

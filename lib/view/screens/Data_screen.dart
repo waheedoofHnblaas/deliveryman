@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:google_map/model/oop/Item.dart';
 import 'package:google_map/model/oop/Order.dart';
 import 'package:google_map/view/screens/dashSc/CustomDashboard_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 class DataScreen extends StatefulWidget {
   DataScreen(this._order);
 
@@ -22,7 +24,7 @@ class _DataScreenState extends State<DataScreen> {
       body: Center(
         child: Stack(
           children: [
-            GoogleMap(
+            GoogleMap(mapToolbarEnabled: true,
               trafficEnabled: true,
               myLocationButtonEnabled: true,
               initialCameraPosition: CameraPosition(
@@ -34,7 +36,6 @@ class _DataScreenState extends State<DataScreen> {
               ),
               markers: {
                 widget._order.marker!,
-
                 Marker(
                   markerId: const MarkerId('5436536'),
                   position: LatLng(
@@ -61,7 +62,6 @@ class _DataScreenState extends State<DataScreen> {
                     )),
               ),
             ),
-
             Positioned(
               bottom: 20,
               left: 100,
@@ -75,22 +75,28 @@ class _DataScreenState extends State<DataScreen> {
                       child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
-                            children: List.generate(
-                                itemssnap.data!.length, (index) {
+                            children:
+                                List.generate(itemssnap.data!.length, (index) {
                               return Card(
-                                color: Colors.white54,
+                                color: Get.theme.primaryColor.withOpacity(0.5),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15.0),
+                                  borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.all(10.0),
                                   child: Column(
                                     children: [
                                       Text(
                                         itemssnap.data![index].name!,
+                                        style: TextStyle(
+                                            color: Get.theme.backgroundColor),
+                                        textAlign: TextAlign.center,
                                       ),
                                       Text(
                                         itemssnap.data![index].count!,
+                                        style: TextStyle(
+                                            color: Get.theme.backgroundColor),
+                                        textAlign: TextAlign.center,
                                       ),
                                     ],
                                   ),

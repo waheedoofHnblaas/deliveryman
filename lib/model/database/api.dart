@@ -25,6 +25,7 @@ class PhpApi {
 
         Uri.parse(url),
 
+
         body: data,
       );
       if (response.statusCode == 200) {
@@ -33,7 +34,7 @@ class PhpApi {
         return jsonDecode('status'':''network');
       }
     } catch (e) {
-      print('catch get Requset error ${e}');
+      print('catch postRequest error $e');
       return e;
     }
   }

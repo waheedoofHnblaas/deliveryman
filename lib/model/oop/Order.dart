@@ -7,6 +7,7 @@ import 'package:google_map/view/conmponent/customAwesome.dart';
 import 'package:google_map/view/screens/dashSc/CustomDashboard_screen.dart';
 import 'package:google_map/view/screens/dashSc/MainDash.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Order {
   Api API = Api();
@@ -65,22 +66,22 @@ class Order {
             );
             if (isEmp) {
               double itemsWeight = 0;
-            List<Item> items = await API.getorderItems(orderId!);
-            for (var element in items) {
-              itemsWeight += (double.parse(element.weight!)*double.parse(element.count!));
-              print(double.parse(element.weight!)*double.parse(element.count!));
-            }
+              List<Item> items = await API.getorderItems(orderId!);
+              for (var element in items) {
+                itemsWeight += (double.parse(element.weight!) *
+                    double.parse(element.count!));
+                print(double.parse(element.weight!) *
+                    double.parse(element.count!));
+              }
 
-
-              int meters = API.getDestanceMyLocationToOrder(myLocation, marker!.position);
+              int meters = API.getDestanceMyLocationToOrder(
+                  myLocation, marker!.position);
               if (json['isWaiting'] == '1' && json['isRecieved'] == '0') {
                 CustomAwesomeDialog(
                   context: context,
-                  content:
-                      'Arrive to : ${owner.name}\n'
-                          'long: ${meters} m\ncost: ${(itemsWeight*.2).ceil()}\$ \nweight: ${itemsWeight} kg ',
+                  content: 'Arrive to : ${owner.name}\n'
+                      'long: ${meters} m\ncost: ${(itemsWeight * .2).ceil()}\$ \nweight: ${itemsWeight} kg ',
                   onOkTap: () async {
-
                     API
                         .updateGettingOrder(
                       json['order_id']!,
@@ -99,10 +100,17 @@ class Order {
                             )
                           : null;
                     });
-
-
                   },
-                  onCancelTap: () {},
+                  onCancelTap: () async {
+                    final number = owner.phone!.toString();
+                    final Uri launchUri = Uri(
+                      scheme: 'tel',
+                      path: number,
+                    );
+                    if (!await launchUrl(launchUri)) {
+                      throw 'Could not launch $launchUri';
+                    }
+                  },
                 );
               } else if (json['isWaiting'] == '0' &&
                   json['isRecieved'] == '0') {
@@ -114,14 +122,95 @@ class Order {
                   content: json['delivery_id'] != preferences.getString('id')
                       ? 'with delivery man :${delivery.name}'
                       : 'with you to ${owner.name}',
-                  onCancelTap: () {},
+                  title: json['delivery_id'] == preferences.getString('id')
+                      ? 'Manager':'delivery',
+                  onOkTap: () async {
+                    if (json['delivery_id'] == preferences.getString('id')) {
+                      var manager = await API.getEmpNameById(
+                        '0',
+                      );
+                      var number = '';
+                      number = manager.phone!.toString();
+                      final Uri launchUri = Uri(
+                        scheme: 'tel',
+                        path: number,
+                      );
+                      if (!await launchUrl(launchUri)) {
+                        throw 'Could not launch $launchUri';
+                      }
+                    }else{
+                      var number = '';
+                      number = delivery.phone!.toString();
+                      final Uri launchUri = Uri(
+                        scheme: 'tel',
+                        path: number,
+                      );
+                      if (!await launchUrl(launchUri)) {
+                        throw 'Could not launch $launchUri';
+                      }
+                    }
+                  },
+                  onCancelTap: () async {
+                    var number = '';
+                    number = owner.phone!.toString();
+                    final Uri launchUri = Uri(
+                      scheme: 'tel',
+                      path: number,
+                    );
+                    if (!await launchUrl(launchUri)) {
+                      throw 'Could not launch $launchUri';
+                    }
+                  },
                 );
               } else {
                 CustomAwesomeDialog(
                   context: context,
                   content:
-                      'your order has done by : ${delivery.name!} to ${owner.name}',
-                  onCancelTap: () {},
+                      'Has done by : ${delivery.name!} to ${owner.name}',
+                  onCancelTap: () async{
+                    CustomAwesomeDialog(
+                      context: context,
+                      content: 'call to',
+                      title: 'Manager',
+                      onOkTap: () async {
+                        if (json['delivery_id'] == preferences.getString('id')) {
+                          var manager = await API.getEmpNameById(
+                            '0',
+                          );
+                          var number = '';
+                          number = manager.phone!.toString();
+                          final Uri launchUri = Uri(
+                            scheme: 'tel',
+                            path: number,
+                          );
+                          if (!await launchUrl(launchUri)) {
+                            throw 'Could not launch $launchUri';
+                          }
+                        }else{
+                          var number = '';
+                          number = delivery.phone!.toString();
+                          final Uri launchUri = Uri(
+                            scheme: 'tel',
+                            path: number,
+                          );
+                          if (!await launchUrl(launchUri)) {
+                            throw 'Could not launch $launchUri';
+                          }
+                        }
+                      },
+                      onCancelTap: () async {
+                        var number = '';
+                        number = owner.phone!.toString();
+                        final Uri launchUri = Uri(
+                          scheme: 'tel',
+                          path: number,
+                        );
+                        if (!await launchUrl(launchUri)) {
+                          throw 'Could not launch $launchUri';
+                        }
+                      },
+                    );
+                  },
                 );
               }
             } else {
@@ -152,16 +241,11 @@ class Order {
                   context: context,
                   content: 'your order with ${delivery.name!} do you  get it ?',
                   onOkTap: () async {
-
-
-
                     String rate = await API.getRateById(delivery.id!);
 
                     await API
-                        .updateDoneOrder(
-                      json['order_id'].toString(),
-                      API.getNowTime(),delivery.id!,rate+'/'
-                    )
+                        .updateDoneOrder(json['order_id'].toString(),
+                            API.getNowTime(), delivery.id!, rate + '/')
                         .then((value) {
                       value == 'success'
                           ? Get.offAll(
@@ -170,24 +254,84 @@ class Order {
                                   preferences.getString('password')!,
                                   preferences.getString('phone')!),
                             )
-                          : null;
+                          : Get.offAll(
+                              CustomDashboard(
+                                  preferences.getString('name')!,
+                                  preferences.getString('password')!,
+                                  preferences.getString('phone')!),
+                            );
                     });
                   },
-                  onCancelTap: () {},
+                  onCancelTap: () {
+                    CustomAwesomeDialog(
+                        context: context,
+                        content: 'make a call',
+                        title: 'manager',
+                        onOkTap: () async {
+                          var manager = await API.getEmpNameById(
+                            '0',
+                          );
+                          final managerNumber = manager.phone!.toString();
+                          final Uri launchUri = Uri(
+                            scheme: 'tel',
+                            path: managerNumber,
+                          );
+                          if (!await launchUrl(launchUri)) {
+                            throw 'Could not launch $launchUri';
+                          }
+                        },
+                        onCancelTap: () async {
+                          final number = delivery.phone!.toString();
+                          final Uri launchUri = Uri(
+                            scheme: 'tel',
+                            path: number,
+                          );
+                          if (!await launchUrl(launchUri)) {
+                            throw 'Could not launch $launchUri';
+                          }
+                        });
+                  },
                 );
               } else if (json['isWaiting'] == '0' &&
                   json['isRecieved'] == '1') {
                 CustomAwesomeDialog(
                   context: context,
                   content: 'your order has done by : ${delivery.name!}',
-                  onCancelTap: () {},
+                  onCancelTap: () {
+                    CustomAwesomeDialog(
+                        context: context,
+                        content: 'make a call',
+                        title: 'manager',
+                        onOkTap: () async {
+                          var manager = await API.getEmpNameById(
+                            '0',
+                          );
+                          final managerNumber = manager.phone!.toString();
+                          final Uri launchUri = Uri(
+                            scheme: 'tel',
+                            path: managerNumber,
+                          );
+                          if (!await launchUrl(launchUri)) {
+                            throw 'Could not launch $launchUri';
+                          }
+                        },
+                        onCancelTap: () async {
+                          final number = delivery.phone!.toString();
+                          final Uri launchUri = Uri(
+                            scheme: 'tel',
+                            path: number,
+                          );
+                          if (!await launchUrl(launchUri)) {
+                            throw 'Could not launch $launchUri';
+                          }
+                        });
+                  },
                 );
               }
             }
           },
           snippet: itemsName + '  id :' + json['order_id'].toString(),
           title: '${json['createTime']}'),
-
       icon: json['isRecieved'] == '1'
           ? doneIcon
           : json['isWaiting'] == '1'

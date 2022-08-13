@@ -90,7 +90,7 @@ class Api {
         print('------------------');
         print(data2);
       }
-      print('++++++++++++++++++++++++++++++++++++++++++++');
+      print('++++++++++++++++++++getMainOrders++++++++++++++++++++++++');
       for (Map<String, dynamic> order in data) {
         String itemsName = '';
         List<Item> items = await API.getorderItems(order['order_id']);
