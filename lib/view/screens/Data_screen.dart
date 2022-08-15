@@ -24,28 +24,31 @@ class _DataScreenState extends State<DataScreen> {
       body: Center(
         child: Stack(
           children: [
-            GoogleMap(mapToolbarEnabled: true,
-              trafficEnabled: true,
-              myLocationButtonEnabled: true,
-              initialCameraPosition: CameraPosition(
-                zoom: 12,
-                target: LatLng(
-                  widget._order.marker!.position.latitude,
-                  widget._order.marker!.position.longitude,
-                ),
-              ),
-              markers: {
-                widget._order.marker!,
-                Marker(
-                  markerId: const MarkerId('5436536'),
-                  position: LatLng(
-                    double.parse(widget._order.deliveryLat!),
-                    double.parse(widget._order.deliveryLong!),
+            SafeArea(
+
+              child: GoogleMap(mapToolbarEnabled: true,
+                trafficEnabled: true,
+                myLocationButtonEnabled: true,
+                initialCameraPosition: CameraPosition(
+                  zoom: 12,
+                  target: LatLng(
+                    widget._order.marker!.position.latitude,
+                    widget._order.marker!.position.longitude,
                   ),
-                  infoWindow: const InfoWindow(title: 'your location order'),
-                )
-              },
-              myLocationEnabled: true,
+                ),
+                markers: {
+                  widget._order.marker!,
+                  Marker(
+                    markerId: const MarkerId('5436536'),
+                    position: LatLng(
+                      double.parse(widget._order.deliveryLat!),
+                      double.parse(widget._order.deliveryLong!),
+                    ),
+                    infoWindow: const InfoWindow(title: 'your location order'),
+                  )
+                },
+                myLocationEnabled: true,
+              ),
             ),
             Positioned(
               top: 30,
@@ -63,8 +66,9 @@ class _DataScreenState extends State<DataScreen> {
               ),
             ),
             Positioned(
-              bottom: 20,
-              left: 100,
+              bottom: 60,
+              left: 30,
+              right: 60,
               child: FutureBuilder<List<Item>?>(
                 future: API.getorderItems(widget._order.orderId!),
                 builder: (BuildContext context, itemssnap) {

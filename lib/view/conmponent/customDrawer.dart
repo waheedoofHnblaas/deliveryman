@@ -162,7 +162,11 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                                                   : empsList
                                                       ? Get.to(
                                                           () => Register(true),
-                                                        )
+                                                        )!.whenComplete(() {
+                                                          setState(() {
+
+                                                          });
+                                              })
                                                       : null;
                                             },
                                             icon: Icon(
@@ -209,7 +213,7 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                     : Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'orders',
+                          '',
                           style: TextStyle(
                               color: Get.theme.backgroundColor, fontSize: 21),
                         ),
@@ -283,7 +287,7 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                         )),
                       );
                     } else {
-                      return ListView.builder(
+                      return ListView.builder(itemExtent: 100,
                         itemCount: _order.length,
                         itemBuilder: (context, index) {
                           return Column(

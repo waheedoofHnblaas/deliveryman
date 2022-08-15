@@ -141,11 +141,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
                   if (!isEmp && !isCustom) {
                     Get.to(Login(false));
                   } else {
-                    if (isEmp) {
-                      Get.to(Login(isEmp));
-                    } else {
-                      Get.to(Login(isEmp));
-                    }
+                    Get.to(Login(isEmp));
                   }
                 },
                 child: Container(

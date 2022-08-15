@@ -1,5 +1,6 @@
 // TODO Implement this library.import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 Widget CustomeTextFeild(
   func,
@@ -24,7 +25,7 @@ Widget CustomeTextFeild(
           ),
         ),
         height: 60,
-        width: MediaQuery.of(context).size.width - 10,
+        width:Get.width - 10,
         child: TextFormField(
 
           readOnly: readOnly,

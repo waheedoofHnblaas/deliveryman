@@ -165,50 +165,52 @@ class _AddScreenState extends State<AddScreen> {
           ? Stack(
               alignment: Alignment.center,
               children: [
-                GoogleMap(
-                  mapToolbarEnabled: true,
-                  onMapCreated: (val) {
-                    print(val);
-                  },
-                  onTap: (latlong) async {
-                    if ((36.2395093776424 > latlong.latitude &&
-                            latlong.latitude > 36.16330528868279) &&
-                        (37.08518844097853 < latlong.longitude &&
-                            latlong.longitude < 37.20690105110407)) {
-                      setState(() {
-                        lat = latlong.latitude.toString();
-                        long = latlong.longitude.toString();
-                      });
-                      CustomAwesomeDialog(
-                          context: context,
-                          content: 'set here and choose items !',
-                          onOkTap: () {
-                            setState(() {
-                              total = false;
+                SafeArea(
+                  child: GoogleMap(
+                    mapToolbarEnabled: true,
+                    onMapCreated: (val) {
+                      print(val);
+                    },
+                    onTap: (latlong) async {
+                      if ((36.2395093776424 > latlong.latitude &&
+                              latlong.latitude > 36.16330528868279) &&
+                          (37.08518844097853 < latlong.longitude &&
+                              latlong.longitude < 37.20690105110407)) {
+                        setState(() {
+                          lat = latlong.latitude.toString();
+                          long = latlong.longitude.toString();
+                        });
+                        CustomAwesomeDialog(
+                            context: context,
+                            content: 'set here and choose items !',
+                            onOkTap: () {
+                              setState(() {
+                                total = false;
+                              });
                             });
-                          });
-                    } else {
-                      CustomAwesomeDialog(
-                          context: context, content: 'out of our map');
-                    }
-                  },
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: true,
-                  markers: lat != ''
-                      ? {
-                          Marker(
-                              infoWindow: const InfoWindow(
-                                  title: 'your new order location'),
-                              visible: true,
-                              markerId: MarkerId(id),
-                              position:
-                                  LatLng(double.parse(lat), double.parse(long)))
-                        }
-                      : {},
-                  mapType: MapType.normal,
-                  initialCameraPosition: CameraPosition(
-                    target: widget.latLng,
-                    zoom: 12.5,
+                      } else {
+                        CustomAwesomeDialog(
+                            context: context, content: 'out of our map');
+                      }
+                    },
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                    markers: lat != ''
+                        ? {
+                            Marker(
+                                infoWindow: const InfoWindow(
+                                    title: 'your new order location'),
+                                visible: true,
+                                markerId: MarkerId(id),
+                                position:
+                                    LatLng(double.parse(lat), double.parse(long)))
+                          }
+                        : {},
+                    mapType: MapType.normal,
+                    initialCameraPosition: CameraPosition(
+                      target: widget.latLng,
+                      zoom: 12.5,
+                    ),
                   ),
                 ),
                 Positioned(
@@ -338,114 +340,111 @@ class _AddScreenState extends State<AddScreen> {
                           (BuildContext context, int index) {
                             return Column(
                               children: [
-                                InkWell(
-
-                                  child: Row(
-                                    children: [
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 8.0),
-                                        child: Column(
-                                          children: [
-                                            IconButton(
-                                                onPressed: () {
-                                                  int count = int.parse(widget
-                                                              .getorderItems[
-                                                                  index]
-                                                              .count ==
-                                                          null
-                                                      ? '0'
-                                                      : widget
-                                                          .getorderItems[index]
-                                                          .count!);
-                                                  int quant = int.parse(widget
-                                                              .getorderItems[
-                                                                  index]
-                                                              .quant ==
-                                                          null
-                                                      ? '0'
-                                                      : widget
-                                                          .getorderItems[index]
-                                                          .quant!);
-                                                  if (count <quant) {
-                                                    setState(() {
-                                                      _listitems.remove(
-                                                          widget.getorderItems[
-                                                              index]);
-                                                      count++;
-                                                      widget
-                                                          .getorderItems[index]
-                                                          .count = (count).toString();
-                                                      _listitems.add(
-                                                          widget.getorderItems[
-                                                              index]);
-                                                    });
-                                                  }
-                                                  print(count);
-                                                  print(
-                                                      '=================count===============');
-                                                },
-                                                icon: Icon(
-                                                    Icons.add_circle_outline,
-                                                    color: Get
-                                                        .theme.primaryColor)),
-                                            IconButton(
-                                                onPressed: () {
-                                                  int count = int.parse(widget
-                                                    .getorderItems[
-                                                index]
-                                                    .count ==
-                                                    null
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(left: 8.0),
+                                      child: Column(
+                                        children: [
+                                          IconButton(
+                                              onPressed: () {
+                                                int count = int.parse(widget
+                                                            .getorderItems[
+                                                                index]
+                                                            .count ==
+                                                        null
                                                     ? '0'
                                                     : widget
-                                                    .getorderItems[index]
-                                                    .count!);
+                                                        .getorderItems[index]
+                                                        .count!);
                                                 int quant = int.parse(widget
-                                                    .getorderItems[
-                                                index]
-                                                    .quant ==
-                                                    null
+                                                            .getorderItems[
+                                                                index]
+                                                            .quant ==
+                                                        null
                                                     ? '0'
                                                     : widget
-                                                    .getorderItems[index]
-                                                    .quant!);
-                                                if (1 <=count) {
+                                                        .getorderItems[index]
+                                                        .quant!);
+                                                if (count <quant) {
                                                   setState(() {
                                                     _listitems.remove(
                                                         widget.getorderItems[
-                                                        index]);
-                                                    count--;
+                                                            index]);
+                                                    count++;
                                                     widget
                                                         .getorderItems[index]
                                                         .count = (count).toString();
                                                     _listitems.add(
                                                         widget.getorderItems[
-                                                        index]);
+                                                            index]);
                                                   });
-                                                }else {
-                                                  widget.getorderItems[index].count = null;
-                                                  _listitems.remove(widget.getorderItems[index]);
                                                 }
                                                 print(count);
                                                 print(
                                                     '=================count===============');
-                                                },
-                                                icon: Icon(
-                                                    Icons.remove_circle_outline,
-                                                    color: Colors.red
-                                                        .withOpacity(0.8))),
-                                          ],
-                                        ),
+                                              },
+                                              icon: Icon(
+                                                  Icons.add_circle_outline,
+                                                  color: Get
+                                                      .theme.primaryColor)),
+                                          IconButton(
+                                              onPressed: () {
+                                                int count = int.parse(widget
+                                                  .getorderItems[
+                                              index]
+                                                  .count ==
+                                                  null
+                                                  ? '0'
+                                                  : widget
+                                                  .getorderItems[index]
+                                                  .count!);
+                                              int quant = int.parse(widget
+                                                  .getorderItems[
+                                              index]
+                                                  .quant ==
+                                                  null
+                                                  ? '0'
+                                                  : widget
+                                                  .getorderItems[index]
+                                                  .quant!);
+                                              if (1 <=count) {
+                                                setState(() {
+                                                  _listitems.remove(
+                                                      widget.getorderItems[
+                                                      index]);
+                                                  count--;
+                                                  widget
+                                                      .getorderItems[index]
+                                                      .count = (count).toString();
+                                                  _listitems.add(
+                                                      widget.getorderItems[
+                                                      index]);
+                                                });
+                                              }else {
+                                                widget.getorderItems[index].count = null;
+                                                _listitems.remove(widget.getorderItems[index]);
+                                              }
+                                              print(count);
+                                              print(
+                                                  '=================count===============');
+                                              },
+                                              icon: Icon(
+                                                  Icons.remove_circle_outline,
+                                                  color: Colors.red
+                                                      .withOpacity(0.8))),
+                                        ],
                                       ),
-                                      CustomItemCard(
-                                        context,
-                                        widget.getorderItems,
-                                        index,
-                                        Container(),
-                                        widget.getorderItems[index].count,
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                    CustomItemCard(
+                                      context,
+                                      widget.getorderItems,
+                                      index,
+                                      Container(),
+                                      widget.getorderItems[index].count,
+                                    ),
+                                  ],
                                 ),
                               ],
                             );

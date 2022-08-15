@@ -25,7 +25,6 @@ Future<void> initPlaState() async {
 
 Future<void> main() async {
 
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive,overlays: []);
 
   WidgetsFlutterBinding.ensureInitialized();
   preferences = await SharedPreferences.getInstance();

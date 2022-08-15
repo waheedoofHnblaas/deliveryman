@@ -25,22 +25,33 @@ class _RegisterState extends State<Register> {
   regist() async {
     CustomeCircularProgress(context);
     try {
-      var response = await _api.postRequest(
-        widget.isEmp ? registerLinkEmp : registerLinkCustom,
+      var response =
+      widget.isEmp ? await _api.postRequest(
+        registerLinkEmp ,
         {
           'name': name,
           'password': password,
           'phone': phone,
+          'rate': '0',
           'createTime':
-              '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
+          '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
         },
+      ):await _api.postRequest(
+          registerLinkCustom,
+          {
+            'name': name,
+            'password': password,
+            'phone': phone,
+            'createTime':
+            '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
+          }
       );
 
       Get.back();
       if (response['status'] == 'user is here') {
         CustomAwesomeDialog(context: context, content: 'user is exist');
       } else if (response['status'] == 'success') {
-        Get.offAll(Login(false));
+        widget.isEmp ? Get.back() : Get.offAll(Login(false));
       } else {
         CustomAwesomeDialog(
             context: context, content: 'network connection less');
@@ -57,7 +68,7 @@ class _RegisterState extends State<Register> {
       backgroundColor: Get.theme.primaryColor,
       appBar: AppBar(
         backgroundColor: Get.theme.primaryColor,
-        title: Text('register'),
+        title: const Text('regist employee'),
         leading: IconButton(
           iconSize: 25,
           onPressed: () {
@@ -71,7 +82,6 @@ class _RegisterState extends State<Register> {
       body: Center(
         child: Container(
           child: SingleChildScrollView(
-
             child: Column(
               children: [
                 Padding(
@@ -86,11 +96,12 @@ class _RegisterState extends State<Register> {
                       children: [
                         SizedBox(
                           height: (MediaQuery.of(context).size.height -
-                              MediaQuery.of(context).viewInsets.bottom) *
+                                  MediaQuery.of(context).viewInsets.bottom) *
                               .2,
                           child: Hero(
                               tag: 'icon',
-                              child: Image.asset('lib/view/images/deliveryGif.gif')),
+                              child: Image.asset(
+                                  'lib/view/images/deliveryGif.gif')),
                         ),
                         const SizedBox(
                           height: 20,
@@ -135,7 +146,7 @@ class _RegisterState extends State<Register> {
                   'register',
                   context,
                 ),
-                TextButton(
+               widget.isEmp?Container(): TextButton(
                   onPressed: () {
                     Get.off(Login(false));
                   },

@@ -34,15 +34,14 @@ class _AddItemScreenState extends State<AddItemScreen> {
   final Api _api = Api();
 
   addItem() async {
-    if
-   ((widget.quant==''||widget.quant=='0')||
-    (widget.name==''||widget.name=='0')||
-    (widget.weight==''||widget.weight=='0')||
-    (widget.price==''||widget.price=='0')||
-    (widget.type==''||widget.type=='0')||
-    (widget.info==''||widget.info=='0')){
+    if ((widget.quant == '' || widget.quant == '0') ||
+        (widget.name == '' || widget.name == '0') ||
+        (widget.weight == '' || widget.weight == '0') ||
+        (widget.price == '' || widget.price == '0') ||
+        (widget.type == '' || widget.type == '0') ||
+        (widget.info == '' || widget.info == '0')) {
       CustomAwesomeDialog(context: context, content: 'incorrect values');
-    }else{
+    } else {
       CustomeCircularProgress(context);
       try {
         var response = await _phpapi.postRequest(
@@ -50,7 +49,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
           {
             'name': widget.name,
             'price': widget.price,
-            'type': widget.type,
+            'type': typeInex,
             'weight': widget.weight,
             'info': widget.info,
             'quant': widget.quant,
@@ -71,8 +70,9 @@ class _AddItemScreenState extends State<AddItemScreen> {
         print(e);
       }
     }
-
   }
+
+  String typeInex = '';
 
   @override
   Widget build(BuildContext context) {
@@ -111,33 +111,25 @@ class _AddItemScreenState extends State<AddItemScreen> {
                             .2,
                         child: Hero(
                             tag: 'icon',
-                            child: Image.asset(
-                                'lib/view/images/deliveryGif.gif')),
+                            child:
+                                Image.asset('lib/view/images/deliveryGif.gif')),
                       ),
                       const SizedBox(
                         height: 20,
                       ),
-
                       CustomeTextFeild((v) {
                         setState(() {
                           widget.name = v;
                         });
-                      }, 'item name', widget.name, context,
-                          auto:  true),
-
+                      }, 'item name', widget.name, context, auto: true),
+                      CustomeTextFeild((v) {
+                        setState(() {
+                          widget.price = v;
+                        });
+                      }, 'item price', widget.price, context,
+                          isNumber: TextInputType.number, auto: true),
                       CustomeTextFeild(
                         (v) {
-                          setState(() {
-                            widget.price = v;
-                          });
-                        },
-                        'item price',
-                        widget.price,
-                        context,
-                        isNumber: TextInputType.number,auto: true
-                      ),
-                      CustomeTextFeild(
-                            (v) {
                           setState(() {
                             widget.quant = v;
                           });
@@ -148,8 +140,8 @@ class _AddItemScreenState extends State<AddItemScreen> {
                         isNumber: TextInputType.number,
                       ),
                       SizedBox(
-                        height: 44,
-                        child: FutureBuilder<List<String>?>(
+                        height: 50,
+                        child: FutureBuilder<List<Map<String, String>>?>(
                           future: _api.getAllTypes(),
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
@@ -163,19 +155,35 @@ class _AddItemScreenState extends State<AddItemScreen> {
                                     return InkWell(
                                       onTap: () {
                                         setState(() {
-                                          widget.type = snapshot.data![index]
-                                              .toString();
+                                          widget.type = snapshot
+                                              .data![index].values
+                                              .toString()
+                                              .replaceAll('(', '')
+                                              .replaceAll(')', '');
+                                          typeInex = snapshot.data![index].keys
+                                              .toString()
+                                              .replaceAll('(', '')
+                                              .replaceAll(')', '');
                                         });
                                       },
                                       child: Card(
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
-                                          child: Text(
-                                            snapshot.data![index],
-                                            style: TextStyle(
-                                                color:
-                                                    Get.theme.backgroundColor,
-                                                fontSize: 11),
+                                          child: Column(
+                                            children: [
+                                              Text(
+                                          snapshot
+                                              .data![index].values
+                                              .toString()
+                                              .replaceAll('(', '')
+                                              .replaceAll(')', ''),
+                                                style: TextStyle(
+                                                    color: Get
+                                                        .theme.backgroundColor,
+                                                    fontSize: 11),
+                                              ),
+
+                                            ],
                                           ),
                                         ),
                                         color: Get.theme.primaryColor,
@@ -203,9 +211,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
                             widget.type = v;
                           });
                         },
-                        'item type',
                         widget.type,
+                        typeInex,
                         context,
+                        readOnly: true,
                       ),
                       CustomeTextFeild(
                         (v) {

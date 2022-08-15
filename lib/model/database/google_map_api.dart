@@ -125,13 +125,26 @@ class Api {
           );
         }
       }
+      apiOrders.forEach((element) {
+        apiOrders.sort((a, b) {
+          return  API
+              .getDestanceBetween(
+              position1: myLocation,
+              position2: a.marker!.position)
+              .compareTo(API.getDestanceBetween(
+              position1: myLocation,
+              position2: b.marker!.position));
+        },);
+      });
       return apiOrders;
     } catch (e) {
       CustomAwesomeDialog(
           context: context,
           content: 'no internet or server error',
           onOkTap: () {
-            updateCustomScreen();
+
+            Get.off(MainDashboard(preferences.getString('name')!,
+                preferences.getString('password')!, preferences.getString('phone')!));
           });
       return [];
     }
@@ -151,7 +164,8 @@ class Api {
           context: context,
           content: 'no internet or server error',
           onOkTap: () {
-            updateCustomScreen();
+            Get.off(MainDashboard(preferences.getString('name')!,
+                preferences.getString('password')!, preferences.getString('phone')!));
           });
       return [];
     }
@@ -206,7 +220,8 @@ class Api {
           context: context,
           content: 'no internet or server error',
           onOkTap: () {
-            updateCustomScreen();
+            Get.off(CustomDashboard(preferences.getString('name')!,
+                preferences.getString('password')!, preferences.getString('phone')!));
           });
       return [];
     }
@@ -415,9 +430,9 @@ class Api {
     }
   }
 
-  Future<List<String>> getAllTypes() async {
+  Future<List<Map<String,String>>?> getAllTypes() async {
     try {
-      List<String> types = [];
+    List<Map<String,String>>? types = [];
       final PhpApi _api = PhpApi();
 
       var res = [];
@@ -427,8 +442,10 @@ class Api {
       // List<dynamic> data = jsonDecode(res);
 
       for (Map<String, dynamic> type in res) {
-        types.add(type['typeName']);
+    
+        types.add({type['typeId']:type['typeName']});
       }
+    print(res);
 
       return types;
     } catch (e) {
@@ -436,8 +453,5 @@ class Api {
     }
   }
 
-  static updateCustomScreen() {
-    Get.off(CustomDashboard(preferences.getString('name')!,
-        preferences.getString('password')!, preferences.getString('phone')!));
-  }
+
 }
