@@ -114,27 +114,21 @@ class Api {
             "lib/view/images/activeIcon.png",
           );
           apiOrders.add(
-            Order.fromJson(
-                order,
-                context,
-                itemsName,
-                true,
-                waitIcon,
-                activeIcon,
-                doneIcon),
+            Order.fromJson(order, context, itemsName, true, waitIcon,
+                activeIcon, doneIcon),
           );
         }
       }
       apiOrders.forEach((element) {
-        apiOrders.sort((a, b) {
-          return  API
-              .getDestanceBetween(
-              position1: myLocation,
-              position2: a.marker!.position)
-              .compareTo(API.getDestanceBetween(
-              position1: myLocation,
-              position2: b.marker!.position));
-        },);
+        apiOrders.sort(
+          (a, b) {
+            return API
+                .getDestanceBetween(
+                    position1: myLocation, position2: a.marker!.position)
+                .compareTo(API.getDestanceBetween(
+                    position1: myLocation, position2: b.marker!.position));
+          },
+        );
       });
       return apiOrders;
     } catch (e) {
@@ -142,9 +136,10 @@ class Api {
           context: context,
           content: 'no internet or server error',
           onOkTap: () {
-
-            Get.off(MainDashboard(preferences.getString('name')!,
-                preferences.getString('password')!, preferences.getString('phone')!));
+            Get.off(MainDashboard(
+                preferences.getString('name')!,
+                preferences.getString('password')!,
+                preferences.getString('phone')!));
           });
       return [];
     }
@@ -164,15 +159,17 @@ class Api {
           context: context,
           content: 'no internet or server error',
           onOkTap: () {
-            Get.off(MainDashboard(preferences.getString('name')!,
-                preferences.getString('password')!, preferences.getString('phone')!));
+            Get.off(MainDashboard(
+                preferences.getString('name')!,
+                preferences.getString('password')!,
+                preferences.getString('phone')!));
           });
       return [];
     }
   }
 
-  static Future<List<Order>> getMyOrders(Position mylocation, context,
-      String ownerId) async {
+  static Future<List<Order>> getMyOrders(
+      Position mylocation, context, String ownerId) async {
     List<Order> apiOrders = [];
 
     try {
@@ -181,8 +178,10 @@ class Api {
       final PhpApi _api = PhpApi();
 
       final data =
-      await _api.postRequest(getordersByOwnerIdLink, {'id': ownerId});
+          await _api.postRequest(getordersByOwnerIdLink, {'id': ownerId});
 
+      print(data);
+      print('data============================');
       for (Map<String, dynamic> order in data) {
         String itemsName = '';
         List<Item> items = await API.getorderItems(order['order_id']);
@@ -205,13 +204,7 @@ class Api {
         );
         apiOrders.add(
           Order.fromJson(
-              order,
-              context,
-              itemsName,
-              false,
-              waitIcon,
-              activeIcon,
-              doneIcon),
+              order, context, itemsName, false, waitIcon, activeIcon, doneIcon),
         );
       }
       return apiOrders;
@@ -220,14 +213,18 @@ class Api {
           context: context,
           content: 'no internet or server error',
           onOkTap: () {
-            Get.off(CustomDashboard(preferences.getString('name')!,
-                preferences.getString('password')!, preferences.getString('phone')!));
+            Get.off(CustomDashboard(
+                preferences.getString('name')!,
+                preferences.getString('password')!,
+                preferences.getString('phone')!));
           });
       return [];
     }
   }
 
-  Future<Employee> getEmpNameById(String Id,) async {
+  Future<Employee> getEmpNameById(
+    String Id,
+  ) async {
     try {
       final PhpApi _api = PhpApi();
       var res = await _api.postRequest(getEmployeeByIdLink, {'id': Id});
@@ -241,23 +238,13 @@ class Api {
   }
 
   String getNowTime() {
-    return '${DateTime
-        .now()
-        .year}/${DateTime
-        .now()
-        .month}/${DateTime
-        .now()
-        .day}'
-        '  ${DateTime
-        .now()
-        .hour}:${DateTime
-        .now()
-        .minute}:${DateTime
-        .now()
-        .second}';
+    return '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}'
+        '  ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}';
   }
 
-  Future<Customer> getCustomNameById(String Id,) async {
+  Future<Customer> getCustomNameById(
+    String Id,
+  ) async {
     if (Id != '') {
       try {
         final PhpApi _api = PhpApi();
@@ -274,19 +261,23 @@ class Api {
     }
   }
 
- Order getCloserOrder(Order order, List<Order> orders) {
+  Order getCloserOrder(Order order, List<Order> orders) {
     Order _order = order;
     orders.remove(order);
     double dest = getDestanceBetween(
         position1: order.marker!.position,
         position2: orders[1].marker!.position);
     orders.forEach((element) {
-      if (dest > getDestanceBetween(position1: order.marker!.position,
-          position2: element.marker!.position)){
-        dest = getDestanceBetween(position1: order.marker!.position,
+      if (dest >
+          getDestanceBetween(
+              position1: order.marker!.position,
+              position2: element.marker!.position)) {
+        dest = getDestanceBetween(
+            position1: order.marker!.position,
             position2: element.marker!.position);
         _order = element;
-      };
+      }
+      ;
     });
     return _order;
   }
@@ -334,11 +325,13 @@ class Api {
     }
   }
 
-  Future<String> updateGettingOrder(String orderId,
-      deliveryLat,
-      deliveryLong,
-      String deliveryId,
-      String getDelTime,) async {
+  Future<String> updateGettingOrder(
+    String orderId,
+    deliveryLat,
+    deliveryLong,
+    String deliveryId,
+    String getDelTime,
+  ) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
@@ -361,8 +354,8 @@ class Api {
     }
   }
 
-  Future<String> updateDoneOrder(String id, String doneCustTime,
-      String deliveryId, String rate) async {
+  Future<String> updateDoneOrder(
+      String id, String doneCustTime, String deliveryId, String rate) async {
     try {
       PhpApi _api = PhpApi();
       var response = await _api.postRequest(
@@ -430,28 +423,25 @@ class Api {
     }
   }
 
-  Future<List<Map<String,String>>?> getAllTypes() async {
+  Future<List<Map<String, String>>?> getAllTypes() async {
     try {
-    List<Map<String,String>>? types = [];
+      List<Map<String, String>>? types = [];
       final PhpApi _api = PhpApi();
 
       var res = [];
 
-      res = await _api.postRequest(getAllTypesLink, {});
+      res = await _api.postRequest(getAllTypesLink, {'id': '-1'});
 
       // List<dynamic> data = jsonDecode(res);
 
       for (Map<String, dynamic> type in res) {
-    
-        types.add({type['typeId']:type['typeName']});
+        types.add({type['typeId']: type['typeName']});
       }
-    print(res);
+      print(res);
 
       return types;
     } catch (e) {
       return jsonDecode(e.toString());
     }
   }
-
-
 }

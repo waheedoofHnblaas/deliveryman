@@ -22,22 +22,23 @@ class PhpApi {
     print('postRequest');
     try {
       var response = await http.post(
-
         Uri.parse(url),
-
-
+        headers: {
+          //  'Content-Type': 'application/json',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
         body: data,
       );
       if (response.statusCode == 200) {
+        print('postRequest======== error ${response}');
         return jsonDecode(response.body);
       } else {
-        return jsonDecode('status'':''network');
+        return jsonDecode('status' ':' 'network');
       }
     } catch (e) {
       print('catch postRequest error $e');
       return e;
     }
   }
-
-
 }

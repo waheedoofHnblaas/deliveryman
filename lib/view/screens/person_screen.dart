@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_map/view/screens/authSc/Login_screen.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+
 class PersonalScreen extends StatefulWidget {
   const PersonalScreen({Key? key}) : super(key: key);
 
@@ -12,11 +13,6 @@ class PersonalScreen extends StatefulWidget {
 bool isEmp = false, isCustom = false;
 
 class _PersonalScreenState extends State<PersonalScreen> {
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,11 +70,17 @@ class _PersonalScreenState extends State<PersonalScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Expanded(
-                                child: OutlineButton(
-
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(33)),
+                                child: OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    shape: const RoundedRectangleBorder(
+                                      borderRadius:
+                                      BorderRadius.all(Radius.circular(33)),
+                                    ),
+                                    side: BorderSide(
+                                      color: isCustom
+                                          ? Get.theme.primaryColor
+                                          : Get.theme.backgroundColor,
+                                    ),
                                   ),
 
                                   onPressed: () {
@@ -89,23 +91,25 @@ class _PersonalScreenState extends State<PersonalScreen> {
                                   },
                                   child: Text(
                                     'Customer',
-                                    style:
-                                        TextStyle(color: Get.theme.primaryColor),
+                                    style: TextStyle(
+                                        color: Get.theme.primaryColor),
                                   ),
-                                  borderSide: BorderSide(
-                                    color: isCustom
-                                        ? Get.theme.primaryColor
-                                        : Get.theme.backgroundColor,
-                                  ),
-
                                 ),
                               ),
-                              SizedBox(width: 8,),
+                              const SizedBox(
+                                width: 8,
+                              ),
                               Expanded(
-                                child: OutlineButton(
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(33)),
+                                child: OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(33.0),
+                                    ),
+                                    side: BorderSide(
+                                      color: isEmp
+                                          ? Get.theme.primaryColor
+                                          : Get.theme.backgroundColor,
+                                    ),
                                   ),
                                   onPressed: () {
                                     setState(() {
@@ -115,13 +119,8 @@ class _PersonalScreenState extends State<PersonalScreen> {
                                   },
                                   child: Text(
                                     'Employee',
-                                    style:
-                                        TextStyle(color: Get.theme.primaryColor),
-                                  ),
-                                  borderSide: BorderSide(
-                                    color: isEmp
-                                        ? Get.theme.primaryColor
-                                        : Get.theme.backgroundColor,
+                                    style: TextStyle(
+                                        color: Get.theme.primaryColor),
                                   ),
                                 ),
                               ),

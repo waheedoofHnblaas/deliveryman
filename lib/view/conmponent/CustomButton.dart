@@ -9,12 +9,16 @@ Widget CustomeButton(func, String content, context) {
       child: Container(
         height: 50,
         width: MediaQuery.of(context).size.width - 100,
-        child: OutlineButton(
-          borderSide: BorderSide(color: Get.theme.backgroundColor
+        child: OutlinedButton(
+
+          style: OutlinedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(33.0),
+            ),
+            side: BorderSide(color: Get.theme.backgroundColor
+            ),
           ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
-          ),
+
           onPressed: func,
           child: Text(content,style: TextStyle(color: Get.theme.backgroundColor),),
         ),

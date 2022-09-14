@@ -42,7 +42,6 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
       body: Center(
         child: Stack(
           children: [
-
             Container(
               child: orderList
                   ? listOrder()
@@ -162,11 +161,10 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                                                   : empsList
                                                       ? Get.to(
                                                           () => Register(true),
-                                                        )!.whenComplete(() {
-                                                          setState(() {
-
-                                                          });
-                                              })
+                                                        )!
+                                                          .whenComplete(() {
+                                                          setState(() {});
+                                                        })
                                                       : null;
                                             },
                                             icon: Icon(
@@ -287,7 +285,7 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
                         )),
                       );
                     } else {
-                      return ListView.builder(itemExtent: 100,
+                      return ListView.builder(
                         itemCount: _order.length,
                         itemBuilder: (context, index) {
                           return Column(
@@ -417,7 +415,7 @@ class _CustomAwesomeDrawerState extends State<CustomAwesomeDrawer> {
     var dest = API.getDestanceBetween(
         position1: order.marker!.position, position2: myLocation);
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.28,
+      height: MediaQuery.of(context).size.height * 0.4,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: InkWell(

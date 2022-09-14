@@ -25,28 +25,27 @@ class _RegisterState extends State<Register> {
   regist() async {
     CustomeCircularProgress(context);
     try {
-      var response =
-      widget.isEmp ? await _api.postRequest(
-        registerLinkEmp ,
-        {
-          'name': name,
-          'password': password,
-          'phone': phone,
-          'rate': '0',
-          'createTime':
-          '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
-        },
-      ):await _api.postRequest(
-          registerLinkCustom,
-          {
-            'name': name,
-            'password': password,
-            'phone': phone,
-            'createTime':
-            '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
-          }
-      );
-
+      var response = widget.isEmp
+          ? await _api.postRequest(
+              registerLinkEmp,
+              {
+                'name': name,
+                'password': password,
+                'phone': phone,
+                'rate': '0',
+                'createTime':
+                    '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
+              },
+            )
+          : await _api.postRequest(registerLinkCustom, {
+              'name': name,
+              'password': password,
+              'phone': phone,
+              'createTime':
+                  '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day} ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}',
+            });
+      print('=========response');
+      print(response);
       Get.back();
       if (response['status'] == 'user is here') {
         CustomAwesomeDialog(context: context, content: 'user is exist');
@@ -146,15 +145,17 @@ class _RegisterState extends State<Register> {
                   'register',
                   context,
                 ),
-               widget.isEmp?Container(): TextButton(
-                  onPressed: () {
-                    Get.off(Login(false));
-                  },
-                  child: Text(
-                    'you have acount ?',
-                    style: TextStyle(color: Get.theme.backgroundColor),
-                  ),
-                )
+                widget.isEmp
+                    ? Container()
+                    : TextButton(
+                        onPressed: () {
+                          Get.off(Login(false));
+                        },
+                        child: Text(
+                          'you have acount ?',
+                          style: TextStyle(color: Get.theme.backgroundColor),
+                        ),
+                      )
               ],
             ),
           ),
